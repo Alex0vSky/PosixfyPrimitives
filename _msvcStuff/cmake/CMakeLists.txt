@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.8)
 project(PosixfyPrimitives CXX)
 set(PROJECT_NAME PosixfyPrimitives)
 set(CMAKE_CXX_COMPILER "clang++")
-SET(MY_GTEST_INCLUDE_DIRS "option_value" CACHE STRING "Some user-specified option")
+SET(MY_GTEST_INCLUDE_DIRS "option_value" CACHE STRING "Missed GTEST_INCLUDE_DIRS")
 
 ################################################################################
 # Source groups
@@ -54,8 +54,6 @@ find_package(GTest REQUIRED)
 	message(STATUS "MY_GTEST_INCLUDE_DIRS: '${MY_GTEST_INCLUDE_DIRS}'")
 	message(STATUS "CMAKE_PREFIX_PATH: '${CMAKE_PREFIX_PATH}'")
 	message(STATUS "CMAKE_PREFIX_PATH: '$(CMAKE_PREFIX_PATH)'")
-	target_include_directories( ${PROJECT_NAME} PRIVATE "C:/Prj/_L/googletest/build/install/" "C:/Prj/_L/googletest/build/install/include/" )
-	# target_include_directories( ${PROJECT_NAME} PRIVATE "/home/runner/work/PosixfyPrimitives/PosixfyPrimitives/" )
 	target_include_directories( ${PROJECT_NAME} PRIVATE ${GTEST_INCLUDE_DIRS} )
 	target_include_directories( ${PROJECT_NAME} PRIVATE ${MY_GTEST_INCLUDE_DIRS} )
 	target_link_libraries( ${PROJECT_NAME} ${GTEST_BOTH_LIBRARIES} )
