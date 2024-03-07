@@ -17,30 +17,34 @@ jobs:
           repository: google/googletest
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      # - name: Cache googleTestLatestRepo
-        # uses: actions/cache@v3
-        # with:
-          # path: ./${{ env.strDirTests }}/${{ env.strDirGTest }}
-          # key: cache-key-gtest-${{ steps.gtest-tag.outputs.release }}
-        # id: cache-gtest
+      - name: Cache googleTestLatestRepo
+        uses: actions/cache@v3
+        with:
+          path: ./${{ env.strDirTests }}/${{ env.strDirGTest }}
+          key: cache-key-gtest-${{ steps.gtest-tag.outputs.release }}
+        id: cache-gtest
 
-      # - name: Download googleTestLatestRepo
-        # if: steps.cache-gtest.outputs.cache-hit != 'true'
-        # run: | # bash
-          # git clone --depth 1 --branch ${{ steps.gtest-tag.outputs.release }} https://github.com/google/googletest.git "${{ env.strDirGTest }}"
+      - name: Download googleTestLatestRepo
+        if: steps.cache-gtest.outputs.cache-hit != 'true'
+        run: | # bash
+          git clone --depth 1 --branch ${{ steps.gtest-tag.outputs.release }} https://github.com/google/googletest.git "${{ env.strDirGTest }}"
 
+      - name: Build googleTestLatestRepo
+        working-directory: ${{ env.strDirTests }}
+        run: | # bash
+          cmake -B buildDirectory -G Ninja --fresh
+          ninja -C buildDirectory install
 
       # - uses: Bacondish2023/setup-googletest@v1
         # with:
           # tag: ${{ steps.gtest-tag.outputs.release }}
 
 
-      - name: Install gtest manually
-        run: sudo apt-get install libgtest-dev
+      # - name: Install gtest manually
+        # run: sudo apt-get install libgtest-dev
   
       - uses: seanmiddleditch/gha-setup-ninja@master
       - run: cmake -S _msvcStuff/cmake -B _msvcStuff/cmake/build -G Ninja
 
       - name: Build tests
-        # run: cmake --build build
         run: ninja -C _msvcStuff/cmake/build
