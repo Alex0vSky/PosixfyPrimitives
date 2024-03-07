@@ -32,11 +32,12 @@ jobs:
       - name: Build googleTestLatestRepo
         working-directory: ${{ env.strDirGTest }}
         run: | # bash
-          cmake -B buildDirectory -G Ninja --fresh
-          ninja -C buildDirectory install
-  
-      - uses: seanmiddleditch/gha-setup-ninja@master
-      - run: cmake -S _msvcStuff/cmake -B _msvcStuff/cmake/build -G Ninja
+          cmake --install . --config Debug
 
+      - name: Install ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
+      
       - name: Build tests
-        run: ninja -C _msvcStuff/cmake/build
+        run: | # bash
+          cmake -S _msvcStuff/cmake -B _msvcStuff/cmake/build -G Ninja
+          ninja -C _msvcStuff/cmake/build
