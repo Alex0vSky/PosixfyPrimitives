@@ -36,7 +36,7 @@ jobs:
       - name: Build googleTestLatestRepo
         working-directory: ${{ env.strDirGTest }}
         run: | # bash
-          cmake -B buildDirectiry -G Ninja --fresh
+          cmake -DCMAKE_INSTALL_PREFIX="installDirectiry" -B buildDirectiry -G Ninja --fresh
           ninja -C buildDirectiry install
 
       - name: Build tests
