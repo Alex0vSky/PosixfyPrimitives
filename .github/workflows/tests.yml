@@ -33,9 +33,9 @@ jobs:
           cd "${{ env.strDirGTest }}"
           mkdir buildDirectory
           cd buildDirectory
-          cmake ..
+          cmake -DCMAKE_INSTALL_PREFIX="${{ env.strDirGTest }}/installDirectory" ..
           make
-          sudo make -DCMAKE_INSTALL_PREFIX="${{ env.strDirGTest }}/installDirectory" install
+          sudo make install
 
       - name: Build tests
         run: | # bash
