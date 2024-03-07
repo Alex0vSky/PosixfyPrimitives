@@ -41,7 +41,7 @@ jobs:
 
       - name: Build tests
         run: | # bash
-          CMAKE_PREFIX_PATH="${{ env.strDirGTest }}/buildDirectory/${{ env.strDirInstallGTest }}" cmake -S _msvcStuff/cmake -B _msvcStuff/cmake/build -G Ninja
+          CMAKE_PREFIX_PATH="${{ env.strDirGTest }}/buildDirectory/${{ env.strDirInstallGTest }}" cmake -S _msvcStuff/cmake -B _msvcStuff/cmake/build -G Ninja -DMY_GTEST_INCLUDE_DIRS:STRING=${{ env.strDirGTest }}/buildDirectory/${{ env.strDirInstallGTest }} 
           ninja -C _msvcStuff/cmake/build
           
       - name: Run tests
