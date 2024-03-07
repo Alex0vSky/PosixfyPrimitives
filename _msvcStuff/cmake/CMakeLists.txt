@@ -45,9 +45,8 @@ set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/../../bin/x64/${CONFIG}/")
 ################################################################################
 # Include directories
 ################################################################################
-find_package(GTest CONFIG REQUIRED)
+find_package(GTest REQUIRED)
 	message(STATUS "g :'${GTEST_INCLUDE_DIRS}'")
-	message(STATUS "g :'${GTEST_INCLUDE_DIR}'")
 	message(STATUS "g :'${GTEST_BOTH_LIBRARIES}'")
 	target_include_directories( ${PROJECT_NAME} PRIVATE "C:/Prj/_L/googletest/build/install/" "C:/Prj/_L/googletest/build/install/include/" )
 	target_include_directories( ${PROJECT_NAME} PRIVATE "/usr/local/" )

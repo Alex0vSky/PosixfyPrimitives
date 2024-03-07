@@ -40,7 +40,8 @@ jobs:
           make
           sudo make install
 
-      - name: Build tests
+      - name: Build and run tests
         run: | # bash
           CMAKE_PREFIX_PATH="${{ env.strDirGTest }}/installDirectory" cmake -S _msvcStuff/cmake -B _msvcStuff/cmake/build -G Ninja
           ninja -C _msvcStuff/cmake/build
+          ./bin/x64/PosixfyPrimitives
