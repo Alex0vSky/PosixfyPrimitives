@@ -29,13 +29,13 @@ jobs:
         if: steps.cache-gtest.outputs.cache-hit != 'true'
         run: | # bash
           git clone --depth 1 --branch ${{ steps.gtest-tag.outputs.release }} https://github.com/google/googletest.git "${{ env.dirGTest }}"
-          cmake -DCMAKE_CXX_COMPILER=clang -DCMAKE_INSTALL_PREFIX="${{ env.dirInstallGTest }}" -S "${{ env.dirGTest }}" -B "${{ env.dirBuildGTest }}"
+          cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX="${{ env.dirInstallGTest }}" -S "${{ env.dirGTest }}" -B "${{ env.dirBuildGTest }}"
           make -C "${{ env.dirBuildGTest }}"
           sudo make -C "${{ env.dirBuildGTest }}" install
 
       - name: Build tests
         run: | # bash
-          CMAKE_PREFIX_PATH="${{ env.dirInstallGTest }}" cmake -DCMAKE_CXX_COMPILER=clang -S _msvcStuff/cmake -B _msvcStuff/cmake/build -DMY_GTEST_INCLUDE_DIRS:STRING=${{ github.workspace }}/${{ env.dirInstallGTest }}
+          CMAKE_PREFIX_PATH="${{ env.dirInstallGTest }}" cmake -DCMAKE_CXX_COMPILER=clang++ -S _msvcStuff/cmake -B _msvcStuff/cmake/build -DMY_GTEST_INCLUDE_DIRS:STRING=${{ github.workspace }}/${{ env.dirInstallGTest }}
           make -C _msvcStuff/cmake/build
           
       - name: Run tests
