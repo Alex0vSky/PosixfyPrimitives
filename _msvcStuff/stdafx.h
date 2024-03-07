@@ -15,6 +15,7 @@
 #pragma warning( push )
 //#pragma warning( disable: 5039 )
 
+#if ( defined( _WIN32 ) )
 // System
 #define NOMINMAX
 #ifdef _DEBUG
@@ -22,6 +23,8 @@
 #endif
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#endif // ( defined( _WIN32 ) )
+
 #include <intrin.h>
 #include <stdlib.h>
 
