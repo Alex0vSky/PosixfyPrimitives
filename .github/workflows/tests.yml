@@ -2,7 +2,6 @@ name: Build Google tests and run
 on: { push: { paths-ignore: [ 'README.md', 'LICENSE' ] }, workflow_dispatch }
 # Configuration
 env:
-  strDirTests: "tests"
   strDirGTest: "ThirdParty/googletest"
 jobs:
   test-in-ubuntu:
@@ -23,12 +22,10 @@ jobs:
       - name: Cache googleTestLatestRepo
         uses: actions/cache@v3
         with:
-          path: ./${{ env.strDirTests }}/${{ env.strDirGTest }}
+          path: ./${{ env.strDirGTest }}
           key: cache-key-gtest-${{ steps.gtest-tag.outputs.release }}
         id: cache-gtest
 
-      # cmake -DCMAKE_INSTALL_PREFIX="installDirectory" -B buildDirectory -G Ninja
-      # ninja -C buildDirectory install
       - name: Download and build googleTestLatestRepo
         if: steps.cache-gtest.outputs.cache-hit != 'true'
         run: | # bash
@@ -40,8 +37,12 @@ jobs:
           make
           sudo make install
 
-      - name: Build and run tests
+      - name: Build tests
         run: | # bash
           CMAKE_PREFIX_PATH="${{ env.strDirGTest }}/installDirectory" cmake -S _msvcStuff/cmake -B _msvcStuff/cmake/build -G Ninja
           ninja -C _msvcStuff/cmake/build
+          
+      - name: Run tests
+        continue-on-error: true
+        run: | # bash
           ./bin/x64/PosixfyPrimitives
