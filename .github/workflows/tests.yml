@@ -43,4 +43,4 @@ jobs:
 
       - name: Build tests
         # run: cmake --build build
-        run: cmake -C _msvcStuff/cmake/build
+        run: ninja -C _msvcStuff/cmake/build
