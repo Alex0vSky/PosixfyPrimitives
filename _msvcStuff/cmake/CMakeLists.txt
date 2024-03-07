@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.8)
 project(PosixfyPrimitives CXX)
 set(PROJECT_NAME PosixfyPrimitives)
-set(CMAKE_CXX_COMPILER "clang++")
+set(CMAKE_CXX_COMPILER "clang")
 SET(MY_GTEST_INCLUDE_DIRS "option_value" CACHE STRING "Missed GTEST_INCLUDE_DIRS")
 
 ################################################################################
