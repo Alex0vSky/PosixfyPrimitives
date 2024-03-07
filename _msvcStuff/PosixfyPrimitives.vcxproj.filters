@@ -22,6 +22,12 @@
     <Filter Include="Source Files\_gtest_gmock">
       <UniqueIdentifier>{f8cec1ec-cf30-4abd-a4d1-b6b17e7ed875}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\primitives">
+      <UniqueIdentifier>{3614ce01-96d5-4523-a863-c2c19190d31f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\tests">
+      <UniqueIdentifier>{27021d56-26c4-47f7-aac7-71b2f435583f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -36,8 +42,11 @@
     <ClCompile Include="..\..\..\_L\googletest\googlemock\src\gmock-all.cc">
       <Filter>Source Files\_gtest_gmock</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\testEvent.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\src\Event.cpp">
+      <Filter>Source Files\primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tests\testEvent.cpp">
+      <Filter>Source Files\tests</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

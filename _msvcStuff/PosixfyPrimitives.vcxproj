@@ -164,7 +164,8 @@
     <ClCompile Include="..\..\..\_L\googletest\googlemock\src\gmock-all.cc" />
     <ClCompile Include="..\..\..\_L\googletest\googletest\src\gtest-all.cc" />
     <ClCompile Include="..\PosixfyPrimitives.cpp" />
-    <ClCompile Include="..\src\testEvent.cpp" />
+    <ClCompile Include="..\src\Event.cpp" />
+    <ClCompile Include="..\tests\testEvent.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="true">Create</PrecompiledHeader>
     </ClCompile>
