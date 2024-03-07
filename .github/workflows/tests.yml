@@ -1,0 +1,47 @@
+name: Build Google tests and run
+on: { push: { paths-ignore: [ 'README.md', 'LICENSE' ] }, workflow_dispatch }
+# Configuration
+env:
+  strDirTests: "tests"
+  strDirGTest: "ThirdParty/googletest"
+jobs:
+  test-in-ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get version googleTestLatestRepo
+        id: gtest-tag
+        uses: pozetroninc/github-action-get-latest-release@master
+        with:
+          repository: google/googletest
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # - name: Cache googleTestLatestRepo
+        # uses: actions/cache@v3
+        # with:
+          # path: ./${{ env.strDirTests }}/${{ env.strDirGTest }}
+          # key: cache-key-gtest-${{ steps.gtest-tag.outputs.release }}
+        # id: cache-gtest
+
+      # - name: Download googleTestLatestRepo
+        # if: steps.cache-gtest.outputs.cache-hit != 'true'
+        # run: | # bash
+          # git clone --depth 1 --branch ${{ steps.gtest-tag.outputs.release }} https://github.com/google/googletest.git "${{ env.strDirGTest }}"
+
+
+      # - uses: Bacondish2023/setup-googletest@v1
+        # with:
+          # tag: ${{ steps.gtest-tag.outputs.release }}
+
+
+      - name: Install gtest manually
+        run: sudo apt-get install libgtest-dev
+  
+      - uses: seanmiddleditch/gha-setup-ninja@master
+      C:\Prj\syscross\PosixfyPrimitives\_msvcStuff\cmake\CMakeLists.txt
+      - run: cmake -S _msvcStuff/cmake -B _msvcStuff/cmake/build -G Ninja
+
+      - name: Build tests
+        # run: cmake --build build
+        run: cmake -C _msvcStuff/cmake/build

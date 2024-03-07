@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="_pch">
+      <UniqueIdentifier>{d908d6e3-dc21-4768-9872-f958f7f240b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\_boostConfig">
+      <UniqueIdentifier>{196e9a70-3d73-4962-bb61-d9497c45f67e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\_gtest_gmock">
+      <UniqueIdentifier>{f8cec1ec-cf30-4abd-a4d1-b6b17e7ed875}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>_pch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\PosixfyPrimitives.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\_L\googletest\googletest\src\gtest-all.cc">
+      <Filter>Source Files\_gtest_gmock</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\_L\googletest\googlemock\src\gmock-all.cc">
+      <Filter>Source Files\_gtest_gmock</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\testEvent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>_pch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Log.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\_L\boost\config\user.hpp">
+      <Filter>Header Files\_boostConfig</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
