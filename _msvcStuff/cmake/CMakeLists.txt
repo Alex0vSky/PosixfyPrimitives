@@ -52,6 +52,7 @@ if(GTEST_FOUND)
 	include_directories( ${PROJECT_NAME} ${GTEST_INCLUDE_DIRS} )
 	include_directories( ${PROJECT_NAME} "C:/Prj/_L/googletest/build/install/" )
 	include_directories( ${PROJECT_NAME} "/home/runner/work/PosixfyPrimitives/PosixfyPrimitives/ThirdParty/googletest/installDirectory/" )
+	include_directories( ${PROJECT_NAME} "/usr/local/" )
 	target_link_libraries( ${PROJECT_NAME} ${GTEST_BOTH_LIBRARIES} )
 endif()
 
