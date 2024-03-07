@@ -29,7 +29,10 @@ jobs:
         if: steps.cache-gtest.outputs.cache-hit != 'true'
         run: | # bash
           git clone --depth 1 --branch ${{ steps.gtest-tag.outputs.release }} https://github.com/google/googletest.git "${{ env.dirGTest }}"
-          cmake -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX="${{ env.dirInstallGTest }}" -S "${{ env.dirGTest }}" -B "${{ env.dirBuildGTest }}"
+          cmake \
+          -DCMAKE_CXX_COMPILER=clang++ \
+          -DCMAKE_INSTALL_PREFIX="${{ env.dirInstallGTest }}" \
+          -S "${{ env.dirGTest }}" -B "${{ env.dirBuildGTest }}"
           make -C "${{ env.dirBuildGTest }}"
           sudo make -C "${{ env.dirBuildGTest }}" install
 
