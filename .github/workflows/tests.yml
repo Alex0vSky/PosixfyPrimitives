@@ -30,18 +30,10 @@ jobs:
           git clone --depth 1 --branch ${{ steps.gtest-tag.outputs.release }} https://github.com/google/googletest.git "${{ env.strDirGTest }}"
 
       - name: Build googleTestLatestRepo
-        working-directory: ${{ env.strDirTests }}
+        working-directory: ${{ env.strDirGTest }}
         run: | # bash
           cmake -B buildDirectory -G Ninja --fresh
           ninja -C buildDirectory install
-
-      # - uses: Bacondish2023/setup-googletest@v1
-        # with:
-          # tag: ${{ steps.gtest-tag.outputs.release }}
-
-
-      # - name: Install gtest manually
-        # run: sudo apt-get install libgtest-dev
   
       - uses: seanmiddleditch/gha-setup-ninja@master
       - run: cmake -S _msvcStuff/cmake -B _msvcStuff/cmake/build -G Ninja
