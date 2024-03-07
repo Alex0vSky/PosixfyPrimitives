@@ -29,15 +29,17 @@ jobs:
         run: | # bash
           git clone --depth 1 --branch ${{ steps.gtest-tag.outputs.release }} https://github.com/google/googletest.git "${{ env.strDirGTest }}"
 
-      - name: Build googleTestLatestRepo
-        working-directory: ${{ env.strDirGTest }}
-        run: | # bash
-          cmake --install . --config Debug
 
       - name: Install ninja
         uses: seanmiddleditch/gha-setup-ninja@master
-      
+
+      - name: Build googleTestLatestRepo
+        working-directory: ${{ env.strDirGTest }}
+        run: | # bash
+          cmake -B buildDirectiry -G Ninja --fresh
+          ninja -C buildDirectiry install
+
       - name: Build tests
         run: | # bash
-          cmake -S _msvcStuff/cmake -B _msvcStuff/cmake/build -G Ninja
+          cmake -S _msvcStuff/cmake -B _msvcStuff/cmake/build -G Ninja --fresh
           ninja -C _msvcStuff/cmake/build
