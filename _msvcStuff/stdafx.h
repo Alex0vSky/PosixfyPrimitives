@@ -23,9 +23,9 @@
 #endif
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
+#include <intrin.h>
 #endif // ( defined( _WIN32 ) )
 
-#include <intrin.h>
 #include <stdlib.h>
 
 //// boost
