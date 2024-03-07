@@ -51,7 +51,8 @@ find_package(GTest REQUIRED)
 	message(STATUS "g :'${GTEST_INCLUDE_DIRS}'")
 	message(STATUS "g :'${GTEST_BOTH_LIBRARIES}'")
 	target_include_directories( ${PROJECT_NAME} PRIVATE "C:/Prj/_L/googletest/build/install/" "C:/Prj/_L/googletest/build/install/include/" )
-	target_include_directories( ${PROJECT_NAME} PRIVATE "/home/runner/work/PosixfyPrimitives/PosixfyPrimitives/" )
+	# target_include_directories( ${PROJECT_NAME} PRIVATE "/home/runner/work/PosixfyPrimitives/PosixfyPrimitives/" )
+	target_include_directories( ${PROJECT_NAME} PRIVATE ${CMAKE_PREFIX_PATH} )
 	target_link_libraries( ${PROJECT_NAME} ${GTEST_BOTH_LIBRARIES} )
 
 

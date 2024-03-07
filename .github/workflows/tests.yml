@@ -3,6 +3,8 @@ on: { push: { paths-ignore: [ 'README.md', 'LICENSE' ] }, workflow_dispatch }
 # Configuration
 env:
   strDirGTest: "ThirdParty/googletest"
+  # inside strDirGTest
+  strDirInstallGTest: "install"
 jobs:
   test-in-ubuntu:
     runs-on: ubuntu-latest
@@ -33,13 +35,13 @@ jobs:
           cd "${{ env.strDirGTest }}"
           mkdir buildDirectory
           cd buildDirectory
-          cmake -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}" ..
+          cmake -DCMAKE_INSTALL_PREFIX="${{ env.strDirInstallGTest }}" ..
           make
           sudo make install
 
       - name: Build tests
         run: | # bash
-          CMAKE_PREFIX_PATH="${{ github.workspace }}" cmake -S _msvcStuff/cmake -B _msvcStuff/cmake/build -G Ninja
+          CMAKE_PREFIX_PATH="${{ env.strDirGTest }}/buildDirectory/${{ env.strDirInstallGTest }}" cmake -S _msvcStuff/cmake -B _msvcStuff/cmake/build -G Ninja
           ninja -C _msvcStuff/cmake/build
           
       - name: Run tests
