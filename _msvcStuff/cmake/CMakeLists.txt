@@ -1,4 +1,4 @@
-﻿cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.8)
 project(PosixfyPrimitives CXX)
 set(PROJECT_NAME PosixfyPrimitives)
 
@@ -45,9 +45,13 @@ set(EXECUTABLE_OUTPUT_PATH "${CMAKE_SOURCE_DIR}/../../bin/x64/${CONFIG}/")
 ################################################################################
 # Include directories
 ################################################################################
-find_package(GTest)
+find_package(GTest REQUIRED)
 if(GTEST_FOUND)
-	target_include_directories( ${PROJECT_NAME} PRIVATE ${GTEST_INCLUDE_DIRS} )
+	message(STATUS "g :'${GTEST_INCLUDE_DIRS}'")
+	message(STATUS "g :'${GTEST_INCLUDE_DIR}'")
+	include_directories( ${PROJECT_NAME} ${GTEST_INCLUDE_DIRS} )
+	include_directories( ${PROJECT_NAME} "C:/Prj/_L/googletest/build/install" )
+	include_directories( ${PROJECT_NAME} "/home/runner/work/PosixfyPrimitives/PosixfyPrimitives/ThirdParty/googletest/installDirectiry" )
 	target_link_libraries( ${PROJECT_NAME} ${GTEST_BOTH_LIBRARIES} )
 endif()
 
@@ -64,3 +68,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 )
 
 # TODO: Add tests and install targets if needed.
+get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
+foreach(dir ${dirs})
+  message(STATUS "dir: '${dir}'")
+endforeach()
