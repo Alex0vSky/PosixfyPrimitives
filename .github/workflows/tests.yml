@@ -39,7 +39,6 @@ jobs:
         run: sudo apt-get install libgtest-dev
   
       - uses: seanmiddleditch/gha-setup-ninja@master
-      C:\Prj\syscross\PosixfyPrimitives\_msvcStuff\cmake\CMakeLists.txt
       - run: cmake -S _msvcStuff/cmake -B _msvcStuff/cmake/build -G Ninja
 
       - name: Build tests
