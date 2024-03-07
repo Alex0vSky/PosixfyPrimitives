@@ -35,7 +35,7 @@ jobs:
 
       - name: Build tests
         run: | # bash
-          CMAKE_PREFIX_PATH="${{ env.dirInstallGTest }}" cmake -DCMAKE_CXX_COMPILER=clang++ -S _msvcStuff/cmake -B _msvcStuff/cmake/build -DMY_GTEST_INCLUDE_DIRS:STRING=${{ github.workspace }}/${{ env.dirInstallGTest }}
+          cmake -DCMAKE_CXX_COMPILER=clang++ -S _msvcStuff/cmake -B _msvcStuff/cmake/build -DMY_GTEST_INCLUDE_DIRS:STRING=${{ github.workspace }}/${{ env.dirInstallGTest }}
           make -C _msvcStuff/cmake/build
           
       - name: Run tests
