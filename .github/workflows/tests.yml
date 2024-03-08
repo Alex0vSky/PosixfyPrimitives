@@ -46,6 +46,5 @@ jobs:
           make -C _msvcStuff/cmake/build
           
       - name: Run tests
-        continue-on-error: true
         run: | # bash
           ./bin/x64/PosixfyPrimitives

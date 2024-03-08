@@ -87,6 +87,18 @@ TEST(event_ctor_behavior, initial_state_off) {
 	EXPECT_FALSE( event.IsSet( ) );
 }
 
+TEST(event_copyable, initial_state1) { 
+	CEvent event1( false, true );
+	CEvent event2( event1 );
+	EXPECT_TRUE( event2.IsSet( ) );
+}
+
+TEST(event_copyable, initial_state2) { 
+	CEvent event1( false, true );
+	CEvent event2 = event1;
+	EXPECT_TRUE( event2.IsSet( ) );
+}
+
 TEST(event_in_threads, set) { 
 	CEvent event( false, false );
 	std::atomic_bool started;
