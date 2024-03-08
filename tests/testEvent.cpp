@@ -89,7 +89,7 @@ TEST(event_ctor_behavior, initial_state_off) {
 
 TEST(event_in_threads, set) { 
 	CEvent event( false, false );
-	std::atomic_bool started = false;
+	std::atomic_bool started;
 	std::thread thread( [&started, &event]{ 
 			event.Set( );
 			started = true;
