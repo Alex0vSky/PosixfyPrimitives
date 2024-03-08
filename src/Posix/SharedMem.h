@@ -25,7 +25,15 @@ class CSharedMem {
 					is_exists = ( EEXIST == errno );
 
 					// tmp
-					errExit( "shm_open" );
+					errExit( "shm_open1" );
+
+					if ( is_exists )
+						fd = shm_open( m_name.c_str( ), O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH );
+
+					// tmp
+					if ( -1 == fd ) {
+						errExit( "shm_open2" );
+					}
 
 					break;
 				}
