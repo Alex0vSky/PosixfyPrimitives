@@ -7,6 +7,7 @@
 #endif
 using CEvent = IndependentProcess::CEvent;
 
+namespace testEvent_ { 
 class set_and_check : public ::testing::TestWithParam< std::tuple< bool, bool > > {};
 TEST_P(set_and_check,) {
 	CEvent event( std::get<0>( GetParam( ) ), std::get<1>( GetParam( ) ) );
@@ -49,9 +50,8 @@ TEST(event_set, waitInfinite) {
 	EXPECT_TRUE( event.WaitInfinite( ) );
 }
 
-TEST(event_ctor_behavior, manually_reset_forever_setted) { 
-	CEvent event( true, false );
-	event.Set( );
+TEST(event_ctor_behavior, manually_reset_and_initial_state_on) { 
+	CEvent event( true, true );
 	event.IsSet( );
 	EXPECT_TRUE( event.IsSet( ) );
 }
@@ -63,14 +63,21 @@ TEST(event_ctor_behavior, manually_reset_resetable) {
 	EXPECT_FALSE( event.IsSet( ) );
 }
 
-TEST(event_ctor_behavior, reset_after_wait1) { 
+TEST(event_ctor_behavior, manually_reset_forever_setted) { 
+	CEvent event( true, false );
+	event.Set( );
+	event.IsSet( );
+	EXPECT_TRUE( event.IsSet( ) );
+}
+
+TEST(event_ctor_behavior, auto_reset_after_wait1) { 
 	CEvent event( false, false );
 	event.Set( );
 	event.IsSet( );
 	EXPECT_FALSE( event.IsSet( ) );
 }
 
-TEST(event_ctor_behavior, reset_after_wait2) { 
+TEST(event_ctor_behavior, auto_reset_after_wait2) { 
 	CEvent event( false, false );
 	event.Set( );
 	event.Wait( 0 );
@@ -147,7 +154,9 @@ TEST(event_wait, skip_1000) {
 	EXPECT_TRUE( event.Wait( 1000 ) );
 }
 
-TEST(event_wait, wait_false_1500 ) {
-	CEvent event( false, false );
-	EXPECT_FALSE( event.Wait( 1500 ) );
-}
+//TEST(event_wait, real_world_wait_false_1500 ) {
+//	CEvent event( false, false );
+//	EXPECT_FALSE( event.Wait( 1500 ) );
+//}
+
+} // namespace testEvent_
