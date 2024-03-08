@@ -1,7 +1,7 @@
 ﻿// src/CTools.h - common
 #pragma once // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
 
-#undef A0S_INDEVELOP
+//#undef A0S_INDEVELOP
 #ifdef A0S_INDEVELOP
 #undef _WIN32
 #define PTHREAD_COND_INITIALIZER {{0}}
@@ -52,7 +52,6 @@ struct CTools {
 			return INVALID_HANDLE_VALUE;
 		}
 	};
-	//static HANDLE c_invalid = reinterpret_cast<HANDLE>( -1 );
 	static constexpr C<INVALID_HANDLE_VALUE> c_invalid = { };
 	typedef HANDLE handle_t;
 #else
@@ -81,9 +80,11 @@ struct CTools {
 		if ( c_invalid == handle || !handle )
 			return;
 		CloseHandle( handle );
+// /usr/bin/ld: CMakeFiles/PosixfyPrimitives.dir/home/runner/work/PosixfyPrimitives/PosixfyPrimitives/tests/testEvent.cpp.o: in function `CTools::CloseAndInvalidateHandle(pthread_cond_t&)':
+// testEvent.cpp:(.text._ZN6CTools24CloseAndInvalidateHandleER14pthread_cond_t[_ZN6CTools24CloseAndInvalidateHandleER14pthread_cond_t]+0x1c): undefined reference to `CTools::c_invalid'
+		handle = CTools::c_invalid;
 #else
 		pthread_cond_destroy( &handle );
 #endif
-		handle = c_invalid;
 	}
 };
