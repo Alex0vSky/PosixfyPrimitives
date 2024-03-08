@@ -59,7 +59,7 @@ TEST(SharedMemory_using, read_write) {
 	auto reader = reinterpret_cast<const char *>( sharedMemReader ->GetMemPtr( ) );
 	int i = 0;
 	for ( ; i < c_size; ++i ) 
-		if ( reader[ i ] != static_cast< char >( i ) ) {
+		if ( reader[ i ] != static_cast< char >( i ) ) 
 			break;
 	EXPECT_FALSE( i < c_size );
 
