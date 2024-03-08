@@ -37,6 +37,37 @@ int pthread_mutex_unlock(pthread_mutex_t *mutex);
 
 bool __builtin_saddl_overflow (long x, long y, long *sum);
 bool __builtin_saddll_overflow(long long x, long long y, long long *sum);
+
+// !!! from my imagination
+#define PROT_EXEC 1 // Page can be executed.
+#define PROT_NONE 2 // Page cannot be accessed.
+#define PROT_READ 3 // Page can be read.
+#define PROT_WRITE 5 // Page can be written.
+#define MAP_FIXED 1 // Interpret addr exactly.
+#define MAP_PRIVATE 2 // Changes are private.
+#define MAP_SHARED 3 // Share changes.
+#define O_CREAT 1
+#define O_RDWR 2
+#define O_EXCL 3
+
+#define S_IRUSR 1
+#define S_IWUSR 2
+#define S_IRGRP 3
+#define S_IWGRP 6
+#define S_IROTH 7 
+#define S_IWOTH 9
+
+#define MAP_FAILED ((void *) -1)
+//#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); } while (0)
+#define errExit(msg)    perror(msg)
+typedef int mode_t;
+
+void *mmap(void *, size_t, int, int, int, off_t);
+int munmap(void *addr, size_t len);
+int shm_open(const char *, int, mode_t);
+int shm_unlink(const char *);
+int ftruncate(int fildes, off_t length);
+
 #endif // A0S_INDEVELOP
 
 

@@ -165,8 +165,12 @@
     <ClCompile Include="..\..\..\_L\googletest\googletest\src\gtest-all.cc" />
     <ClCompile Include="..\PosixfyPrimitives.cpp" />
     <ClInclude Include="..\src\Posix\Event.h" />
+    <ClInclude Include="..\src\Posix\SharedMem.h" />
     <ClInclude Include="..\src\Windows\Event.h" />
-    <ClCompile Include="..\tests\testEvent.cpp" />
+    <ClCompile Include="..\tests\testEvent.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\tests\testSharedMem.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="true">Create</PrecompiledHeader>
     </ClCompile>
@@ -175,6 +179,7 @@
     <ClInclude Include="..\..\..\_L\boost\config\user.hpp" />
     <ClInclude Include="..\src\CTools.h" />
     <ClInclude Include="..\src\Log.h" />
+    <ClInclude Include="..\src\Windows\SharedMem.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

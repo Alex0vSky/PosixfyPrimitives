@@ -51,6 +51,9 @@
     <ClCompile Include="..\tests\testEvent.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\tests\testSharedMem.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -69,6 +72,12 @@
       <Filter>Source Files\primitives\Windows</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Posix\Event.h">
+      <Filter>Source Files\primitives\Posix</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Windows\SharedMem.h">
+      <Filter>Source Files\primitives\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Posix\SharedMem.h">
       <Filter>Source Files\primitives\Posix</Filter>
     </ClInclude>
   </ItemGroup>
