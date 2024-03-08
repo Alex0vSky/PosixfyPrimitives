@@ -25,6 +25,7 @@ jobs:
           repository: google/googletest
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      #  ~3 MB (3510511 B)
       - name: Cache googleTestLatestRepo
         uses: actions/cache@v4
         with:
