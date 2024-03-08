@@ -109,6 +109,7 @@ public:
 			is_manual_reset_ = ( other.is_manual_reset_ );
 			initial_state_ = ( other.initial_state_ );
 			signaled_ = ( other.signaled_ );
+			x = ( other.x );
 			CTools::CloseAndInvalidateHandle( h_event );
 			h_event = CTools::CopyHandle( other.h_event );
 		}
@@ -150,8 +151,7 @@ public:
 			abstime.tv_sec = time( nullptr ); // clock_gettime( CLOCK_REALTIME, &abstime );
 			timespec adding = { }; 
 			ms2ts( &adding, timeout_milli );
-			safe_add( &abstime, &adding );
-			//abstime.tv_sec += adding.tv_sec; abstime.tv_nsec += adding.tv_nsec;
+			safe_add( &abstime, &adding ); //abstime.tv_sec += adding.tv_sec; abstime.tv_nsec += adding.tv_nsec;
 		}
 
 		// Success if not enter to waiting
