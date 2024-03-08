@@ -69,9 +69,9 @@ class CEvent {
 	}
 	// To avoid Integer overflow: abstime.tv_sec += adding.tv_sec; abstime.tv_nsec += adding.tv_nsec;
 	static void safe_add(timespec *accum, timespec *src) {
-		decltype( timespec::tv_sec ) sum_tv_sec;
+		long sum_tv_sec; // decltype( timespec::tv_sec ) 
 		if ( __builtin_saddl_overflow( accum ->tv_sec, src ->tv_sec, &sum_tv_sec ) ) {
-			accum ->tv_sec = std::numeric_limits< decltype( timespec::tv_sec ) >::max( );
+			accum ->tv_sec = std::numeric_limits< long >::max( );
 		} else {
 			accum ->tv_sec = sum_tv_sec;
 		}

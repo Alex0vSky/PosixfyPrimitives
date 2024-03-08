@@ -86,3 +86,26 @@ TEST(event_ctor_behavior, initial_state_off) {
 	CEvent event( false, false );
 	EXPECT_FALSE( event.IsSet( ) );
 }
+
+TEST(event_in_threads, set) { 
+	CEvent event( false, false );
+	std::atomic_bool started = false;
+	std::thread thread( [&started, &event]{ 
+			event.Set( );
+			started = true;
+		});
+	while ( !started )
+		(void)0;
+	EXPECT_TRUE( event.IsSet( ) );
+	thread.join( );
+}
+
+TEST(event_in_threads, wait_event) { 
+	CEvent event( false, false );
+	std::thread thread( [&event]{ 
+			event.WaitInfinite( );
+		});
+	event.Set( );
+	thread.join( );
+	EXPECT_FALSE( event.IsSet( ) );
+}
