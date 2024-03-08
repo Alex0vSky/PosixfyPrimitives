@@ -137,11 +137,12 @@ public:
 			abstime.tv_sec = time( nullptr ); // clock_gettime( CLOCK_REALTIME, &abstime );
 			timespec adding = { }; 
 			ms2ts( &adding, timeout_milli );
-			//safe_add( &abstime, &adding );
-			abstime.tv_sec += adding.tv_sec; abstime.tv_nsec += adding.tv_nsec;
+			safe_add( &abstime, &adding );
+			//abstime.tv_sec += adding.tv_sec; abstime.tv_nsec += adding.tv_nsec;
 		}
 
-		int timedwait = -1;
+		// Success if not enter
+		int timedwait = 0;
 		{
 			auto scoped_guard = mutex_.scoped_guard( );
 			// Spurious wakeups
@@ -158,10 +159,10 @@ public:
 		return ( 0 == timedwait );
 	}
 	bool WaitInfinite() const {
-		return Wait(INFINITE);
+		return Wait( INFINITE );
 	}
 	bool IsSet() const {
-		return Wait(0);
+		return Wait( 0 );
 	}
 };
 } // namespace IndependentProcess
