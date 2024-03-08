@@ -15,42 +15,33 @@ class CSharedMem {
 		, m_name( std::string("/") + _name )
 		, m_size( size )
     {
-		errExit( "Hello" );
+		const mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 		bool is_exists;
 		int fd = -1;
 		if ( !open_existing ) {
-			do { 
-				fd = shm_open( m_name.c_str( ), O_CREAT | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH );
-				if ( -1 == fd ) {
-					is_exists = ( EEXIST == errno );
+			fd = shm_open( m_name.c_str( ), O_CREAT | O_EXCL | O_RDWR, mode );
+			if ( -1 == fd ) {
+				is_exists = ( EEXIST == errno );
 
-					// tmp
-					errExit( "shm_open1" );
-
-					if ( is_exists )
-						fd = shm_open( m_name.c_str( ), O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH );
-
-					// tmp
-					if ( -1 == fd ) {
-						errExit( "shm_open2" );
-					}
-
-					break;
-				}
-				if ( -1 == ftruncate( fd, size ) ) {
-
-					// tmp
-					errExit("ftruncate");
-
-					break;
-				}
-			} while ( false );
+				if ( is_exists )
+					fd = shm_open( m_name.c_str( ), O_RDWR, mode );
+				//// tmp
+				//if ( -1 == fd ) {
+				//	errExit( "shm_open2" );
+				//}
+			}
 		} else {
-			//h_map = ::OpenFileMappingA(FILE_MAP_READ|FILE_MAP_WRITE,FALSE,name.c_str());
-			//is_exists = (h_map != NULL || ::GetLastError() == ERROR_ACCESS_DENIED);
+			fd = shm_open( m_name.c_str( ), O_RDWR, mode );
 		}
 
 		if ( -1 != fd ) {
+
+			if ( -1 == ftruncate( fd, size ) ) {
+
+				// tmp
+				errExit("ftruncate2");
+			}
+
 			m_buff = mmap( NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0 ); 
 			
 			if ( MAP_FAILED == m_buff ) {

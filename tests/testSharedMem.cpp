@@ -14,7 +14,7 @@ namespace testSharedMemory_ {
 
 TEST(SharedMemory_create, already_exists) {
 	bool already_exists;
-	char name[] = "asd";
+	char name[] = "some_name";
 	CSharedMem *sharedMem1 = CSharedMem::Create( name, c_size, &already_exists );
 	CSharedMem *sharedMem2 = CSharedMem::Create( name, c_size, &already_exists );
 
@@ -44,13 +44,13 @@ TEST(SharedMemory_create, freeable) {
 	CSharedMem::Free( sharedMem );
 }
 
-/*
+//*
 TEST(SharedMemory_using, read_write) {
 	CSharedMem *sharedMemWriter = CSharedMem::Create( g_name, c_size );
 	CSharedMem *sharedMemReader = CSharedMem::Open( g_name );
 
-	EXPECT_FALSE( sharedMemReader ->IsError( ) );
 	EXPECT_FALSE( sharedMemWriter ->IsError( ) );
+	EXPECT_FALSE( sharedMemReader ->IsError( ) );
 
 	auto writer = reinterpret_cast<char *>( sharedMemWriter ->GetMemPtr( ) );
 	for ( int i = 0; i < c_size; ++i ) 
