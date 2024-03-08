@@ -30,30 +30,8 @@ TEST(event_set, set_and_check) {
 	}
 }
 
-//TEST(event_reset, reset_and_check) { 
-//	{
-//		CEvent event( false, false );
-//		event.Reset( );
-//		EXPECT_FALSE( event.IsSet( ) );
-//	}
-//	{
-//		CEvent event( true, false );
-//		event.Reset( );
-//		EXPECT_FALSE( event.IsSet( ) );
-//	}
-//	{
-//		CEvent event( false, true );
-//		event.Reset( );
-//		EXPECT_FALSE( event.IsSet( ) );
-//	}
-//	{
-//		CEvent event( true, true );
-//		event.Reset( );
-//		EXPECT_FALSE( event.IsSet( ) );
-//	}
-//}
 class reset_and_check : public ::testing::TestWithParam< std::tuple< bool, bool > > {};
-TEST_P(reset_and_check) {
+TEST_P(reset_and_check,) {
 	//printf( "std::get<0>: %s\n", ( std::get<0>( GetParam( ) ) ?"TRUE" :"FALSE" ) );
 	//printf( "std::get<1>: %s\n", ( std::get<1>( GetParam( ) ) ?"TRUE" :"FALSE" ) );
 	CEvent event( std::get<0>( GetParam( ) ), std::get<1>( GetParam( ) ) );

@@ -1,43 +1,173 @@
 ﻿// src/Posix/Event.h - event facility // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
+// @insp SO/linux-posix-equivalent-for-win32s-createevent-setevent-waitforsingleobject
 #pragma once // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
 namespace IndependentProcess {
-class CEvent {
+class CHandleEvent {
 	pthread_cond_t h_event;
-	pthread_condattr_t m_attr;
+	pthread_condattr_t attr_;
+	pthread_cond_t h_invalid_event;
+	pthread_condattr_t invalid_attr_;
+public:
+	CHandleEvent() {
+		::pthread_cond_init( &h_invalid_event, &invalid_attr_ );
+		// The attribute and control block parameters of the condition variable will not be valid after destruction, but can be reinitialized by calling pthread_cond_init() or statically.
+		::pthread_cond_destroy( &h_invalid_event );
+	}
+
+	operator bool() const {
+		return true;
+	}
+};
+
+class MutexEvent {
+	pthread_mutex_t mutex_;
+
+	class Guard {
+		MutexEvent *m_parent;
+	public:
+		explicit Guard(MutexEvent *parent): m_parent( parent ) {
+		   m_parent ->lock( );
+		}
+		~Guard() { 
+			m_parent ->unlock( );
+		}
+	};
 
 public:
-	CEvent(bool is_manual_reset, bool initial_state) noexcept(false) {
-		//h_event = pthread_cond_init( NULL,(BOOL)is_manual_reset,(BOOL)initial_state,NULL );
-		h_event = PTHREAD_COND_INITIALIZER;
-		if ( pthread_cond_init( &h_event, &m_attr ) ) {
-			throw std::exception( "pthread_cond_init" );
-		}
+	MutexEvent() {
+		pthread_mutex_init( &mutex_, nullptr );
 	}
-	CEvent(const CEvent& other) {
-		h_event = CTools::CopyHandle( other.h_event );
+	~MutexEvent() {
+		pthread_mutex_destroy( &mutex_ );
 	}
+	void lock() {
+		pthread_mutex_lock( &mutex_ );
+	}
+	void unlock() {
+		pthread_mutex_unlock( &mutex_ );
+	}
+	operator pthread_mutex_t *() {
+		return &mutex_;
+	}
+	Guard scoped_guard() {
+		return Guard( this );
+	}
+};
+
+class CEvent {
+	const bool is_manual_reset_;
+	const bool initial_state_;
+	// Is `mutable` to keep methods signatures
+	mutable bool signaled_;
+	mutable pthread_cond_t h_event;
+	mutable MutexEvent mutex_;
+
+	// @insp https://stackoverflow.com/questions/15024623/convert-milliseconds-to-timespec-for-gnu-port
+	static void ms2ts(struct timespec *ts, unsigned long milli) {
+		ts ->tv_sec = milli / 1000;
+		ts ->tv_nsec = (milli % 1000) * 1000000;
+	}
+
+public:
+	CEvent(bool is_manual_reset, bool initial_state) :
+		is_manual_reset_( is_manual_reset )
+		, initial_state_( initial_state )
+		, signaled_( false )
+	{
+		pthread_cond_init( &h_event, nullptr );
+		if ( initial_state_ )
+			Set( );
+	}
+	CEvent(const CEvent& other) :
+		is_manual_reset_( other.is_manual_reset_ )
+		, initial_state_( other.initial_state_ )
+		, h_event( CTools::CopyHandle( other.h_event ) )
+	{}
 	const CEvent& operator = (const CEvent& other) {
 		if ( this != &other ) {
-			CTools::CloseAndInvalidateHandle(h_event);
-			h_event = CTools::CopyHandle(other.h_event);
+			CTools::CloseAndInvalidateHandle( h_event );
+			h_event = CTools::CopyHandle( other.h_event );
 		}
 		return *this;
 	}
 	~CEvent() {
-		CTools::CloseAndInvalidateHandle(h_event);
+		CTools::CloseAndInvalidateHandle( h_event );
 	}
 	void Set() {
-		//pthread_cond_signal or pthread_cond_broadcast
-		if ( h_event )
-			::SetEvent(h_event);
+//		if ( h_event ) 
+		{
+			{
+				auto scoped_guard = mutex_.scoped_guard( );
+				signaled_ = true;
+			}
+			if ( is_manual_reset_ )
+				::pthread_cond_broadcast( &h_event );
+			else
+				::pthread_cond_signal( &h_event );
+		}
 	}
 	void Reset() {
-		if ( h_event )
-			::ResetEvent(h_event);
+//		if ( h_event )
+		{
+			{
+				auto scoped_guard = mutex_.scoped_guard( );
+				signaled_ = false;
+			}
+			// Before destroying a condition variable, you need to make sure that no threads are blocked on the condition variable and will not wait to acquire, signal, or broadcast.
+			::pthread_cond_destroy( &h_event );
+			::pthread_cond_init( &h_event, nullptr );
+		}
 	}
-	bool Wait(unsigned timeout_ms=0) const {
-		//pthread_cond_wait or pthread_cond_timedwait
-		return h_event ? WaitForSingleObject(h_event,timeout_ms) == WAIT_OBJECT_0 : false;
+	bool Wait(unsigned timeout_milli=0) const {
+//		if ( !h_event ) return false;
+
+		timespec abstime = { }; 
+		if ( INFINITE == timeout_milli ) {
+			abstime.tv_sec = std::numeric_limits< decltype( abstime.tv_sec ) >::max( );
+			abstime.tv_nsec = std::numeric_limits< decltype( abstime.tv_nsec ) >::max( );
+		} else {
+			timespec adding = { }; 
+			ms2ts( &adding, timeout_milli );
+			abstime.tv_sec = time( nullptr ); // clock_gettime( CLOCK_REALTIME, &abstime );
+
+			// clang to avoid Integer overflow: abstime.tv_sec += adding.tv_sec; abstime.tv_nsec += adding.tv_nsec;
+			typedef decltype( abstime.tv_sec ) tv_sec_t;
+			typedef decltype( abstime.tv_nsec ) tv_nsec_t;
+
+			bool tv_sec_overflow = false;
+			if ( std::is_same_v< __time32_t, tv_sec_t > ) {
+				__time32_t time_value; // long
+				tv_sec_overflow = __builtin_saddl_overflow( abstime.tv_sec, adding.tv_sec, &time_value );
+			} else { 
+				__time64_t time_value; // __int64
+				tv_sec_overflow = __builtin_saddll_overflow( abstime.tv_sec, adding.tv_sec, &time_value );
+			}
+
+			long sum_tv_nsec;
+			if ( false
+				|| __builtin_saddl_overflow( abstime.tv_nsec, adding.tv_nsec, &sum_tv_nsec ) 
+				|| tv_sec_overflow 
+			)
+				abstime.tv_nsec = std::numeric_limits< tv_nsec_t >::max( );
+			else 
+				abstime.tv_nsec = sum_tv_nsec;
+		}
+
+		int timedwait = -1;
+		{
+			auto scoped_guard = mutex_.scoped_guard( );
+			// Spurious wakeups
+			while ( !signaled_ ) {
+				timedwait = pthread_cond_timedwait( &h_event, mutex_, &abstime );
+				if ( ETIMEDOUT == timedwait )
+					break;
+			}
+		}
+		if ( 0 == timedwait && !is_manual_reset_ ) {
+			auto scoped_guard = mutex_.scoped_guard( );
+			signaled_ = false;
+		}
+		return ( 0 == timedwait );
 	}
 	bool WaitInfinite() const {
 		return Wait(INFINITE);
