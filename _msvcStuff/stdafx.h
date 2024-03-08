@@ -15,15 +15,17 @@
 #pragma warning( push )
 //#pragma warning( disable: 5039 )
 
-#if ( defined( _WIN32 ) )
 // System
-#define NOMINMAX
-#ifdef _DEBUG
-#	include <crtdbg.h>
-#endif
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#include <intrin.h>
+#if ( defined( _WIN32 ) )
+#	define NOMINMAX
+#	ifdef _DEBUG
+#		include <crtdbg.h>
+#	endif
+#	define WIN32_LEAN_AND_MEAN
+#	include <Windows.h>
+#	include <intrin.h>
+#else
+#	include <pthread.h>
 #endif // ( defined( _WIN32 ) )
 
 #include <stdlib.h>

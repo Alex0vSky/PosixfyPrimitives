@@ -24,6 +24,7 @@
     <Keyword>Win32Proj</Keyword>
     <ProjectName>PosixfyPrimitives</ProjectName>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -92,7 +93,6 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <WarningLevel>Level4</WarningLevel>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <AdditionalIncludeDirectories>..\_msvcStuff;..\src;C:\Prj\_L\googletest\googlemock;C:\Prj\_L\googletest\googlemock\include;C:\Prj\_L\googletest\googletest;C:\Prj\_L\googletest\googletest\include;</AdditionalIncludeDirectories>
@@ -164,7 +164,8 @@
     <ClCompile Include="..\..\..\_L\googletest\googlemock\src\gmock-all.cc" />
     <ClCompile Include="..\..\..\_L\googletest\googletest\src\gtest-all.cc" />
     <ClCompile Include="..\PosixfyPrimitives.cpp" />
-    <ClCompile Include="..\src\Event.cpp" />
+    <ClInclude Include="..\src\Posix\Event.h" />
+    <ClInclude Include="..\src\Windows\Event.h" />
     <ClCompile Include="..\tests\testEvent.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="true">Create</PrecompiledHeader>
@@ -172,6 +173,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\_L\boost\config\user.hpp" />
+    <ClInclude Include="..\src\CTools.h" />
     <ClInclude Include="..\src\Log.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>

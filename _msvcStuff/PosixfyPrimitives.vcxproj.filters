@@ -28,6 +28,12 @@
     <Filter Include="Source Files\tests">
       <UniqueIdentifier>{27021d56-26c4-47f7-aac7-71b2f435583f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\primitives\Windows">
+      <UniqueIdentifier>{47fac5a3-efec-4a10-900f-ed42f4bf22c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\primitives\Posix">
+      <UniqueIdentifier>{bee6698c-4e9a-46b1-880d-78648ad72558}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -42,9 +48,6 @@
     <ClCompile Include="..\..\..\_L\googletest\googlemock\src\gmock-all.cc">
       <Filter>Source Files\_gtest_gmock</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Event.cpp">
-      <Filter>Source Files\primitives</Filter>
-    </ClCompile>
     <ClCompile Include="..\tests\testEvent.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
@@ -58,6 +61,15 @@
     </ClInclude>
     <ClInclude Include="..\..\..\_L\boost\config\user.hpp">
       <Filter>Header Files\_boostConfig</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\CTools.h">
+      <Filter>Source Files\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Windows\Event.h">
+      <Filter>Source Files\primitives\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Posix\Event.h">
+      <Filter>Source Files\primitives\Posix</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
