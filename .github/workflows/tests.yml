@@ -15,17 +15,18 @@ jobs:
   test-in-ubuntu:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Get version googleTestLatestRepo
         id: gtest-tag
-        uses: pozetroninc/github-action-get-latest-release@master
+        # uses: pozetroninc/github-action-get-latest-release@master # not support node 20 yet
+        uses: veritone/github-action-get-latest-release@master
         with:
           repository: google/googletest
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Cache googleTestLatestRepo
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ./${{ env.dirGTest }}
           key: cache-key-gtest-${{ steps.gtest-tag.outputs.release }}
@@ -60,4 +61,4 @@ jobs:
         if: always()
         with:
           files: |
-            ./bin/x64/*.xml
+            ./*.xml
