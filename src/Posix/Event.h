@@ -62,6 +62,8 @@ class CEvent {
 	mutable pthread_cond_t h_event;
 	mutable MutexEvent mutex_;
 
+	bool *x;
+
 	// @insp https://stackoverflow.com/questions/15024623/convert-milliseconds-to-timespec-for-gnu-port
 	static void ms2ts(timespec *ts, unsigned long milli) {
 		ts ->tv_sec = milli / 1000;
@@ -88,6 +90,7 @@ public:
 		is_manual_reset_( is_manual_reset )
 		, initial_state_( initial_state )
 		, signaled_( false )
+		, x( &signaled_ )
 	{
 		pthread_cond_init( &h_event, nullptr );
 		if ( initial_state_ )
@@ -97,6 +100,7 @@ public:
 		is_manual_reset_( other.is_manual_reset_ )
 		, initial_state_( other.initial_state_ )
 		, signaled_( other.signaled_ )
+		, x( other.x )
 		, h_event( CTools::CopyHandle( other.h_event ) )
 	{}
 
@@ -118,6 +122,8 @@ public:
 		{
 			auto scoped_guard = mutex_.scoped_guard( );
 			signaled_ = true;
+			if ( &signaled_ != x )
+				*x = true;
 		}
 		if ( is_manual_reset_ )
 			::pthread_cond_broadcast( &h_event );
@@ -129,6 +135,8 @@ public:
 		{
 			auto scoped_guard = mutex_.scoped_guard( );
 			signaled_ = false;
+			if ( &signaled_ != x )
+				*x = false;
 		}
 	}
 	bool Wait(unsigned timeout_milli=0) const {

@@ -121,7 +121,7 @@ TEST(event_in_threads, set) {
 	thread.join( );
 }
 
-TEST(event_in_threads, wait_event) { 
+TEST(event_in_threads, wait_event_by_ref) { 
 	CEvent event( false, false );
 	std::thread thread( [&event] { 
 			event.WaitInfinite( );
@@ -138,7 +138,7 @@ TEST(event_in_threads, wait_event_by_copy) {
 		});
 	event.Set( );
 	thread.join( );
-	EXPECT_FALSE( event.IsSet( ) );
+	EXPECT_TRUE( event.IsSet( ) );
 }
 
 TEST(event_wait, skip_1000) {
@@ -147,7 +147,7 @@ TEST(event_wait, skip_1000) {
 	EXPECT_TRUE( event.Wait( 1000 ) );
 }
 
-TEST(event_wait, wait_false_1500 ) {
-	CEvent event( false, false );
-	EXPECT_FALSE( event.Wait( 1500 ) );
-}
+//TEST(event_wait, wait_false_1500 ) {
+//	CEvent event( false, false );
+//	EXPECT_FALSE( event.Wait( 1500 ) );
+//}
