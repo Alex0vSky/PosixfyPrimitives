@@ -1,7 +1,7 @@
 ﻿// src/CTools.h - common
 #pragma once // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
 
-#undef A0S_INDEVELOP
+//#undef A0S_INDEVELOP
 
 #ifdef A0S_INDEVELOP
 #undef _WIN32

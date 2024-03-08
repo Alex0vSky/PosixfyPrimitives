@@ -3,33 +3,29 @@
 namespace Ipc {
 
 // tmp 
-#define errExit(msg)    perror(msg)
+#define errExit(msg) perror(msg)
 
 class CSharedMem {
-    //HANDLE h_map;
     void *m_buff;
 	const std::string m_name;
 	const unsigned m_size;
 
     CSharedMem(const char *_name, bool *_p_already_exists, bool open_existing, unsigned size) : 
 		m_buff( nullptr )
-		//h_map( NULL )
 		, m_name( std::string("/") + _name )
 		, m_size( size )
     {
+		errExit( "Hello" );
 		bool is_exists;
 		int fd = -1;
 		if ( !open_existing ) {
-			//h_map = ::CreateFileMappingA(INVALID_HANDLE_VALUE,NULL,PAGE_READWRITE,0,size,name.c_str());
-			//is_exists = (::GetLastError() == ERROR_ALREADY_EXISTS || ::GetLastError() == ERROR_ACCESS_DENIED);
 			do { 
 				fd = shm_open( m_name.c_str( ), O_CREAT | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH );
 				if ( -1 == fd ) {
 					is_exists = ( EEXIST == errno );
 
 					// tmp
-					if ( !is_exists ) 
-						errExit( "shm_open" );
+					errExit( "shm_open" );
 
 					break;
 				}
@@ -49,9 +45,15 @@ class CSharedMem {
 		if ( -1 != fd ) {
 			m_buff = mmap( NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0 ); 
 			
+			if ( MAP_FAILED == m_buff ) {
+				m_buff = nullptr;
+				// tmp
+				errExit("mmap");
+			}
 			// tmp
-			if ( MAP_FAILED == m_buff )
-				 errExit("mmap");
+			if ( !m_buff ) {
+				errExit("mmap2");
+			}
 		}
 
 		if ( _p_already_exists ) 
@@ -67,9 +69,9 @@ public:
     static CSharedMem* Create(const char *name, unsigned size, bool *_p_already_exists = nullptr) {
 	    return new CSharedMem( name, _p_already_exists, false, size );
     }
-  //  static CSharedMem* Open(const char *name) {
-		//return new CSharedMem( name, nullptr, true, 0 );
-  //  }
+    static CSharedMem* Open(const char *name) {
+		return new CSharedMem( name, nullptr, true, 0 );
+    }
     static void Free(CSharedMem* &obj) {
 		if ( obj ) 
             delete obj, obj = nullptr;
