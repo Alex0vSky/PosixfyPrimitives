@@ -55,8 +55,8 @@ public:
 };
 
 class CEvent {
-	const bool is_manual_reset_;
-	const bool initial_state_;
+	bool is_manual_reset_;
+	bool initial_state_;
 	// Is `mutable` to keep methods signatures
 	mutable bool signaled_;
 	mutable pthread_cond_t h_event;
@@ -96,10 +96,14 @@ public:
 	CEvent(const CEvent& other) :
 		is_manual_reset_( other.is_manual_reset_ )
 		, initial_state_( other.initial_state_ )
+		, signaled_( other.signaled_ )
 		, h_event( CTools::CopyHandle( other.h_event ) )
 	{}
 	const CEvent& operator = (const CEvent& other) {
 		if ( this != &other ) {
+			is_manual_reset_ = ( other.is_manual_reset_ );
+			initial_state_ = ( other.initial_state_ );
+			signaled_ = ( other.signaled_ );
 			CTools::CloseAndInvalidateHandle( h_event );
 			h_event = CTools::CopyHandle( other.h_event );
 		}
