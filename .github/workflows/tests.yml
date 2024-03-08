@@ -5,6 +5,12 @@ env:
   dirGTest: "ThirdParty/googletest"
   dirBuildGTest: "ThirdParty/googletest/build"
   dirInstallGTest: "ThirdParty/googletest/install"
+# For EnricoMi/publish-unit-test-result-action@v2
+permissions:
+  contents: read
+  issues: read
+  checks: write
+  pull-requests: write
 jobs:
   test-in-ubuntu:
     runs-on: ubuntu-latest
@@ -47,4 +53,11 @@ jobs:
           
       - name: Run tests
         run: | # bash
-          ./bin/x64/PosixfyPrimitives
+          ./bin/x64/PosixfyPrimitives --gtest_output=xml
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: |
+            ./bin/x64/*.xml
