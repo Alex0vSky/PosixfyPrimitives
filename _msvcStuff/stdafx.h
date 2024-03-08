@@ -16,7 +16,7 @@
 //#pragma warning( disable: 5039 )
 
 // System
-#if ( defined( _WIN32 ) )
+#ifdef _WIN32
 #	define NOMINMAX
 #	ifdef _DEBUG
 #		include <crtdbg.h>
@@ -26,7 +26,7 @@
 #	include <intrin.h>
 #else
 #	include <pthread.h>
-#endif // ( defined( _WIN32 ) )
+#endif // _WIN32
 
 #include <stdlib.h>
 

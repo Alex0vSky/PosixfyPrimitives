@@ -1,23 +1,15 @@
 ﻿// src/CTools.h - common
 #pragma once // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
 
+#undef A0S_INDEVELOP
+#ifdef A0S_INDEVELOP
 #undef _WIN32
 #define PTHREAD_COND_INITIALIZER {{0}}
-struct priority_queue_t {
-	int foo;
-};
-struct pthread_condattr_t {
-	int bar;
-};
-struct rt_ipc_object {
-	int foo;
-};
-struct pthread_mutex_t {
-	int foo;
-};
-struct pthread_mutexattr_t {
-	int foo;
-};
+struct priority_queue_t { int foo; };
+struct pthread_condattr_t { int bar; };
+struct rt_ipc_object { int foo; };
+struct pthread_mutex_t { int foo; };
+struct pthread_mutexattr_t { int foo; };
 struct rt_semaphore  { 
 	// Унаследовано от класса ipc_object
    rt_ipc_object parent;
@@ -44,13 +36,24 @@ int pthread_mutex_unlock(pthread_mutex_t *mutex);
 
 bool __builtin_saddl_overflow (long x, long y, long *sum);
 bool __builtin_saddll_overflow(long long x, long long y, long long *sum);
+#endif // A0S_INDEVELOP
 
 
 
+#ifndef INFINITE
+#	define INFINITE            0xFFFFFFFF  // Infinite timeout
+#endif // INFINITE
 
 struct CTools {
 #ifdef _WIN32
-	static constexpr HANDLE c_invalid = INVALID_HANDLE_VALUE;
+	template <HANDLE invalid_value>
+	struct C{
+		operator HANDLE() const {
+			return INVALID_HANDLE_VALUE;
+		}
+	};
+	//static HANDLE c_invalid = reinterpret_cast<HANDLE>( -1 );
+	static constexpr C<INVALID_HANDLE_VALUE> c_invalid = { };
 	typedef HANDLE handle_t;
 #else
 	static constexpr pthread_cond_t c_invalid = PTHREAD_COND_INITIALIZER;

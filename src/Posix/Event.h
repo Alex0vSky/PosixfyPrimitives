@@ -63,9 +63,24 @@ class CEvent {
 	mutable MutexEvent mutex_;
 
 	// @insp https://stackoverflow.com/questions/15024623/convert-milliseconds-to-timespec-for-gnu-port
-	static void ms2ts(struct timespec *ts, unsigned long milli) {
+	static void ms2ts(timespec *ts, unsigned long milli) {
 		ts ->tv_sec = milli / 1000;
 		ts ->tv_nsec = (milli % 1000) * 1000000;
+	}
+	// To avoid Integer overflow: abstime.tv_sec += adding.tv_sec; abstime.tv_nsec += adding.tv_nsec;
+	static void safe_add(timespec *accum, timespec *src) {
+		decltype( timespec::tv_sec ) sum_tv_sec;
+		if ( __builtin_saddll_overflow( accum ->tv_sec, src ->tv_sec, &sum_tv_sec ) ) {
+			accum ->tv_sec = std::numeric_limits< decltype( timespec::tv_sec ) >::max( );
+		} else {
+			accum ->tv_sec = sum_tv_sec;
+		}
+		long sum_tv_nsec;
+		if ( __builtin_saddl_overflow( accum ->tv_nsec, src ->tv_nsec, &sum_tv_nsec ) ) {
+			accum ->tv_nsec = std::numeric_limits< long >::max( );
+		} else {
+			accum ->tv_nsec = sum_tv_nsec;
+		}
 	}
 
 public:
@@ -94,63 +109,36 @@ public:
 		CTools::CloseAndInvalidateHandle( h_event );
 	}
 	void Set() {
-//		if ( h_event ) 
+//		if ( !h_event ) return;
 		{
-			{
-				auto scoped_guard = mutex_.scoped_guard( );
-				signaled_ = true;
-			}
-			if ( is_manual_reset_ )
-				::pthread_cond_broadcast( &h_event );
-			else
-				::pthread_cond_signal( &h_event );
+			auto scoped_guard = mutex_.scoped_guard( );
+			signaled_ = true;
 		}
+		if ( is_manual_reset_ )
+			::pthread_cond_broadcast( &h_event );
+		else
+			::pthread_cond_signal( &h_event );
 	}
 	void Reset() {
-//		if ( h_event )
+//		if ( !h_event ) return;
 		{
-			{
-				auto scoped_guard = mutex_.scoped_guard( );
-				signaled_ = false;
-			}
-			// Before destroying a condition variable, you need to make sure that no threads are blocked on the condition variable and will not wait to acquire, signal, or broadcast.
-			::pthread_cond_destroy( &h_event );
-			::pthread_cond_init( &h_event, nullptr );
+			auto scoped_guard = mutex_.scoped_guard( );
+			signaled_ = false;
 		}
 	}
 	bool Wait(unsigned timeout_milli=0) const {
 //		if ( !h_event ) return false;
 
-		timespec abstime = { }; 
+		timespec abstime = { };
 		if ( INFINITE == timeout_milli ) {
 			abstime.tv_sec = std::numeric_limits< decltype( abstime.tv_sec ) >::max( );
 			abstime.tv_nsec = std::numeric_limits< decltype( abstime.tv_nsec ) >::max( );
 		} else {
+			abstime.tv_sec = time( nullptr ); // clock_gettime( CLOCK_REALTIME, &abstime );
 			timespec adding = { }; 
 			ms2ts( &adding, timeout_milli );
-			abstime.tv_sec = time( nullptr ); // clock_gettime( CLOCK_REALTIME, &abstime );
-
-			// clang to avoid Integer overflow: abstime.tv_sec += adding.tv_sec; abstime.tv_nsec += adding.tv_nsec;
-			typedef decltype( abstime.tv_sec ) tv_sec_t;
-			typedef decltype( abstime.tv_nsec ) tv_nsec_t;
-
-			bool tv_sec_overflow = false;
-			if ( std::is_same_v< __time32_t, tv_sec_t > ) {
-				__time32_t time_value; // long
-				tv_sec_overflow = __builtin_saddl_overflow( abstime.tv_sec, adding.tv_sec, &time_value );
-			} else { 
-				__time64_t time_value; // __int64
-				tv_sec_overflow = __builtin_saddll_overflow( abstime.tv_sec, adding.tv_sec, &time_value );
-			}
-
-			long sum_tv_nsec;
-			if ( false
-				|| __builtin_saddl_overflow( abstime.tv_nsec, adding.tv_nsec, &sum_tv_nsec ) 
-				|| tv_sec_overflow 
-			)
-				abstime.tv_nsec = std::numeric_limits< tv_nsec_t >::max( );
-			else 
-				abstime.tv_nsec = sum_tv_nsec;
+			//safe_add( &abstime, &adding );
+			abstime.tv_sec += adding.tv_sec; abstime.tv_nsec += adding.tv_nsec;
 		}
 
 		int timedwait = -1;

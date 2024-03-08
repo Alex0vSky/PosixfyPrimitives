@@ -7,33 +7,23 @@
 #endif
 using CEvent = IndependentProcess::CEvent;
 
-TEST(event_set, set_and_check) { 
-	{
-		CEvent event( false, false );
-		event.Set( );
-		EXPECT_TRUE( event.IsSet( ) );
-	}
-	{
-		CEvent event( true, false );
-		event.Set( );
-		EXPECT_TRUE( event.IsSet( ) );
-	}
-	{
-		CEvent event( false, true );
-		event.Set( );
-		EXPECT_TRUE( event.IsSet( ) );
-	}
-	{
-		CEvent event( true, true );
-		event.Set( );
-		EXPECT_TRUE( event.IsSet( ) );
-	}
+class set_and_check : public ::testing::TestWithParam< std::tuple< bool, bool > > {};
+TEST_P(set_and_check,) {
+	CEvent event( std::get<0>( GetParam( ) ), std::get<1>( GetParam( ) ) );
+	event.Set( );
+	EXPECT_TRUE( event.IsSet( ) );
 }
+INSTANTIATE_TEST_SUITE_P(
+		event_set
+		, set_and_check
+		, ::testing::Combine( 
+				::testing::Values( true, false )
+				, ::testing::Values( true, false )
+			)
+	);
 
 class reset_and_check : public ::testing::TestWithParam< std::tuple< bool, bool > > {};
 TEST_P(reset_and_check,) {
-	//printf( "std::get<0>: %s\n", ( std::get<0>( GetParam( ) ) ?"TRUE" :"FALSE" ) );
-	//printf( "std::get<1>: %s\n", ( std::get<1>( GetParam( ) ) ?"TRUE" :"FALSE" ) );
 	CEvent event( std::get<0>( GetParam( ) ), std::get<1>( GetParam( ) ) );
 	event.Reset( );
 	EXPECT_FALSE( event.IsSet( ) );

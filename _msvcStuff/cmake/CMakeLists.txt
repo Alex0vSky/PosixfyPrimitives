@@ -6,17 +6,17 @@ SET(MY_GTEST_INCLUDE_DIRS "option_value" CACHE STRING "Missed GTEST_INCLUDE_DIRS
 ################################################################################
 # Source groups
 ################################################################################
-set(Header_Files
-    "../../src/Log.h"
-)
-source_group("Header Files" FILES ${Header_Files})
 
-set(Source_Files
-    "../../PosixfyPrimitives.cpp"
-    "../../src/Event.cpp"
-    "../../tests/testEvent.cpp"
+file(GLOB A0S_SRC
+     "../../src/*.h"
+     "../../src/*.cpp"
 )
-source_group("Source Files" FILES ${Source_Files})
+source_group("src Files" FILES "../../PosixfyPrimitives.cpp" ${A0S_SRC} )
+file(GLOB A0S_TESTS
+     "../../tests/*.h"
+     "../../tests/*.cpp"
+)
+source_group("tests Files" FILES "../../PosixfyPrimitives.cpp" ${A0S_TESTS})
 
 set(_pch
     "../stdafx.cpp"
@@ -25,9 +25,9 @@ set(_pch
 source_group("_pch" FILES ${_pch})
 
 set(ALL_FILES
-    ${Header_Files}
-    ${Source_Files}
     ${_pch}
+    ${A0S_SRC}
+    ${A0S_TESTS}
 )
 
 ################################################################################
@@ -52,6 +52,7 @@ find_package(GTest REQUIRED)
 	message(STATUS "GTEST_BOTH_LIBRARIES: '${GTEST_BOTH_LIBRARIES}'")
 	message(STATUS "MY_GTEST_INCLUDE_DIRS: '${MY_GTEST_INCLUDE_DIRS}'")
 	message(STATUS "CMAKE_PREFIX_PATH: '${CMAKE_PREFIX_PATH}'")
+	target_include_directories( ${PROJECT_NAME} PRIVATE "../../src/" )
 	target_include_directories( ${PROJECT_NAME} PRIVATE ${GTEST_INCLUDE_DIRS} )
 	target_include_directories( ${PROJECT_NAME} PRIVATE ${MY_GTEST_INCLUDE_DIRS} )
 	target_link_libraries( ${PROJECT_NAME} ${GTEST_BOTH_LIBRARIES} )
