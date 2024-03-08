@@ -59,10 +59,6 @@ class CSharedMem {
     }
 
     ~CSharedMem() {
-		//if ( m_buff ) 
-		//	::UnmapViewOfFile( m_buff ), m_buff = nullptr;
-		//if ( h_map ) 
-		//	::CloseHandle( h_map ), h_map = NULL;
 		if ( m_buff ) 
 			munmap( m_buff, m_size ), m_buff = nullptr, shm_unlink( m_name.c_str( ) );
     }
@@ -78,11 +74,11 @@ public:
 		if ( obj ) 
             delete obj, obj = nullptr;
     }
-  //  bool IsError() const {
-		//return GetMemPtr( ) == nullptr;
-  //  }
-  //  void* GetMemPtr() const {
-		//return m_buff;
-  //  }
+    bool IsError() const {
+		return GetMemPtr( ) == nullptr;
+    }
+    void* GetMemPtr() const {
+		return m_buff;
+    }
 };
 } // namespace Ipc

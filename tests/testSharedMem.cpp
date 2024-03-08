@@ -6,20 +6,66 @@
 #	include "Posix/SharedMem.h"
 #endif
 using CSharedMem = Ipc::CSharedMem;
-static const unsigned size = 4096;
+static const unsigned c_size = 256;
+static char g_name[] = "my_lucky_unique_name";
+static char g_name2[] = "my_second_lucky_unique_name";
 
 namespace testSharedMemory_ { 
 
-TEST(event_set, wait0) {
+TEST(SharedMemory_create, already_exists) {
 	bool already_exists;
-	bool open_existing;
-
-	CSharedMem *sharedMem1 = CSharedMem::Create( "asd", size , &already_exists );
-	CSharedMem *sharedMem2 = CSharedMem::Create( "asd", size , &already_exists );
-	CSharedMem::Free( sharedMem1 );
-	CSharedMem::Free( sharedMem2 );
+	char name[] = "asd";
+	CSharedMem *sharedMem1 = CSharedMem::Create( name, c_size, &already_exists );
+	CSharedMem *sharedMem2 = CSharedMem::Create( name, c_size, &already_exists );
 
 	EXPECT_TRUE( already_exists );
+	EXPECT_FALSE( sharedMem2 ->IsError( ) );
+
+	CSharedMem::Free( sharedMem2 );
+	CSharedMem::Free( sharedMem1 );
 }
+
+TEST(SharedMemory_create, ordinary) {
+	CSharedMem *sharedMem = CSharedMem::Create( g_name, c_size );
+	EXPECT_FALSE( sharedMem ->IsError( ) );
+	CSharedMem::Free( sharedMem );
+}
+
+TEST(SharedMemory_create, freeable) {
+	CSharedMem *sharedMem = nullptr;
+	sharedMem = CSharedMem::Create( g_name, c_size );
+	EXPECT_FALSE( sharedMem ->IsError( ) );
+	CSharedMem::Free( sharedMem );
+
+	bool already_exists;
+	sharedMem = CSharedMem::Create( g_name, c_size, &already_exists );
+	EXPECT_FALSE( already_exists );
+	EXPECT_FALSE( sharedMem ->IsError( ) );
+	CSharedMem::Free( sharedMem );
+}
+
+/*
+TEST(SharedMemory_using, read_write) {
+	CSharedMem *sharedMemWriter = CSharedMem::Create( g_name, c_size );
+	CSharedMem *sharedMemReader = CSharedMem::Open( g_name );
+
+	EXPECT_FALSE( sharedMemReader ->IsError( ) );
+	EXPECT_FALSE( sharedMemWriter ->IsError( ) );
+
+	auto writer = reinterpret_cast<char *>( sharedMemWriter ->GetMemPtr( ) );
+	for ( int i = 0; i < c_size; ++i ) 
+		writer[ i ] = static_cast< char >( i );
+
+	auto reader = reinterpret_cast<const char *>( sharedMemReader ->GetMemPtr( ) );
+	int i = 0;
+	for ( ; i < c_size; ++i ) 
+		if ( reader[ i ] != static_cast< char >( i ) ) {
+			break;
+	EXPECT_FALSE( i < c_size );
+
+	CSharedMem::Free( sharedMemReader );
+	CSharedMem::Free( sharedMemWriter );
+}
+//*/
 
 } // namespace testSharedMemory_ 

@@ -9,11 +9,27 @@ class CSharedMem {
 		h_map( NULL )
 		, m_buff( nullptr )
     {
-		const std::string name = std::string("Global\\") + _name;
+		std::string name = std::string("Global\\") + _name;
+
+		// Make sure we have access to global
+		LUID luid = { };
+		PRIVILEGE_SET privs = { 1, PRIVILEGE_SET_ALL_NECESSARY, { luid, SE_PRIVILEGE_ENABLED } };
+		HANDLE hToken = INVALID_HANDLE_VALUE;
+		BOOL bResult = FALSE;
+		if ( false
+			|| !::LookupPrivilegeValue( NULL, SE_CREATE_GLOBAL_NAME, &luid ) // SE_CHANGE_NOTIFY_NAME
+			|| ( privs.Privilege[0].Luid = luid, false ) // just assign
+			|| !::OpenProcessToken( ::GetCurrentProcess( ), TOKEN_QUERY, &hToken )
+			|| !::PrivilegeCheck( hToken, &privs, &bResult )
+			|| !bResult
+		)
+			name = std::string("Local\\") + _name;
+		if ( INVALID_HANDLE_VALUE != hToken )
+			::CloseHandle( hToken );
 
 		bool is_exists;
 		if ( !open_existing ) {
-			h_map = ::CreateFileMappingA(INVALID_HANDLE_VALUE,NULL,PAGE_READWRITE,0,size,name.c_str());
+			h_map = ::CreateFileMappingA(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE,0,size,name.c_str());
 			is_exists = (::GetLastError() == ERROR_ALREADY_EXISTS || ::GetLastError() == ERROR_ACCESS_DENIED);
 		} else {
 			h_map = ::OpenFileMappingA(FILE_MAP_READ|FILE_MAP_WRITE,FALSE,name.c_str());

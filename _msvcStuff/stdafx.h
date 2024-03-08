@@ -24,6 +24,7 @@
 #	define WIN32_LEAN_AND_MEAN
 #	include <Windows.h>
 #	include <intrin.h>
+#	include <sddl.h>
 #else
 #	include <pthread.h>
 #	include <sys/mman.h>
