@@ -52,16 +52,21 @@ TEST(SharedMemory_using, read_write) {
 	EXPECT_FALSE( sharedMemWriter ->IsError( ) );
 	EXPECT_FALSE( sharedMemReader ->IsError( ) );
 
-	auto writer = reinterpret_cast<char *>( sharedMemWriter ->GetMemPtr( ) );
-	for ( int i = 0; i < c_size; ++i ) 
-		writer[ i ] = static_cast< char >( i );
+	if ( true
+		&& !sharedMemWriter ->IsError( ) 
+		&& !sharedMemReader ->IsError( ) 
+	) {
+		auto writer = reinterpret_cast<char *>( sharedMemWriter ->GetMemPtr( ) );
+		for ( int i = 0; i < c_size; ++i ) 
+			writer[ i ] = static_cast< char >( i );
 
-	auto reader = reinterpret_cast<const char *>( sharedMemReader ->GetMemPtr( ) );
-	int i = 0;
-	for ( ; i < c_size; ++i ) 
-		if ( reader[ i ] != static_cast< char >( i ) ) 
-			break;
-	EXPECT_FALSE( i < c_size );
+		auto reader = reinterpret_cast<const char *>( sharedMemReader ->GetMemPtr( ) );
+		int i = 0;
+		for ( ; i < c_size; ++i ) 
+			if ( reader[ i ] != static_cast< char >( i ) ) 
+				break;
+		EXPECT_FALSE( i < c_size );
+	}
 
 	CSharedMem::Free( sharedMemReader );
 	CSharedMem::Free( sharedMemWriter );
