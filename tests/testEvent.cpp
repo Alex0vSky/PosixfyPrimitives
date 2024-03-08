@@ -89,8 +89,8 @@ TEST(event_ctor_behavior, initial_state_off) {
 
 TEST(event_copy_ctor, check_initial_state) { 
 	CEvent event1( false, true );
-	//CEvent event2( event1 );
-	//EXPECT_TRUE( event2.IsSet( ) );
+	CEvent event2( event1 );
+	EXPECT_TRUE( event2.IsSet( ) );
 }
 
 TEST(event_assignment_operator, check_initial_state) { 
@@ -131,15 +131,15 @@ TEST(event_in_threads, wait_event) {
 	EXPECT_FALSE( event.IsSet( ) );
 }
 
-//TEST(event_in_threads, wait_event_by_copy) { 
-//	CEvent event( false, false );
-//	std::thread thread( [event] { 
-//			event.WaitInfinite( );
-//		});
-//	event.Set( );
-//	thread.join( );
-//	EXPECT_FALSE( event.IsSet( ) );
-//}
+TEST(event_in_threads, wait_event_by_copy) { 
+	CEvent event( false, false );
+	std::thread thread( [event] { 
+			event.WaitInfinite( );
+		});
+	event.Set( );
+	thread.join( );
+	EXPECT_FALSE( event.IsSet( ) );
+}
 
 TEST(event_wait, skip_1000) {
 	CEvent event( false, false );
@@ -147,7 +147,7 @@ TEST(event_wait, skip_1000) {
 	EXPECT_TRUE( event.Wait( 1000 ) );
 }
 
-TEST(event_wait, wait_false_1000 ) {
+TEST(event_wait, wait_false_1500 ) {
 	CEvent event( false, false );
-	EXPECT_FALSE( event.Wait( 1000 ) );
+	EXPECT_FALSE( event.Wait( 1500 ) );
 }
