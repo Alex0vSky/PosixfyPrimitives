@@ -19,8 +19,7 @@ jobs:
 
       - name: Get version googleTestLatestRepo
         id: gtest-tag
-        # uses: pozetroninc/github-action-get-latest-release@master # not support node 20 yet
-        # uses: veritone/github-action-get-latest-release@master
+        # uses: pozetroninc/github-action-get-latest-release@master # official not support node 20 yet
         uses: baywet/github-action-get-latest-release@feature/node-20
         with:
           repository: google/googletest
@@ -55,7 +54,7 @@ jobs:
           
       - name: Run tests
         run: | # bash
-          ./bin/x64/PosixfyPrimitives --gtest_output=xml
+          ./bin/x64/PosixfyPrimitives --gtest_output=xml --gtest_print_time=1
 
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action@v2

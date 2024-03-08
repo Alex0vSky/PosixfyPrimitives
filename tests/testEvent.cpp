@@ -37,10 +37,21 @@ INSTANTIATE_TEST_SUITE_P(
 			)
 	);
 
-TEST(event_set, wait0) {	
+TEST(event_set, wait0) {
 	CEvent event( false, false );
 	event.Set( );
 	EXPECT_TRUE( event.Wait( 0 ) );
+}
+
+TEST(event_wait, skip_1000) {
+	CEvent event( false, false );
+	event.Set( );
+	EXPECT_TRUE( event.Wait( 1000 ) );
+}
+
+TEST(event_wait, wait_false_500 ) {
+	CEvent event( false, false );
+	EXPECT_FALSE( event.Wait( 500 ) );
 }
 
 TEST(event_set, waitInfinite) { 
@@ -87,13 +98,13 @@ TEST(event_ctor_behavior, initial_state_off) {
 	EXPECT_FALSE( event.IsSet( ) );
 }
 
-TEST(event_copyable, initial_state1) { 
+TEST(event_copy_ctor, check_initial_state) { 
 	CEvent event1( false, true );
 	CEvent event2( event1 );
 	EXPECT_TRUE( event2.IsSet( ) );
 }
 
-TEST(event_copyable, initial_state2) { 
+TEST(event_assignment_operator, check_initial_state) { 
 	CEvent event1( false, true );
 	CEvent event2 = event1;
 	EXPECT_TRUE( event2.IsSet( ) );
