@@ -159,7 +159,7 @@ public:
 		{
 			auto scoped_guard = mutex_.scoped_guard( );
 			// Spurious wakeups
-			while ( !signaled_ ) {
+			while ( !*x ) {
 				timedwait = pthread_cond_timedwait( &h_event, mutex_, &abstime );
 				if ( ETIMEDOUT == timedwait )
 					break;
@@ -168,6 +168,8 @@ public:
 		if ( 0 == timedwait && !is_manual_reset_ ) {
 			auto scoped_guard = mutex_.scoped_guard( );
 			signaled_ = false;
+			if ( &signaled_ != x )
+				*x = false;
 		}
 		return ( 0 == timedwait );
 	}
