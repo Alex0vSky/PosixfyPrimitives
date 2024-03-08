@@ -1,6 +1,10 @@
 ﻿// src/Posix/SharedMem.h - shared memory facility
 #pragma once // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
 namespace Ipc {
+
+// tmp 
+#define errExit(msg)    perror(msg)
+
 class CSharedMem {
     //HANDLE h_map;
     void *m_buff;

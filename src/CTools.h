@@ -59,7 +59,6 @@ bool __builtin_saddll_overflow(long long x, long long y, long long *sum);
 
 #define MAP_FAILED ((void *) -1)
 //#define errExit(msg)    do { perror(msg); exit(EXIT_FAILURE); } while (0)
-#define errExit(msg)    perror(msg)
 typedef int mode_t;
 
 void *mmap(void *, size_t, int, int, int, off_t);
