@@ -29,6 +29,7 @@
 #endif // _WIN32
 
 #include <stdlib.h>
+#include <iostream>
 #include <thread>
 
 //// boost

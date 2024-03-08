@@ -43,17 +43,6 @@ TEST(event_set, wait0) {
 	EXPECT_TRUE( event.Wait( 0 ) );
 }
 
-TEST(event_wait, skip_1000) {
-	CEvent event( false, false );
-	event.Set( );
-	EXPECT_TRUE( event.Wait( 1000 ) );
-}
-
-TEST(event_wait, wait_false_500 ) {
-	CEvent event( false, false );
-	EXPECT_FALSE( event.Wait( 500 ) );
-}
-
 TEST(event_set, waitInfinite) { 
 	CEvent event( false, false );
 	event.Set( );
@@ -125,10 +114,31 @@ TEST(event_in_threads, set) {
 
 TEST(event_in_threads, wait_event) { 
 	CEvent event( false, false );
-	std::thread thread( [&event]{ 
+	std::thread thread( [&event] { 
 			event.WaitInfinite( );
 		});
 	event.Set( );
 	thread.join( );
 	EXPECT_FALSE( event.IsSet( ) );
+}
+
+TEST(event_in_threads, wait_event_by_copy) { 
+	CEvent event( false, false );
+	std::thread thread( [event] { 
+			event.WaitInfinite( );
+		});
+	event.Set( );
+	thread.join( );
+	EXPECT_FALSE( event.IsSet( ) );
+}
+
+TEST(event_wait, skip_1000) {
+	CEvent event( false, false );
+	event.Set( );
+	EXPECT_TRUE( event.Wait( 1000 ) );
+}
+
+TEST(event_wait, wait_false_500 ) {
+	CEvent event( false, false );
+	EXPECT_FALSE( event.Wait( 500 ) );
 }
