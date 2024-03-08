@@ -93,12 +93,14 @@ public:
 		if ( initial_state_ )
 			Set( );
 	}
-	CEvent(const CEvent& other) :
-		is_manual_reset_( other.is_manual_reset_ )
-		, initial_state_( other.initial_state_ )
-		, signaled_( other.signaled_ )
-		, h_event( CTools::CopyHandle( other.h_event ) )
-	{}
+	CEvent(const CEvent& other) = delete;
+	//CEvent(const CEvent& other) :
+	//	is_manual_reset_( other.is_manual_reset_ )
+	//	, initial_state_( other.initial_state_ )
+	//	, signaled_( other.signaled_ )
+	//	, h_event( CTools::CopyHandle( other.h_event ) )
+	//{}
+
 	const CEvent& operator = (const CEvent& other) {
 		if ( this != &other ) {
 			is_manual_reset_ = ( other.is_manual_reset_ );

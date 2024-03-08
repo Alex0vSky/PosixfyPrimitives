@@ -89,14 +89,23 @@ TEST(event_ctor_behavior, initial_state_off) {
 
 TEST(event_copy_ctor, check_initial_state) { 
 	CEvent event1( false, true );
-	CEvent event2( event1 );
-	EXPECT_TRUE( event2.IsSet( ) );
+	//CEvent event2( event1 );
+	//EXPECT_TRUE( event2.IsSet( ) );
 }
 
 TEST(event_assignment_operator, check_initial_state) { 
 	CEvent event1( false, true );
-	CEvent event2 = event1;
+	CEvent event2( false, false );
+	event2 = event1;
 	EXPECT_TRUE( event2.IsSet( ) );
+}
+
+TEST(event_assignment_operator, wait) { 
+	CEvent event1( false, true );
+	CEvent event2( false, false );
+	event2 = event1;
+	event2.WaitInfinite( );
+	EXPECT_FALSE( event2.IsSet( ) );
 }
 
 TEST(event_in_threads, set) { 
