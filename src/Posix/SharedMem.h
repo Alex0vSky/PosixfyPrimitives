@@ -2,14 +2,14 @@
 #pragma once // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
 namespace Ipc {
 class CSharedMem {
-    HANDLE h_map;
+    //HANDLE h_map;
     void *m_buff;
 	const std::string m_name;
 	const unsigned m_size;
 
     CSharedMem(const char *_name, bool *_p_already_exists, bool open_existing, unsigned size) : 
-		h_map( NULL )
-		, m_buff( nullptr )
+		m_buff( nullptr )
+		//h_map( NULL )
 		, m_name( std::string("/") + _name )
 		, m_size( size )
     {
