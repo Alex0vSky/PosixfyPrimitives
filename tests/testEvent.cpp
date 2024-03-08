@@ -132,7 +132,7 @@ TEST(event_in_threads, wait_event) {
 }
 
 TEST(event_in_threads, wait_event_by_copy) { 
-	CEvent event( false, false );
+	CEvent event( true, false );
 	std::thread thread( [event] { 
 			event.WaitInfinite( );
 		});

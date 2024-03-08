@@ -142,14 +142,8 @@ public:
 			abstime.tv_sec = time( nullptr ); // clock_gettime( CLOCK_REALTIME, &abstime );
 			timespec adding = { }; 
 			ms2ts( &adding, timeout_milli );
-			std::cout << abstime.tv_sec << std::endl;
-			std::cout << abstime.tv_nsec << std::endl;
-			std::cout << adding.tv_sec << std::endl;
-			std::cout << adding.tv_nsec << std::endl;
 			safe_add( &abstime, &adding );
 			//abstime.tv_sec += adding.tv_sec; abstime.tv_nsec += adding.tv_nsec;
-			std::cout << abstime.tv_sec << std::endl;
-			std::cout << abstime.tv_nsec << std::endl;
 		}
 
 		// Success if not enter to waiting
