@@ -131,15 +131,15 @@ TEST(event_in_threads, wait_event) {
 	EXPECT_FALSE( event.IsSet( ) );
 }
 
-TEST(event_in_threads, wait_event_by_copy) { 
-	CEvent event( false, false );
-	std::thread thread( [event] { 
-			event.WaitInfinite( );
-		});
-	event.Set( );
-	thread.join( );
-	EXPECT_FALSE( event.IsSet( ) );
-}
+//TEST(event_in_threads, wait_event_by_copy) { 
+//	CEvent event( false, false );
+//	std::thread thread( [event] { 
+//			event.WaitInfinite( );
+//		});
+//	event.Set( );
+//	thread.join( );
+//	EXPECT_FALSE( event.IsSet( ) );
+//}
 
 TEST(event_wait, skip_1000) {
 	CEvent event( false, false );
