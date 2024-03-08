@@ -31,14 +31,14 @@ class CSharedMem {
 				is_exists = ( EEXIST == errno );
 
 				if ( is_exists )
-					fd = shm_open( m_name.c_str( ), O_RDWR, 0 );
+					fd = shm_open( m_name.c_str( ), O_RDWR, mode );
 				//// tmp
 				//if ( -1 == fd ) {
 				//	errExit( "shm_open2" );
 				//}
 			}
 		} else {
-			fd = shm_open( m_name.c_str( ), O_RDWR, 0 );
+			fd = shm_open( m_name.c_str( ), O_RDWR, mode );
 			// tmp
 			if ( -1 == fd ) {
 				errExit( "shm_open3" );
