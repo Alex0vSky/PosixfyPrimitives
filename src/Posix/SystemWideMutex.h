@@ -42,10 +42,12 @@ public:
 		int mode = 0777;
 		// allow single lock after creation
 		int value = 1;
-		h_semaphore = sem_open( m_name.c_str( ), O_CREAT | O_EXCL, mode, value );
+
+		h_semaphore = sem_open( m_name.c_str( ), O_RDWR );
 		if ( SEM_FAILED == h_semaphore ) {
-			is_exists = ( EEXIST == errno );
-			h_semaphore = sem_open( m_name.c_str( ), O_RDWR );
+			h_semaphore = sem_open( m_name.c_str( ), O_CREAT | O_EXCL, mode, value );
+		} else {
+			is_exists = true;
 		}
 		if ( open_existing && !is_exists )
 			h_semaphore = SEM_FAILED;
