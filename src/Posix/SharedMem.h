@@ -56,6 +56,7 @@ class CSharedMem {
 			}
 
 		} else {
+			//fd = shm_open( m_name.c_str( ), O_CREAT | O_EXCL | O_RDWR, mode );
 			fd = shm_open( m_name.c_str( ), O_RDWR, 0 );
 			// tmp
 			if ( -1 == fd ) {
