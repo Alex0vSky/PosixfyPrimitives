@@ -57,6 +57,9 @@
     <ClCompile Include="..\tests\testSystemWideMutex.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
+    <ClCompile Include="..\tests\testProcess.cpp">
+      <Filter>Source Files\tests</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -87,6 +90,12 @@
       <Filter>Source Files\primitives\Windows</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Posix\SystemWideMutex.h">
+      <Filter>Source Files\primitives\Posix</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Windows\Process.h">
+      <Filter>Source Files\primitives\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Posix\Process.h">
       <Filter>Source Files\primitives\Posix</Filter>
     </ClInclude>
   </ItemGroup>

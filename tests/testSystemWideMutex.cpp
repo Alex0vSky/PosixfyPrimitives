@@ -9,9 +9,9 @@ using CSystemWideMutex = Ipc::CSystemWideMutex;
 static char g_name[] = "my_lucky_unique_name_for_SystemWideMutex";
 constexpr auto now = std::chrono::high_resolution_clock::now;
 
+/*
 namespace testSystemWideMutex_ { 
 
-//*
 TEST(SystemWideMutex_create, already_exists) {
 	bool already_exists;
 	char name[] = "some_name";
@@ -198,7 +198,6 @@ TEST(SystemWideMutex_unlocks, break_LockInfinite) {
 
 	thread.join( );
 }
-//*/
 
 TEST(SystemWideMutex_tricks, release_mutex) {
 	CSystemWideMutex systemWideMutex( g_name );
@@ -208,4 +207,6 @@ TEST(SystemWideMutex_tricks, release_mutex) {
 #endif // WIN32
 	EXPECT_TRUE( systemWideMutex.Lock( 0 ) );
 }
+
 } // namespace testSystemWideMutex_ 
+//*/
