@@ -109,12 +109,33 @@ TEST(SystemWideMutex_locks, separate_environment_immediately_not_recursive_by_re
 	thread.join( );
 }
 
+TEST(SystemWideMutex_locks, real_world_1500) {
+	CSystemWideMutex systemWideMutex1( g_name );
+	CSystemWideMutex systemWideMutex2( g_name );
+	EXPECT_TRUE( systemWideMutex1.Lock( 0 ) );
+	std::thread thread([&systemWideMutex1] {
+			EXPECT_FALSE( systemWideMutex1.Lock( 1500 ) );
+		});
+	thread.join( );
+}
 
+TEST(SystemWideMutex_locks, break_LockInfinite) {
+	CSystemWideMutex systemWideMutex1( g_name );
+	CSystemWideMutex systemWideMutex2( g_name );
+
+	EXPECT_TRUE( systemWideMutex2.Lock( 0 ) );
+	std::atomic_bool started;
+	std::thread thread([&started, &systemWideMutex1] {
+			started = true;
+			EXPECT_TRUE( systemWideMutex1.LockInfinite( ) );
+		});
+	while ( !started )
+		std::this_thread::yield( );
+	std::this_thread::sleep_for( std::chrono::milliseconds{ 500 } );
+	systemWideMutex2.Unlock( );
+
+	thread.join( );
+}
 // TODO(alex): break LockInfinite
-
-//TEST(SystemWideMutex_locks, real_world_1500) {
-//	CSystemWideMutex systemWideMutex( g_name );
-//	EXPECT_TRUE( systemWideMutex.Lock( 1500 ) );
-//}
 
 } // namespace testSystemWideMutex_ 

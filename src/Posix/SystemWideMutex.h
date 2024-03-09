@@ -155,8 +155,13 @@ public:
 		//ReleaseMutex(h_semaphore);
 		// TODO(alex): broken logic detected, handle got from `CreateMutex()/OpenMutex()`
 
-		//sem_close( h_semaphore );
-		sem_post( h_semaphore );
+		//int sval = 12345;
+		//sem_getvalue( h_semaphore, &sval );
+		//while ( sval-- ) {
+		//	sem_post( h_semaphore );
+		//}
+		sem_close( h_semaphore ), h_semaphore = SEM_FAILED;
+
 //		if ( success && std::this_thread::get_id( ) == m_tid )
 //			--m_counter_recursive;
 	}
