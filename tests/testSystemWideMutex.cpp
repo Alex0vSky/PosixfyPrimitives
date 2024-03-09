@@ -8,6 +8,7 @@
 using CSystemWideMutex = Ipc::CSystemWideMutex;
 static const unsigned c_size = 4096;
 static char g_name[] = "my_lucky_unique_name_for_SystemWideMutex";
+constexpr auto now = std::chrono::high_resolution_clock::now;
 
 namespace testSystemWideMutex_ { 
 
@@ -180,19 +181,29 @@ TEST(SystemWideMutex_locks, real_world_wait2_1500) {
 
 //*
 TEST(SystemWideMutex_unlocks, break_LockInfinite) {
-	CSystemWideMutex systemWideMutex1( g_name );
-	CSystemWideMutex systemWideMutex2( g_name );
+	CSystemWideMutex systemWideMutex( g_name );
 
-	EXPECT_TRUE( systemWideMutex2.Lock( 0 ) );
-	std::atomic_bool started;
-	std::thread thread([&started, &systemWideMutex1] {
+	EXPECT_TRUE( systemWideMutex.Lock( 0 ) );
+
+	std::atomic_bool started, stoped;
+	std::thread thread([&started, &stoped, &systemWideMutex] {
 			started = true;
-			EXPECT_TRUE( systemWideMutex1.LockInfinite( ) );
+			EXPECT_TRUE( systemWideMutex.LockInfinite( ) );
+			stoped = true;
 		});
 	while ( !started )
 		std::this_thread::yield( );
-	std::this_thread::sleep_for( std::chrono::milliseconds{ 500 } );
-	systemWideMutex2.Unlock( );
+	// waiting less then infinite
+	auto next_clock = now( ) + std::chrono::milliseconds{ 100 };
+	bool notatomic_stoped = false;
+	while ( now( ) < next_clock ) {
+		notatomic_stoped = stoped;
+		if ( notatomic_stoped )
+			break;
+		std::this_thread::yield( );
+	}
+	EXPECT_FALSE( notatomic_stoped );
+	systemWideMutex.Unlock( );
 
 	thread.join( );
 }
