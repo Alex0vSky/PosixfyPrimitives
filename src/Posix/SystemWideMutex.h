@@ -7,6 +7,19 @@ thread_local struct Foo_tls {
 	void save_owner() {
 	}
 } g_foo;
+thread_local class ThreadExiter {
+	std::function<void()> m_exit_func;
+public:
+    ThreadExiter() = default;
+    ThreadExiter(ThreadExiter const&) = delete; void operator=(ThreadExiter const&) = delete;
+    ~ThreadExiter() {
+		if ( m_exit_func )
+			m_exit_func( );
+    }
+    void add(std::function<void()> func) {
+		m_exit_func = func;
+    }   
+} g_threadExiter;
 
 class CSystemWideMutex {
 	sem_t *h_semaphore;
@@ -108,8 +121,12 @@ public:
 			sem_getvalue( h_semaphore, &sval );
 			printf( "creator thread, BEG sval: %d\n", sval );
 			if ( !sval ) {
-				if ( m_empty_tid != m_owner_tid ) {
-					if ( std::this_thread::get_id( ) == m_owner_tid ) {
+				//if ( m_empty_tid != m_owner_tid ) 
+				{
+					// TODO(alex): call dtor or something on thread exit
+					//std::thread
+					m_owner_tid;
+					if ( m_tid == m_owner_tid || m_empty_tid == m_owner_tid ) {
 						sem_post( h_semaphore );
 					}
 				}
@@ -147,6 +164,9 @@ public:
 		if ( success && !m_sval ) {
 			//g_foo.save_owner( );
 			m_owner_tid = std::this_thread::get_id( );
+			g_threadExiter.add([this] {
+					m_owner_tid = m_empty_tid;
+				});
 		} else {
 			m_owner_tid = m_empty_tid;
 		}
