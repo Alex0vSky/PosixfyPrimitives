@@ -8,7 +8,7 @@
 using CEvent = IndependentProcess::CEvent;
 
 namespace testEvent_ { 
-/*
+
 class set_and_check : public ::testing::TestWithParam< std::tuple< bool, bool > > {};
 TEST_P(set_and_check,) {
 	CEvent event( std::get<0>( GetParam( ) ), std::get<1>( GetParam( ) ) );
@@ -159,5 +159,5 @@ TEST(event_wait, real_world_wait_false_1500 ) {
 	CEvent event( false, false );
 	EXPECT_FALSE( event.Wait( 1500 ) );
 }
-//*/
+
 } // namespace testEvent_
