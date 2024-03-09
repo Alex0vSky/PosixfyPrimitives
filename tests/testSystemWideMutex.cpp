@@ -6,7 +6,6 @@
 #	include "Posix/SystemWideMutex.h"
 #endif
 using CSystemWideMutex = Ipc::CSystemWideMutex;
-static const unsigned c_size = 4096;
 static char g_name[] = "my_lucky_unique_name_for_SystemWideMutex";
 constexpr auto now = std::chrono::high_resolution_clock::now;
 
@@ -107,7 +106,6 @@ TEST(SystemWideMutex_locks, separate_environment_immediately_not_recursive_by_re
 	thread.join( );
 	EXPECT_TRUE( systemWideMutex2.Lock( 0 ) );
 }
-//*/
 
 TEST(SystemWideMutex_locks, separate_environment_immediately_not_recursive_by_ref2) {
 	CSystemWideMutex systemWideMutex( g_name );
@@ -155,10 +153,10 @@ TEST(SystemWideMutex_locks, separate_environment_mix) {
 }
 
 TEST(SystemWideMutex_locks, real_world_wait1_1500) {
-	CSystemWideMutex systemWideMutex1( g_name );
-	EXPECT_TRUE( systemWideMutex1.Lock( 0 ) );
-	std::thread thread([&systemWideMutex1] {
-			EXPECT_FALSE( systemWideMutex1.Lock( 1500 ) );
+	CSystemWideMutex systemWideMutex( g_name );
+	EXPECT_TRUE( systemWideMutex.Lock( 0 ) );
+	std::thread thread([&systemWideMutex] {
+			EXPECT_FALSE( systemWideMutex.Lock( 1500 ) );
 		});
 	thread.join( );
 }
@@ -196,11 +194,18 @@ TEST(SystemWideMutex_unlocks, break_LockInfinite) {
 		std::this_thread::yield( );
 	}
 	EXPECT_FALSE( not_atomic_stoped );
-	printf( "systemWideMutex.Unlock( );\n" );
 	systemWideMutex.Unlock( );
 
 	thread.join( );
 }
 //*/
 
+TEST(SystemWideMutex_tricks, release_mutex) {
+	CSystemWideMutex systemWideMutex( g_name );
+	systemWideMutex.Unlock( );
+#ifdef WIN32
+	EXPECT_EQ( ERROR_NOT_OWNER, GetLastError( ) );
+#endif // WIN32
+	EXPECT_TRUE( systemWideMutex.Lock( 0 ) );
+}
 } // namespace testSystemWideMutex_ 
