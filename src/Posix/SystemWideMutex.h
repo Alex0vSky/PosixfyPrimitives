@@ -118,24 +118,19 @@ public:
 		if ( abstime.tv_nsec >= limit )
 			abstime.tv_nsec = limit - 1;
 
-		bool success = ( !sem_timedwait( h_semaphore, &abstime ) );
-		{
-			sem_getvalue( h_semaphore, &m_sval );
-			printf( "after wait sval: %d, %s\n", m_sval, ( success ?"true" :"false" ) );
-		}
+		// If user will use signal handler
+		bool interupt, success = false;
+		do {
+			success = ( !sem_timedwait( h_semaphore, &abstime ) );
+			interupt = ( !success && errno == EINTR );
+		} while ( interupt );
+
+		sem_getvalue( h_semaphore, &m_sval );
+		printf( "after wait sval: %d, %s\n", m_sval, ( success ?"true" :"false" ) );
 		if ( !success ) {
 			perror( "!success" );
 		}
 		return success;
-
-		//// TODO(alex): makeme
-		//while ((s = sem_timedwait(&sem, &ts)) == -1 && errno == EINTR)
-		//	continue;       // перезапускаем, если прервано обработчиком
-
-		//int wait = sem_timedwait( h_semaphore, &abstime );
-		//if ( !wait )
-		//	return true;
-		//return ( errno == EINTR ); // WAIT_ABANDONED
 	}
 
 	bool LockInfinite() {
@@ -146,12 +141,11 @@ public:
 	void Unlock() {
 		if ( h_semaphore == SEM_FAILED )
 			return;
-		//ReleaseMutex(h_semaphore);
-		// TODO(alex): broken logic detected, handle got from `CreateMutex()/OpenMutex()`
-
 		sem_getvalue( h_semaphore, &m_sval );
 		if ( !m_sval )
 			sem_post( h_semaphore );
 	}
+	// TODO(alex): broken logic detected, unusable object, handle got from `CreateMutex()/OpenMutex()`
+
 };
 } // namespace Ipc
