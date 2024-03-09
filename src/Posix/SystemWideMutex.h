@@ -7,7 +7,7 @@ class CSystemWideMutex {
 	bool m_open_existing;
 	unsigned m_counter_recursive;
 	const std::thread::id m_tid;
-	const std::string m_string_tid;
+	std::string m_string_tid;
 
 	// @insp https://stackoverflow.com/questions/15024623/convert-milliseconds-to-timespec-for-gnu-port
 	static void ms2ts(timespec *ts, unsigned long milli) {
@@ -37,8 +37,9 @@ public:
 		, m_open_existing( open_existing )
 		, m_counter_recursive( 0 )
 		, m_tid( std::this_thread::get_id( ) )
-		, m_string_tid( ( std::ostringstream( ) << m_tid ).str( ) )
 	{		
+		//m_string_tid = ( ( std::ostringstream( ) << m_tid ).str( ) )
+		std::ostringstream oss; oss << m_tid; m_string_tid = oss.str( );
 
 		bool is_exists = false;
 		//int mode = 0644;
