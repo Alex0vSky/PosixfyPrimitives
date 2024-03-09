@@ -113,6 +113,10 @@ public:
 			timespec adding = { }; 
 			ms2ts( &adding, timeout_milli );
 			safe_add( &abstime, &adding ); //abstime.tv_sec += adding.tv_sec; abstime.tv_nsec += adding.tv_nsec;
+			// Limitation of `sem_timedwait()` or get 'EINVAL' error
+			const unsigned limit = 1'000'000'000;
+			if ( abstime.tv_nsec >= limit )
+				abstime.tv_nsec = limit - 1;
 		}
 
 		bool success = ( !sem_timedwait( h_semaphore, &abstime ) );
