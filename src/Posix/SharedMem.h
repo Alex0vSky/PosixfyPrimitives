@@ -55,14 +55,14 @@ class CSharedMem {
 			}
 
 		} else {
-			fd = shm_open( m_name.c_str( ), O_RDWR, 0 );
+			fd = shm_open( m_name.c_str( ), O_CREAT | O_RDWR, mode );
 			// tmp
 			if ( -1 == fd ) {
 				errExit( "shm_open21" );
 			}
 			if ( -1 != fd ) {
 
-				m_buff = mmap( NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0 ); 
+				m_buff = mmap( NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, mode ); 
 			
 				// tmp
 				if ( !m_buff ) {
