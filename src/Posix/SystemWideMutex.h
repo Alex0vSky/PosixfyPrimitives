@@ -34,7 +34,8 @@ public:
 		, m_open_existing( open_existing )
 	{
 		bool is_exists = false;
-		int mode = 0644;
+		//int mode = 0644;
+		int mode = 0777;
 		int value = 1;
 		h_semaphore = sem_open( m_name.c_str( ), O_CREAT | O_EXCL, mode, value );
 		if ( SEM_FAILED == h_semaphore ) {
