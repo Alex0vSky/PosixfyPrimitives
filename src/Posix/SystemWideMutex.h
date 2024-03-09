@@ -2,11 +2,7 @@
 #pragma once // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
 namespace Ipc {
 
-thread_local static int g_counter = 1;
-thread_local struct Foo_tls {
-	void save_owner() {
-	}
-} g_foo;
+namespace detail { 
 thread_local class ThreadExiter {
 	std::function<void()> m_exit_func;
 public:
@@ -20,12 +16,13 @@ public:
 		m_exit_func = func;
     }   
 } g_threadExiter;
+} // namespace detail
 
 class CSystemWideMutex {
 	sem_t *h_semaphore;
 	const std::string m_name;
 	bool m_open_existing;
-	const std::thread::id m_tid;
+	const std::thread::id m_creator_tid;
 	int m_sval;
 
 	// for compare
@@ -58,9 +55,9 @@ public:
 		h_semaphore( SEM_FAILED )
 		, m_name( std::string( "\\" ) + name )
 		, m_open_existing( open_existing )
-		, m_tid( std::this_thread::get_id( ) )
+		, m_creator_tid( std::this_thread::get_id( ) )
 	{		
-		//m_string_tid = ( ( std::ostringstream( ) << m_tid ).str( ) )
+		//m_string_tid = ( ( std::ostringstream( ) << m_creator_tid ).str( ) )
 
 		bool is_exists = false;
 		//int mode = 0644;
@@ -99,7 +96,6 @@ public:
 	~CSystemWideMutex() {
 		if ( h_semaphore == SEM_FAILED )
 			return;
-		// ?TODO(alex): cause code-dump
 		// TODO(alex): via iface `CTools::CloseAndInvalidateHandle(h_semaphore);`
 		sem_close( h_semaphore ), h_semaphore = SEM_FAILED;
 		if ( !m_open_existing )
@@ -116,19 +112,14 @@ public:
 		if ( h_semaphore == SEM_FAILED )
 			return false;
 
-		if ( std::this_thread::get_id( ) == m_tid ) {
+		const std::thread::id current_tid = std::this_thread::get_id( );
+		if ( current_tid == m_creator_tid ) {
 			int sval;
 			sem_getvalue( h_semaphore, &sval );
 			printf( "creator thread, BEG sval: %d\n", sval );
 			if ( !sval ) {
-				//if ( m_empty_tid != m_owner_tid ) 
-				{
-					// TODO(alex): call dtor or something on thread exit
-					//std::thread
-					m_owner_tid;
-					if ( m_tid == m_owner_tid || m_empty_tid == m_owner_tid ) {
-						sem_post( h_semaphore );
-					}
+				if ( m_creator_tid == m_owner_tid || m_empty_tid == m_owner_tid ) {
+					sem_post( h_semaphore );
 				}
 			}
 			sem_getvalue( h_semaphore, &sval );
@@ -162,9 +153,8 @@ public:
 
 		sem_getvalue( h_semaphore, &m_sval );
 		if ( success && !m_sval ) {
-			//g_foo.save_owner( );
-			m_owner_tid = std::this_thread::get_id( );
-			g_threadExiter.add([this] {
+			m_owner_tid = current_tid;
+			detail::g_threadExiter.add([this] {
 					m_owner_tid = m_empty_tid;
 				});
 		} else {
