@@ -11,7 +11,8 @@ public:
 		, m_name( std::string( "\\" ) + name )
 	{
 		bool is_exists = false;
-								
+		int mode = 0644;
+		int value = 0644;
 		if ( open_existing )
 		{
 			//h_mutex = OpenMutexA(SYNCHRONIZE,FALSE,name?(prefix+name).c_str():NULL);
@@ -20,10 +21,11 @@ public:
 		else
 		{
 			perror( "bef" );
-			h_mutex = sem_open( m_name.c_str( ), O_CREAT | O_EXCL, 0644, 1 );
+			h_mutex = sem_open( m_name.c_str( ), O_CREAT | O_EXCL, mode, value );
 			perror( "aft" );
 			if ( SEM_FAILED == h_mutex ) {
 				is_exists = ( EEXIST == errno );
+				h_mutex = sem_open( m_name.c_str( ), O_CREAT, mode, value );
 			}
 			//sem_wait( h_mutex );
 			//sem_post( h_mutex );
