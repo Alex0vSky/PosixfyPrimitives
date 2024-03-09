@@ -89,8 +89,8 @@ public:
 		if ( h_semaphore == SEM_FAILED )
 			return false;
 
-//		if ( std::this_thread::get_id( ) == m_tid && ++m_counter_recursive )
-//			return true;
+		if ( std::this_thread::get_id( ) == m_tid && m_counter_recursive > 0 )
+			return ++m_counter_recursive, true;
 
 		// TODO(alex): to separate
 		timespec abstime = { };
@@ -104,7 +104,10 @@ public:
 			safe_add( &abstime, &adding ); //abstime.tv_sec += adding.tv_sec; abstime.tv_nsec += adding.tv_nsec;
 		}
 
-		return ( !sem_timedwait( h_semaphore, &abstime ) );
+		bool sucess = ( !sem_timedwait( h_semaphore, &abstime ) );
+		if ( sucess )
+			++m_counter_recursive;
+		return sucess;
 
 		//// TODO(alex): makeme
 		//while ((s = sem_timedwait(&sem, &ts)) == -1 && errno == EINTR)
@@ -127,10 +130,10 @@ public:
 		//ReleaseMutex(h_semaphore);
 		// TODO(alex): broken logic detected, handle got from `CreateMutex()/OpenMutex()`
 
-//		if ( std::this_thread::get_id( ) == m_tid )
-//			--m_counter_recursive;
 		//sem_close( h_semaphore );
 		sem_post( h_semaphore );
+//		if ( success && std::this_thread::get_id( ) == m_tid )
+//			--m_counter_recursive;
 	}
 };
 } // namespace Ipc
