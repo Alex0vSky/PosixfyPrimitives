@@ -72,42 +72,42 @@ TEST(SystemWideMutex_locks, invalid_object) {
 	EXPECT_FALSE( systemWideMutex2.Lock( 0 ) );
 }
 
-TEST(SystemWideMutex_locks, common_environment_immediately_recursive) {
-	bool already_exists;
-	CSystemWideMutex systemWideMutex1( g_name, &already_exists );
-	CSystemWideMutex systemWideMutex2( g_name, &already_exists );
-	EXPECT_FALSE( systemWideMutex1.IsError( ) );
-	EXPECT_FALSE( systemWideMutex2.IsError( ) );
-	EXPECT_TRUE( systemWideMutex1.Lock( 0 ) );
-	EXPECT_TRUE( systemWideMutex2.Lock( 0 ) );
-}
-
-//TEST(SystemWideMutex_locks, separate_environment_immediately_not_recursive_by_ref) {
+//TEST(SystemWideMutex_locks, common_environment_immediately_recursive) {
 //	bool already_exists;
 //	CSystemWideMutex systemWideMutex1( g_name, &already_exists );
 //	CSystemWideMutex systemWideMutex2( g_name, &already_exists );
-//
-//	bool success = ( true
-//			&& !systemWideMutex1.IsError( ) 
-//			&& !systemWideMutex1.IsError( ) 
-//		);
-//
-//	EXPECT_TRUE( success );
-//	if ( !success ) 
-//		return;
-//
-//	std::atomic_bool started;
-//	std::thread thread([&started, &systemWideMutex1] {
-//			// try take ownership
-//			EXPECT_TRUE( systemWideMutex1.Lock( 0 ) );
-//			started = true;
-//		});
-//	while ( !started )
-//		std::this_thread::yield( );
-//	// try take ownership
-//	EXPECT_FALSE( systemWideMutex2.Lock( 0 ) );
-//	thread.join( );
+//	EXPECT_FALSE( systemWideMutex1.IsError( ) );
+//	EXPECT_FALSE( systemWideMutex2.IsError( ) );
+//	EXPECT_TRUE( systemWideMutex1.Lock( 0 ) );
+//	EXPECT_TRUE( systemWideMutex2.Lock( 0 ) );
 //}
+
+TEST(SystemWideMutex_locks, separate_environment_immediately_not_recursive_by_ref) {
+	bool already_exists;
+	CSystemWideMutex systemWideMutex1( g_name, &already_exists );
+	CSystemWideMutex systemWideMutex2( g_name, &already_exists );
+
+	bool success = ( true
+			&& !systemWideMutex1.IsError( ) 
+			&& !systemWideMutex1.IsError( ) 
+		);
+
+	EXPECT_TRUE( success );
+	if ( !success ) 
+		return;
+
+	std::atomic_bool started;
+	std::thread thread([&started, &systemWideMutex1] {
+			//// try take ownership
+			//EXPECT_TRUE( systemWideMutex1.Lock( 0 ) );
+			started = true;
+		});
+	while ( !started )
+		std::this_thread::yield( );
+	// try take ownership
+	EXPECT_FALSE( systemWideMutex2.Lock( 0 ) );
+	thread.join( );
+}
 
 
 // TODO(alex): break LockInfinite
