@@ -72,7 +72,7 @@ TEST(SystemWideMutex_locks, invalid_object) {
 	EXPECT_FALSE( systemWideMutex2.Lock( 0 ) );
 }
 
-TEST(SystemWideMutex_locks, common_environment_immediately) {
+TEST(SystemWideMutex_locks, common_environment_immediately_recursive) {
 	bool already_exists;
 	CSystemWideMutex systemWideMutex1( g_name, &already_exists );
 	CSystemWideMutex systemWideMutex2( g_name, &already_exists );
@@ -82,7 +82,7 @@ TEST(SystemWideMutex_locks, common_environment_immediately) {
 	EXPECT_TRUE( systemWideMutex2.Lock( 0 ) );
 }
 
-TEST(SystemWideMutex_locks, separate_environment_immediately_by_ref) {
+TEST(SystemWideMutex_locks, separate_environment_immediately_not_recursive_by_ref) {
 	bool already_exists;
 	CSystemWideMutex systemWideMutex1( g_name, &already_exists );
 	CSystemWideMutex systemWideMutex2( g_name, &already_exists );

@@ -5,6 +5,7 @@ class CSystemWideMutex {
 	sem_t *h_semaphore;
 	const std::string m_name;
 	bool m_open_existing;
+	unsigned m_counter_recursive;
 
 	// @insp https://stackoverflow.com/questions/15024623/convert-milliseconds-to-timespec-for-gnu-port
 	static void ms2ts(timespec *ts, unsigned long milli) {
@@ -32,6 +33,7 @@ public:
 		h_semaphore( SEM_FAILED )
 		, m_name( std::string( "\\" ) + name )
 		, m_open_existing( open_existing )
+		, m_counter_recursive( 0 )
 	{
 		bool is_exists = false;
 		//int mode = 0644;
@@ -85,6 +87,9 @@ public:
 		if ( h_semaphore == SEM_FAILED )
 			return false;
 
+		if ( ++m_counter_recursive )
+			return;
+
 		// TODO(alex): to separate
 		timespec abstime = { };
 		if ( INFINITE == timeout_milli ) {
@@ -120,6 +125,7 @@ public:
 		//ReleaseMutex(h_semaphore);
 		// TODO(alex): broken logic detected, handle got from `CreateMutex()/OpenMutex()`
 
+		--m_counter_recursive;
 		//sem_close( h_semaphore );
 		sem_post( h_semaphore );
 	}
