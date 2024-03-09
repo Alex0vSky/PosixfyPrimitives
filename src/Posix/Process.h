@@ -83,9 +83,14 @@ private:
 	CProcess(const char *_cmdline,const char *cwd) : 
 		h_process( nullptr ), m_id_process(GetInvalidProcessId()), m_err(-1)
 	{
-		char *argv[] = { "dummy", nullptr };
-		if ( posix_spawnp( h_process, _cmdline, nullptr, nullptr, argv, environ ) )
+		char *argv[] = { "sh", "-c", nullptr, nullptr };
+		std::string cmdline2 = _cmdline;
+		std::vector< char > cmdline( cmdline2.begin( ), cmdline2.end( ) );
+		argv[ 2 ] = cmdline.data( );
+		if ( posix_spawnp( h_process, argv[ 0 ], nullptr, nullptr, argv, environ ) ) {
 			m_err = errno;
+			perror( "posix_spawnp" );
+		}
 	}
 
 	//~CProcess() {
