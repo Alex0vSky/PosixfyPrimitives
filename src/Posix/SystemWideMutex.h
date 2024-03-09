@@ -6,6 +6,7 @@ class CSystemWideMutex {
 	const std::string m_name;
 	bool m_open_existing;
 	unsigned m_counter_recursive;
+	std::thread::id m_tid;
 
 	// @insp https://stackoverflow.com/questions/15024623/convert-milliseconds-to-timespec-for-gnu-port
 	static void ms2ts(timespec *ts, unsigned long milli) {
@@ -49,6 +50,7 @@ public:
 
 		if ( p_already_exists )
 			*p_already_exists = is_exists;
+		m_tid = std::this_thread::get_id( );
 	}
 	//sem_post( h_semaphore );
 
@@ -71,10 +73,11 @@ public:
 	~CSystemWideMutex() {
 		if ( h_semaphore == SEM_FAILED )
 			return;
+		// TODO(alex): cause code-dump
 		// TODO(alex): via iface `CTools::CloseAndInvalidateHandle(h_semaphore);`
-		sem_close( h_semaphore ), h_semaphore = SEM_FAILED;
-		if ( !m_open_existing )
-			sem_unlink( m_name.c_str( ) );
+		//sem_close( h_semaphore ), h_semaphore = SEM_FAILED;
+		//if ( !m_open_existing )
+		//	sem_unlink( m_name.c_str( ) );
 	}
 
 	bool IsError() const {
@@ -87,7 +90,7 @@ public:
 		if ( h_semaphore == SEM_FAILED )
 			return false;
 
-		if ( ++m_counter_recursive )
+		if ( std::this_thread::get_id( ) == m_tid && ++m_counter_recursive )
 			return true;
 
 		// TODO(alex): to separate
@@ -125,7 +128,8 @@ public:
 		//ReleaseMutex(h_semaphore);
 		// TODO(alex): broken logic detected, handle got from `CreateMutex()/OpenMutex()`
 
-		--m_counter_recursive;
+		if ( std::this_thread::get_id( ) == m_tid )
+			--m_counter_recursive;
 		//sem_close( h_semaphore );
 		sem_post( h_semaphore );
 	}
