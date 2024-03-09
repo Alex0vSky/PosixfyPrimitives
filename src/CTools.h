@@ -67,6 +67,7 @@ int shm_open(const char *, int, mode_t);
 int shm_unlink(const char *);
 int ftruncate(int fildes, off_t length);
 int stat(const char *path, struct stat *buf);
+int fstatat(int fd, const char *path, struct stat *buf, int flag);
 
 #endif // A0S_INDEVELOP
 

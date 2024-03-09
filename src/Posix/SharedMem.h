@@ -57,16 +57,17 @@ class CSharedMem {
 			}
 
 		} else {
+			fd = shm_open( m_name.c_str( ), O_RDWR, mode );
 			// To known size
-			struct stat buf;
-			int n = stat( m_name.c_str( ), &buf );
+			struct stat buf = { };
+			//int n = stat( m_name.c_str( ), &buf );
+			int n = fstat( fd, &buf );
 			if ( -1 == n ) {
 				errExit( "stat" );
 			}
 			printf( "buf.st_size: %d", buf.st_size );
 			m_size = buf.st_size;
 
-			fd = shm_open( m_name.c_str( ), O_RDWR, 0 );
 			// tmp
 			if ( -1 == fd ) {
 				errExit( "shm_open21" );
