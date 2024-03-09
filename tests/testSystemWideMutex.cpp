@@ -203,6 +203,7 @@ TEST(SystemWideMutex_unlocks, break_LockInfinite) {
 		std::this_thread::yield( );
 	}
 	EXPECT_FALSE( notatomic_stoped );
+	printf( "systemWideMutex.Unlock( );\n" );
 	systemWideMutex.Unlock( );
 
 	thread.join( );

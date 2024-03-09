@@ -56,7 +56,6 @@ public:
 		if ( p_already_exists )
 			*p_already_exists = is_exists;
 	}
-	//sem_post( h_semaphore );
 
 	CSystemWideMutex(const CSystemWideMutex& other) = delete;
 	//CSystemWideMutex(const CSystemWideMutex& other) {
@@ -114,7 +113,7 @@ public:
 			ms2ts( &adding, timeout_milli );
 			safe_add( &abstime, &adding ); //abstime.tv_sec += adding.tv_sec; abstime.tv_nsec += adding.tv_nsec;
 		}
-		// Limitation of `sem_timedwait()` or get 'EINVAL' error
+		// Limitation of `sem_timedwait()` or get 'EINVAL' error. ?`set_normalized_timespec()`
 		const unsigned limit = 1'000'000'000;
 		if ( abstime.tv_nsec >= limit )
 			abstime.tv_nsec = limit - 1;
@@ -150,12 +149,12 @@ public:
 		//ReleaseMutex(h_semaphore);
 		// TODO(alex): broken logic detected, handle got from `CreateMutex()/OpenMutex()`
 
-		//int m _sval = 12345;
-		//sem_getvalue( h_semaphore, &m _sval );
-		//while ( m _sval-- ) {
-		//	sem_post( h_semaphore );
-		//}
-		sem_close( h_semaphore ), h_semaphore = SEM_FAILED;
+		//do {
+		//	sem_getvalue( h_semaphore, &m_sval );
+		//	if ( m_sval )
+		//} while ( m_sval )
+		sem_post( h_semaphore );
+		//sem_close( h_semaphore ), h_semaphore = SEM_FAILED;
 	}
 };
 } // namespace Ipc
