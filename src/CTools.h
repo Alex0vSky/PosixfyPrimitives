@@ -66,6 +66,7 @@ int munmap(void *addr, size_t len);
 int shm_open(const char *, int, mode_t);
 int shm_unlink(const char *);
 int ftruncate(int fildes, off_t length);
+int stat(const char *path, struct stat *buf);
 
 #endif // A0S_INDEVELOP
 
