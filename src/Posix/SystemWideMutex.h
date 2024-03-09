@@ -89,8 +89,8 @@ public:
 		if ( h_semaphore == SEM_FAILED )
 			return false;
 
-		if ( std::this_thread::get_id( ) == m_tid && ++m_counter_recursive )
-			return true;
+//		if ( std::this_thread::get_id( ) == m_tid && ++m_counter_recursive )
+//			return true;
 
 		// TODO(alex): to separate
 		timespec abstime = { };
@@ -127,8 +127,8 @@ public:
 		//ReleaseMutex(h_semaphore);
 		// TODO(alex): broken logic detected, handle got from `CreateMutex()/OpenMutex()`
 
-		if ( std::this_thread::get_id( ) == m_tid )
-			--m_counter_recursive;
+//		if ( std::this_thread::get_id( ) == m_tid )
+//			--m_counter_recursive;
 		//sem_close( h_semaphore );
 		sem_post( h_semaphore );
 	}
