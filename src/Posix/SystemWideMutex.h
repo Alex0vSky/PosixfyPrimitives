@@ -15,27 +15,22 @@ public:
 		int value = 0644;
 		if ( open_existing )
 		{
-			//h_mutex = OpenMutexA(SYNCHRONIZE,FALSE,name?(prefix+name).c_str():NULL);
-			//is_exists = (h_mutex != NULL || GetLastError() == ERROR_ACCESS_DENIED);
+			h_mutex = sem_open( m_name.c_str( ), O_CREAT, mode, value );
+			is_exists = ( EEXIST == errno );
 		}
 		else
 		{
-			perror( "bef" );
 			h_mutex = sem_open( m_name.c_str( ), O_CREAT | O_EXCL, mode, value );
-			perror( "aft" );
 			if ( SEM_FAILED == h_mutex ) {
 				is_exists = ( EEXIST == errno );
 				h_mutex = sem_open( m_name.c_str( ), O_CREAT, mode, value );
 			}
-			//sem_wait( h_mutex );
-			//sem_post( h_mutex );
 		}
 
 		if ( p_already_exists )
-		{
 			*p_already_exists = is_exists;
-		}
 	}
+	//sem_wait( h_mutex ); //sem_post( h_mutex );
 
 	CSystemWideMutex(const CSystemWideMutex& other) {
 		//h_mutex = CTools::CopyHandle(other.h_mutex);
