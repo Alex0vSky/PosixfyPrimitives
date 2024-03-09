@@ -18,7 +18,7 @@ class CSharedMem {
 		if ( !open_existing ) {
 			fd = shm_open( m_name.c_str( ), O_CREAT | O_EXCL | O_RDWR, mode );
 			if ( -1 == fd ) {
-				if ( is_exists = ( EEXIST == errno ) )
+				if ( ( is_exists = ( EEXIST == errno ) ) )
 					if ( -1 == ( fd = shm_open( m_name.c_str( ), O_RDWR, 0 ) ) )
 						return; // perror( )
 			} else {
