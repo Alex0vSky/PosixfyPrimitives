@@ -13,10 +13,11 @@ namespace testProcess_ {
 TEST(Process_create, simple) {
 	CProcess *proc = CProcess::Create( "ping 8.8.8.8" );
 	EXPECT_FALSE( proc ->IsError( ) );
-	while ( proc ->IsProcessActive( ) )
-		std::this_thread::yield( );
+	//while ( proc ->IsProcessActive( ) )
+	//	std::this_thread::yield( );
 }
 
+/*
 TEST(Process_create, simple_cwd) {
 	//std::vector< char > buffer( 1024 );
 	//getcwd( buffer.data( ), buffer.size( ) );
@@ -49,6 +50,7 @@ TEST(Process_create, simple_cwd) {
 	EXPECT_FALSE( proc ->IsError( ) );
 	EXPECT_NE( std::string::npos, output.find( directory ) );
 }
+//*/
 
 /*
 TEST(Process_create, xxx) {

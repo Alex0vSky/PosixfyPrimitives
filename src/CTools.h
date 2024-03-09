@@ -1,7 +1,7 @@
 ﻿// src/CTools.h - common
 #pragma once // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
 
-#undef A0S_INDEVELOP
+//#undef A0S_INDEVELOP
 
 #ifdef A0S_INDEVELOP
 #undef _WIN32
@@ -84,6 +84,22 @@ int sem_close(sem_t *sem);
 
 int sem_getvalue(sem_t *sem, int *sval);
 
+
+struct pid_t{};
+struct posix_spawn_file_actions_t{};
+struct posix_spawnattr_t{};
+int posix_spawn(pid_t *pid, const char *path,
+                const posix_spawn_file_actions_t *file_actions,
+                const posix_spawnattr_t *attrp,
+                char *const argv[],
+                char *const envp[]);
+int posix_spawnp(pid_t *pid, const char *file,
+                const posix_spawn_file_actions_t *file_actions,
+                const posix_spawnattr_t *attrp,
+                char *const argv[],
+                char *const envp[]);
+// global variable 
+//_DCRTIMP extern "C" char ** environ;
 
 #endif // A0S_INDEVELOP
 
