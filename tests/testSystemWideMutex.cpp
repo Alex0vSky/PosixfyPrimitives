@@ -72,15 +72,17 @@ TEST(SystemWideMutex_locks, invalid_object) {
 	EXPECT_FALSE( systemWideMutex2.Lock( 0 ) );
 }
 
-//TEST(SystemWideMutex_locks, common_environment_immediately) {
-//	bool already_exists;
-//	CSystemWideMutex systemWideMutex1 = CSystemWideMutex( g_name, &already_exists );
-//	CSystemWideMutex systemWideMutex2 = CSystemWideMutex( g_name, &already_exists );
-//	EXPECT_FALSE( systemWideMutex1.IsError( ) );
-//	EXPECT_FALSE( systemWideMutex2.IsError( ) );
-//	EXPECT_TRUE( systemWideMutex1.Lock( 0 ) );
-//	EXPECT_TRUE( systemWideMutex2.Lock( 0 ) );
-//}
+TEST(SystemWideMutex_locks, common_environment_immediately) {
+	bool already_exists;
+	CSystemWideMutex systemWideMutex1 = CSystemWideMutex( g_name, &already_exists );
+	CSystemWideMutex systemWideMutex2 = CSystemWideMutex( g_name, &already_exists );
+	EXPECT_FALSE( systemWideMutex1.IsError( ) );
+	EXPECT_FALSE( systemWideMutex2.IsError( ) );
+	EXPECT_TRUE( systemWideMutex1.Lock( 0 ) );
+	EXPECT_TRUE( systemWideMutex2.Lock( 0 ) );
+}
+
+// TODO(alex): break LockInfinite
 
 //TEST(SystemWideMutex_locks, separate_environment_immediately) {
 //	bool already_exists;

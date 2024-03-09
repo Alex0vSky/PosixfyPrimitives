@@ -76,6 +76,7 @@ public:
 		if ( h_mutex == SEM_FAILED )
 			return false;
 
+		// TODO: to separate
 		timespec abstime = { };
 		if ( INFINITE == timeout_milli ) {
 			abstime.tv_sec = std::numeric_limits< decltype( abstime.tv_sec ) >::max( );
