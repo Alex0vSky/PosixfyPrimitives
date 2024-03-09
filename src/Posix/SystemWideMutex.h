@@ -50,7 +50,7 @@ public:
 			is_exists = true;
 			int sval = 12345;
 			sem_getvalue( h_semaphore, &sval );
-			printf( "sval1: %d", sval );
+			printf( "sval1: %d\n", sval );
 		}
 		if ( open_existing && !is_exists )
 			h_semaphore = SEM_FAILED;
@@ -98,14 +98,14 @@ public:
 		if ( std::this_thread::get_id( ) == m_tid ) {
 			int sval = 12345;
 			sem_getvalue( h_semaphore, &sval );
-			printf( "sval21: %d", sval );
+			printf( "sval21: %d\n", sval );
 			sem_post( h_semaphore );
 			sem_getvalue( h_semaphore, &sval );
-			printf( "sval21: %d", sval );
+			printf( "sval22: %d\n", sval );
 		} else {
 			int sval = 12345;
 			sem_getvalue( h_semaphore, &sval );
-			printf( "sval3: %d", sval );
+			printf( "sval3: %d\n", sval );
 		}
 
 		// TODO(alex): to separate
