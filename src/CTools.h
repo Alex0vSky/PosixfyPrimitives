@@ -82,6 +82,9 @@ int sem_post(sem_t *sem);
 int sem_unlink(const char *name);
 int sem_close(sem_t *sem);
 
+int sem_getvalue(sem_t *sem, int *sval);
+
+
 #endif // A0S_INDEVELOP
 
 

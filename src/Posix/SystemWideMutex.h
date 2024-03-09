@@ -48,6 +48,9 @@ public:
 			h_semaphore = sem_open( m_name.c_str( ), O_CREAT | O_EXCL, mode, value );
 		} else {
 			is_exists = true;
+			int sval = 12345;
+			sem_getvalue( h_semaphore, &sval );
+			printf( "sval1: %d", sval );
 		}
 		if ( open_existing && !is_exists )
 			h_semaphore = SEM_FAILED;
@@ -93,7 +96,16 @@ public:
 			return false;
 
 		if ( std::this_thread::get_id( ) == m_tid ) {
+			int sval = 12345;
+			sem_getvalue( h_semaphore, &sval );
+			printf( "sval21: %d", sval );
 			sem_post( h_semaphore );
+			sem_getvalue( h_semaphore, &sval );
+			printf( "sval21: %d", sval );
+		} else {
+			int sval = 12345;
+			sem_getvalue( h_semaphore, &sval );
+			printf( "sval3: %d", sval );
 		}
 
 		// TODO(alex): to separate

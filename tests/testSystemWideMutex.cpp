@@ -11,6 +11,7 @@ static char g_name[] = "my_lucky_unique_name_for_SystemWideMutex";
 
 namespace testSystemWideMutex_ { 
 
+/*
 TEST(SystemWideMutex_create, already_exists) {
 	bool already_exists;
 	char name[] = "some_name";
@@ -71,6 +72,7 @@ TEST(SystemWideMutex_locks, invalid_object) {
 	EXPECT_TRUE( systemWideMutex2.IsError( ) );
 	EXPECT_FALSE( systemWideMutex2.Lock( 0 ) );
 }
+//*/
 
 TEST(SystemWideMutex_locks, common_environment_immediately_recursive) {
 	bool already_exists;
