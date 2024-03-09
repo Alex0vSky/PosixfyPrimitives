@@ -124,7 +124,7 @@ TEST(event_in_threads, set) {
 			started = true;
 		});
 	while ( !started )
-		(void)0;
+		std::this_thread::yield( );
 	EXPECT_TRUE( event.IsSet( ) );
 	thread.join( );
 }
