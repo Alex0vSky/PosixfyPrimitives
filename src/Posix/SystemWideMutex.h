@@ -45,7 +45,7 @@ public:
 		h_semaphore = sem_open( m_name.c_str( ), O_CREAT | O_EXCL, mode, value );
 		if ( SEM_FAILED == h_semaphore ) {
 			is_exists = ( EEXIST == errno );
-			h_semaphore = sem_open( m_name.c_str( ), O_CREAT, mode, value );
+			h_semaphore = sem_open( m_name.c_str( ), O_RDWR );
 		}
 		if ( open_existing && !is_exists )
 			h_semaphore = SEM_FAILED;
