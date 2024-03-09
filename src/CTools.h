@@ -69,6 +69,18 @@ int ftruncate(int fildes, off_t length);
 int stat(const char *path, struct stat *buf);
 int fstatat(int fd, const char *path, struct stat *buf, int flag);
 
+struct sem_t{};
+sem_t *sem_open(const char *name, int oflag);
+sem_t *sem_open(const char *name, int oflag, mode_t mode, unsigned int value);
+#define SEM_FAILED ((sem_t *)(-1))
+
+int sem_wait(sem_t *sem);
+int sem_trywait(sem_t *sem);
+int sem_timedwait(sem_t *sem, const struct timespec *abs_timeout);
+
+int sem_post(sem_t *sem);
+int sem_unlink(const char *name);
+
 #endif // A0S_INDEVELOP
 
 

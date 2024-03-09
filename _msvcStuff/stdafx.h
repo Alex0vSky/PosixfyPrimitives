@@ -32,6 +32,7 @@
 #	include <errno.h>
 #	include <sys/stat.h>
 #	include <fcntl.h>
+#	include <semaphore.h>
 #endif // _WIN32
 
 #include <stdlib.h>
