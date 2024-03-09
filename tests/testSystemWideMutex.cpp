@@ -57,20 +57,20 @@ TEST(SystemWideMutex_create, open_existing_false) {
 	EXPECT_TRUE( systemWideMutex2.IsError( ) );
 }
 
-//TEST(SystemWideMutex_locks, simple) {
-//	CSystemWideMutex systemWideMutex = CSystemWideMutex( g_name );
-//	EXPECT_TRUE( systemWideMutex.Lock( 0 ) );
-//}
+TEST(SystemWideMutex_locks, simple) {
+	CSystemWideMutex systemWideMutex = CSystemWideMutex( g_name );
+	EXPECT_TRUE( systemWideMutex.Lock( 0 ) );
+}
 
-//TEST(SystemWideMutex_locks, invalid_object) {
-//	bool already_exists;
-//	char name[] = "some_name";
-//	CSystemWideMutex systemWideMutex1 = CSystemWideMutex( name, &already_exists );
-//	CSystemWideMutex systemWideMutex2 = CSystemWideMutex( g_name, &already_exists, true );
-//
-//	EXPECT_TRUE( systemWideMutex2.IsError( ) );
-//	EXPECT_FALSE( systemWideMutex2.Lock( 0 ) );
-//}
+TEST(SystemWideMutex_locks, invalid_object) {
+	bool already_exists;
+	char name[] = "some_name";
+	CSystemWideMutex systemWideMutex1 = CSystemWideMutex( name, &already_exists );
+	CSystemWideMutex systemWideMutex2 = CSystemWideMutex( g_name, &already_exists, true );
+
+	EXPECT_TRUE( systemWideMutex2.IsError( ) );
+	EXPECT_FALSE( systemWideMutex2.Lock( 0 ) );
+}
 
 //TEST(SystemWideMutex_locks, common_environment_immediately) {
 //	bool already_exists;
@@ -112,5 +112,5 @@ TEST(SystemWideMutex_create, open_existing_false) {
 //	CSystemWideMutex systemWideMutex = CSystemWideMutex( g_name );
 //	EXPECT_TRUE( systemWideMutex.Lock( 1500 ) );
 //}
-} // namespace testSystemWideMutex_ 
 
+} // namespace testSystemWideMutex_ 
