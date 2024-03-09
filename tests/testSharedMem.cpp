@@ -11,7 +11,6 @@ static char g_name[] = "my_lucky_unique_name";
 
 namespace testSharedMemory_ { 
 
-//*
 TEST(SharedMemory_create, already_exists) {
 	bool already_exists;
 	char name[] = "some_name";
@@ -43,9 +42,7 @@ TEST(SharedMemory_create, freeable) {
 	EXPECT_FALSE( sharedMem ->IsError( ) );
 	CSharedMem::Free( sharedMem );
 }
-//*/
 
-//*
 TEST(SharedMemory_using, read_write) {
 	CSharedMem *sharedMemWriter = CSharedMem::Create( g_name, c_size );
 	CSharedMem *sharedMemReader = CSharedMem::Open( g_name );
@@ -72,6 +69,5 @@ TEST(SharedMemory_using, read_write) {
 	CSharedMem::Free( sharedMemReader );
 	CSharedMem::Free( sharedMemWriter );
 }
-//*/
 
 } // namespace testSharedMemory_ 

@@ -16,8 +16,8 @@ class CSharedMem {
 		, m_size( size )
     {
 		errExit( "Hello" );
-		//const mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
-		const mode_t mode = 0777;
+		const mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+		//const mode_t mode = 0777;
 		bool is_exists;
 		int fd = -1;
 		if ( !open_existing ) {
@@ -25,7 +25,7 @@ class CSharedMem {
 			if ( -1 != fd ) {
 				if ( -1 == ftruncate( fd, m_size ) ) {
 					// tmp
-					errExit("ftruncate3");
+					errExit("ftruncate");
 				}
 			}
 			if ( -1 == fd ) {
@@ -34,7 +34,7 @@ class CSharedMem {
 					fd = shm_open( m_name.c_str( ), O_RDWR, 0 );
 			}
 		} else {
-			fd = shm_open( m_name.c_str( ), O_RDWR, mode );
+			fd = shm_open( m_name.c_str( ), O_RDWR, 0 );
 			// tmp
 			if ( -1 == fd ) {
 				errExit( "shm_open" );
@@ -43,9 +43,9 @@ class CSharedMem {
 			struct stat buf = { };
 			int n = fstat( fd, &buf );
 			if ( -1 == n ) {
+				fd = -1;
 				errExit( "fstat" );
 			}
-			printf( "buf.st_size: %d\n", buf.st_size );
 			m_size = buf.st_size;
 		}
 
