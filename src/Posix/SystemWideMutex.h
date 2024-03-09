@@ -19,11 +19,12 @@ public:
 		}
 		else
 		{
+			perror( "bef" );
 			h_mutex = sem_open( m_name.c_str( ), O_CREAT | O_EXCL, 0644, 1 );
+			perror( "aft" );
 			if ( SEM_FAILED == h_mutex ) {
 				is_exists = ( EEXIST == errno );
 			}
-			sem_unlink( m_name.c_str( ) );
 			//sem_wait( h_mutex );
 			//sem_post( h_mutex );
 		}
@@ -49,8 +50,8 @@ public:
 	}
 
 	~CSystemWideMutex() {
-		//CTools::CloseAndInvalidateHandle(h_mutex);
-//		sem_unlink( m_name.c_str( ) );
+		// TODO(alex): via iface `CTools::CloseAndInvalidateHandle(h_mutex);`
+		sem_unlink( m_name.c_str( ) );
 	}
 
 	bool IsError() const {
