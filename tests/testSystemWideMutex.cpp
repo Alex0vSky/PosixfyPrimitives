@@ -11,7 +11,7 @@ static char g_name[] = "my_lucky_unique_name_for_SystemWideMutex";
 
 namespace testSystemWideMutex_ { 
 
-/*
+//*
 TEST(SystemWideMutex_create, already_exists) {
 	bool already_exists;
 	char name[] = "some_name";
@@ -157,15 +157,15 @@ TEST(SystemWideMutex_locks, separate_environment_mix) {
 }
 //*/
 
-//TEST(SystemWideMutex_locks, real_world1_1500) {
-//	CSystemWideMutex systemWideMutex1( g_name );
-//	EXPECT_TRUE( systemWideMutex1.Lock( 0 ) );
-//	std::thread thread([&systemWideMutex1] {
-//			EXPECT_FALSE( systemWideMutex1.Lock( 1500 ) );
-//		});
-//	thread.join( );
-//}
-//
+TEST(SystemWideMutex_locks, real_world1_1500) {
+	CSystemWideMutex systemWideMutex1( g_name );
+	EXPECT_TRUE( systemWideMutex1.Lock( 0 ) );
+	std::thread thread([&systemWideMutex1] {
+			EXPECT_FALSE( systemWideMutex1.Lock( 1500 ) );
+		});
+	thread.join( );
+}
+
 //TEST(SystemWideMutex_locks, real_world2_1500) {
 //	CSystemWideMutex systemWideMutex1( g_name );
 //	CSystemWideMutex systemWideMutex2( g_name );
