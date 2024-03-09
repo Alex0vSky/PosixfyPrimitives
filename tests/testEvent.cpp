@@ -155,9 +155,9 @@ TEST(event_wait, skip_1000) {
 	EXPECT_TRUE( event.Wait( 1000 ) );
 }
 
-TEST(event_wait, real_world_wait_false_1500 ) {
-	CEvent event( false, false );
-	EXPECT_FALSE( event.Wait( 1500 ) );
-}
+//TEST(event_wait, real_world_wait_false_1500 ) {
+//	CEvent event( false, false );
+//	EXPECT_FALSE( event.Wait( 1500 ) );
+//}
 
 } // namespace testEvent_

@@ -6,7 +6,7 @@ class CSystemWideMutex {
 	const std::string m_name;
 	bool m_open_existing;
 	unsigned m_counter_recursive;
-	std::thread::id m_tid;
+	const std::thread::id m_tid;
 
 	// @insp https://stackoverflow.com/questions/15024623/convert-milliseconds-to-timespec-for-gnu-port
 	static void ms2ts(timespec *ts, unsigned long milli) {
@@ -35,6 +35,7 @@ public:
 		, m_name( std::string( "\\" ) + name )
 		, m_open_existing( open_existing )
 		, m_counter_recursive( 0 )
+		, m_tid( std::this_thread::get_id( ) )
 	{
 		bool is_exists = false;
 		//int mode = 0644;
@@ -50,7 +51,6 @@ public:
 
 		if ( p_already_exists )
 			*p_already_exists = is_exists;
-		m_tid = std::this_thread::get_id( );
 	}
 	//sem_post( h_semaphore );
 
@@ -66,7 +66,6 @@ public:
 	//		//CTools::CloseAndInvalidateHandle(h_semaphore);
 	//		//h_semaphore = CTools::CopyHandle(other.h_semaphore);
 	//	}
-
 	//	return *this;
 	//}
 
@@ -75,7 +74,7 @@ public:
 			return;
 		// TODO(alex): cause code-dump
 		// TODO(alex): via iface `CTools::CloseAndInvalidateHandle(h_semaphore);`
-		//sem_close( h_semaphore ), h_semaphore = SEM_FAILED;
+		sem_close( h_semaphore ), h_semaphore = SEM_FAILED;
 		//if ( !m_open_existing )
 		//	sem_unlink( m_name.c_str( ) );
 	}
