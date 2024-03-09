@@ -72,7 +72,7 @@ public:
 		if ( h_semaphore == SEM_FAILED )
 			return;
 		// TODO(alex): via iface `CTools::CloseAndInvalidateHandle(h_semaphore);`
-		sem_close( h_semaphore ), h_semaphore == SEM_FAILED;
+		sem_close( h_semaphore ), h_semaphore = SEM_FAILED;
 		if ( !m_open_existing )
 			sem_unlink( m_name.c_str( ) );
 	}
@@ -88,7 +88,7 @@ public:
 			return false;
 
 		if ( ++m_counter_recursive )
-			return;
+			return true;
 
 		// TODO(alex): to separate
 		timespec abstime = { };
