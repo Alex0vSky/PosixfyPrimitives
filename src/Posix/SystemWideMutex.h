@@ -120,6 +120,9 @@ public:
 			sem_getvalue( h_semaphore, &m_sval );
 			printf( "after wait sval: %d, %s\n", m_sval, ( success ?"true" :"false" ) );
 		}
+		if ( !success ) {
+			perror( "!success" );
+		}
 		return success;
 
 		//// TODO(alex): makeme
