@@ -1,12 +1,23 @@
 ﻿// src/Posix/SystemWideMutex.h - ipc mutex facility
 #pragma once // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
 namespace Ipc {
+
+thread_local static int g_counter = 1;
+thread_local struct Foo_tls {
+	void save_owner() {
+	}
+} g_foo;
+
 class CSystemWideMutex {
 	sem_t *h_semaphore;
 	const std::string m_name;
 	bool m_open_existing;
 	const std::thread::id m_tid;
 	int m_sval;
+
+	// for compare
+	const std::thread::id m_empty_tid;
+	std::thread::id m_owner_tid;
 
 	// @insp https://stackoverflow.com/questions/15024623/convert-milliseconds-to-timespec-for-gnu-port
 	static void ms2ts(timespec *ts, unsigned long milli) {
@@ -93,13 +104,20 @@ public:
 			return false;
 
 		if ( std::this_thread::get_id( ) == m_tid ) {
-			sem_getvalue( h_semaphore, &m_sval );
-			printf( "creator thread, sval: %d\n", m_sval );
-			if ( !m_sval )
-				sem_post( h_semaphore );
+			int sval;
+			sem_getvalue( h_semaphore, &sval );
+			printf( "creator thread, BEG sval: %d\n", sval );
+			if ( !sval ) {
+				if ( m_empty_tid != m_owner_tid ) {
+					if ( std::this_thread::get_id( ) == m_owner_tid ) {
+						sem_post( h_semaphore );
+					}
+				}
+			}
+			sem_getvalue( h_semaphore, &sval );
+			printf( "creator thread, END sval: %d\n", sval );
 		} else {
-			sem_getvalue( h_semaphore, &m_sval );
-			printf( "other thread, sval: %d\n", m_sval );
+			sem_getvalue( h_semaphore, &m_sval ); printf( "other thread, sval: %d\n", m_sval );
 		}
 
 		// TODO(alex): to separate
@@ -126,10 +144,15 @@ public:
 		} while ( interupt );
 
 		sem_getvalue( h_semaphore, &m_sval );
-		printf( "after wait sval: %d, %s\n", m_sval, ( success ?"true" :"false" ) );
-		if ( !success ) {
-			perror( "!success" );
+		if ( success && !m_sval ) {
+			//g_foo.save_owner( );
+			m_owner_tid = std::this_thread::get_id( );
+		} else {
+			m_owner_tid = m_empty_tid;
 		}
+		printf( "after wait sval: %d, %s\n", m_sval, ( success ?"true" :"false" ) );
+		if ( !success ) perror( "!success" );
+
 		return success;
 	}
 
@@ -141,7 +164,7 @@ public:
 	void Unlock() {
 		if ( h_semaphore == SEM_FAILED )
 			return;
-		sem_getvalue( h_semaphore, &m_sval );
+		sem_getvalue ( h_semaphore, &m_sval );
 		if ( !m_sval )
 			sem_post( h_semaphore );
 	}
