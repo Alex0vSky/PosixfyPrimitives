@@ -60,7 +60,7 @@ public:
 	bool Lock(unsigned timeout_ms)  {
 		//if ( !h_mutex )
 		//{
-		//	return false;
+			return false;
 		//}
 		//else
 		//{
