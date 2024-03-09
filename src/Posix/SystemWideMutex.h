@@ -96,7 +96,7 @@ public:
 		if ( std::this_thread::get_id( ) == m_tid ) {
 			sem_getvalue( h_semaphore, &m_sval );
 			printf( "creator thread, sval: %d\n", m_sval );
-			if ( m_sval )
+			if ( !m_sval )
 				sem_post( h_semaphore );
 		} else {
 			sem_getvalue( h_semaphore, &m_sval );
