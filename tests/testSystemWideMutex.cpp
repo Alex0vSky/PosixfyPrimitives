@@ -9,7 +9,7 @@ using CSystemWideMutex = Ipc::CSystemWideMutex;
 static const unsigned c_size = 4096;
 static char g_name[] = "my_lucky_unique_name_for_SystemWideMutex";
 
-namespace testSharedMemory_ { 
+namespace testSystemWideMutex_ { 
 
 TEST(SystemWideMutex_create, already_exists) {
 	bool already_exists;
@@ -21,12 +21,12 @@ TEST(SystemWideMutex_create, already_exists) {
 	EXPECT_FALSE( systemWideMutex2.IsError( ) );
 }
 
-TEST(SharedMemory_create, ordinary) {
+TEST(SystemWideMutex_create, ordinary) {
 	CSystemWideMutex systemWideMutex = CSystemWideMutex( g_name );
 	EXPECT_FALSE( systemWideMutex.IsError( ) );
 }
 
-TEST(SharedMemory_create, freeable) {
+TEST(SystemWideMutex_create, freeable) {
 	{
 		CSystemWideMutex systemWideMutex = CSystemWideMutex( g_name );
 		EXPECT_FALSE( systemWideMutex.IsError( ) );
@@ -37,7 +37,7 @@ TEST(SharedMemory_create, freeable) {
 	}
 }
 
-TEST(SharedMemory_create, open_existing_true) {
+TEST(SystemWideMutex_create, open_existing_true) {
 	bool already_exists;
 	char name[] = "some_name";
 	CSystemWideMutex systemWideMutex1 = CSystemWideMutex( name, &already_exists );
@@ -47,7 +47,7 @@ TEST(SharedMemory_create, open_existing_true) {
 	EXPECT_FALSE( systemWideMutex2.IsError( ) );
 }
 
-TEST(SharedMemory_create, open_existing_false) {
+TEST(SystemWideMutex_create, open_existing_false) {
 	bool already_exists;
 	char name[] = "some_name";
 	CSystemWideMutex systemWideMutex1 = CSystemWideMutex( name, &already_exists );
@@ -56,5 +56,5 @@ TEST(SharedMemory_create, open_existing_false) {
 	EXPECT_FALSE( already_exists );
 	EXPECT_TRUE( systemWideMutex2.IsError( ) );
 }
-} // namespace testSharedMemory_ 
+} // namespace testSystemWideMutex_ 
 
