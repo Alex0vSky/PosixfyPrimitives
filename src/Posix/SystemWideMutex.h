@@ -2,7 +2,7 @@
 #pragma once // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
 namespace Ipc {
 class CSystemWideMutex {
-	sem_t *h_mutex;
+	sem_t *h_semaphore;
 	const std::string m_name;
 
 	// @insp https://stackoverflow.com/questions/15024623/convert-milliseconds-to-timespec-for-gnu-port
@@ -28,55 +28,55 @@ class CSystemWideMutex {
 
 public:
 	CSystemWideMutex(const char *name,bool *p_already_exists=NULL,bool open_existing=false) :
-		h_mutex( SEM_FAILED )
+		h_semaphore( SEM_FAILED )
 		, m_name( std::string( "\\" ) + name )
 	{
 		bool is_exists = false;
 		int mode = 0644;
 		int value = 1;
-		h_mutex = sem_open( m_name.c_str( ), O_CREAT | O_EXCL, mode, value );
-		if ( SEM_FAILED == h_mutex ) {
+		h_semaphore = sem_open( m_name.c_str( ), O_CREAT | O_EXCL, mode, value );
+		if ( SEM_FAILED == h_semaphore ) {
 			is_exists = ( EEXIST == errno );
-			h_mutex = sem_open( m_name.c_str( ), O_CREAT, mode, value );
+			h_semaphore = sem_open( m_name.c_str( ), O_CREAT, mode, value );
 		}
 		if ( open_existing && !is_exists )
-			h_mutex = SEM_FAILED;
+			h_semaphore = SEM_FAILED;
 
 		if ( p_already_exists )
 			*p_already_exists = is_exists;
 	}
-	//sem_post( h_mutex );
+	//sem_post( h_semaphore );
 
 	CSystemWideMutex(const CSystemWideMutex& other) {
-		//h_mutex = CTools::CopyHandle(other.h_mutex);
+		//h_semaphore = CTools::CopyHandle(other.h_semaphore);
 	}
 
 	const CSystemWideMutex& operator = (const CSystemWideMutex& other) {
 		if ( this != &other )
 		{
-			//CTools::CloseAndInvalidateHandle(h_mutex);
-			//h_mutex = CTools::CopyHandle(other.h_mutex);
+			//CTools::CloseAndInvalidateHandle(h_semaphore);
+			//h_semaphore = CTools::CopyHandle(other.h_semaphore);
 		}
 
 		return *this;
 	}
 
 	~CSystemWideMutex() {
-		// TODO(alex): via iface `CTools::CloseAndInvalidateHandle(h_mutex);`
+		// TODO(alex): via iface `CTools::CloseAndInvalidateHandle(h_semaphore);`
 		sem_unlink( m_name.c_str( ) );
 	}
 
 	bool IsError() const {
-		return h_mutex == SEM_FAILED;
+		return h_semaphore == SEM_FAILED;
 	}
 							
 	// returns true if we've got ownership, so Unlock() must be called when ownership is no longer needed
 	// it is safe to call Unlock() without corresp. Lock() returned true
 	bool Lock(unsigned timeout_milli)  {
-		if ( h_mutex == SEM_FAILED )
+		if ( h_semaphore == SEM_FAILED )
 			return false;
 
-		// TODO: to separate
+		// TODO(alex): to separate
 		timespec abstime = { };
 		if ( INFINITE == timeout_milli ) {
 			abstime.tv_sec = std::numeric_limits< decltype( abstime.tv_sec ) >::max( );
@@ -88,8 +88,13 @@ public:
 			safe_add( &abstime, &adding ); //abstime.tv_sec += adding.tv_sec; abstime.tv_nsec += adding.tv_nsec;
 		}
 
-		return ( !sem_timedwait( h_mutex, &abstime ) );
-		//int wait = sem_timedwait( h_mutex, &abstime );
+		return ( !sem_timedwait( h_semaphore, &abstime ) );
+
+		//// TODO(alex): makeme
+		//while ((s = sem_timedwait(&sem, &ts)) == -1 && errno == EINTR)
+		//	continue;       // перезапускаем, если прервано обработчиком
+
+		//int wait = sem_timedwait( h_semaphore, &abstime );
 		//if ( !wait )
 		//	return true;
 		//return ( errno == EINTR ); // WAIT_ABANDONED
@@ -101,11 +106,11 @@ public:
 							
 	// it is safe to call Unlock() without corresp. Lock() returned true
 	void Unlock() {
-		if ( h_mutex )
+		if ( h_semaphore )
 		{
-			//ReleaseMutex(h_mutex);
+			//ReleaseMutex(h_semaphore);
 			// TODO(alex): broken logic detected, handle got from `CreateMutex()/OpenMutex()`
-			sem_close( h_mutex );
+			sem_close( h_semaphore );
 		}
 	}
 };
