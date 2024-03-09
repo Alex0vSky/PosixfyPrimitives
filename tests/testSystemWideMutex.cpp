@@ -84,7 +84,7 @@ TEST(SystemWideMutex_locks, common_environment_immediately_recursive) {
 	EXPECT_TRUE( systemWideMutex2.Lock( 0 ) );
 }
 
-/*
+//*
 TEST(SystemWideMutex_locks, separate_environment_immediately_not_recursive_by_ref1) {
 	CSystemWideMutex systemWideMutex1( g_name );
 	CSystemWideMutex systemWideMutex2( g_name );
@@ -158,7 +158,7 @@ TEST(SystemWideMutex_locks, separate_environment_mix) {
 }
 //*/
 
-/*
+//*
 TEST(SystemWideMutex_locks, real_world_wait1_1500) {
 	CSystemWideMutex systemWideMutex1( g_name );
 	EXPECT_TRUE( systemWideMutex1.Lock( 0 ) );
@@ -195,14 +195,14 @@ TEST(SystemWideMutex_unlocks, break_LockInfinite) {
 		std::this_thread::yield( );
 	// waiting less then infinite
 	auto next_clock = now( ) + std::chrono::milliseconds{ 100 };
-	bool notatomic_stoped = false;
+	bool not_atomic_stoped = false;
 	while ( now( ) < next_clock ) {
-		notatomic_stoped = stoped;
-		if ( notatomic_stoped )
+		not_atomic_stoped = stoped;
+		if ( not_atomic_stoped )
 			break;
 		std::this_thread::yield( );
 	}
-	EXPECT_FALSE( notatomic_stoped );
+	EXPECT_FALSE( not_atomic_stoped );
 	printf( "systemWideMutex.Unlock( );\n" );
 	systemWideMutex.Unlock( );
 
