@@ -39,7 +39,7 @@ public:
 		, m_tid( std::this_thread::get_id( ) )
 	{		
 		//m_string_tid = ( ( std::ostringstream( ) << m_tid ).str( ) )
-		std::ostringstream oss; oss << m_tid; m_string_tid = oss.str( );
+		m_string_tid = "ctor";
 
 		bool is_exists = false;
 		//int mode = 0644;
@@ -99,6 +99,7 @@ public:
 		if ( h_semaphore == SEM_FAILED )
 			return false;
 
+		std::ostringstream oss; oss << m_tid; m_string_tid = oss.str( );
 		if ( std::this_thread::get_id( ) == m_tid ) {
 			int sval = 12345;
 			sem_getvalue( h_semaphore, &sval );
