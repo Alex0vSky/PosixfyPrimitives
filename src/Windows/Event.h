@@ -1,4 +1,4 @@
-﻿// src/Windows/Event.h - event facility 
+﻿// src/Windows/Event.h - independent process event facility 
 #pragma once // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
 namespace IndependentProcess {
 class CEvent {

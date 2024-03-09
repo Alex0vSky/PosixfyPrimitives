@@ -1,4 +1,4 @@
-﻿// tests/testEvent.cpp - test posixfy event // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
+﻿// tests/testSharedMem.cpp - test posixfy ipc shared memory // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
 #include "CTools.h"
 #ifdef _WIN32
 #	include "Windows/SharedMem.h"

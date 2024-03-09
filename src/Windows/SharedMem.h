@@ -1,4 +1,4 @@
-﻿// src/Windows/SharedMem.h - shared memory facility 
+﻿// src/Windows/SharedMem.h - ipc shared memory facility 
 #pragma once // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
 namespace Ipc {
 class CSharedMem {

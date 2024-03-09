@@ -1,4 +1,4 @@
-﻿// src/Posix/Event.h - event facility // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
+﻿// src/Posix/Event.h - independent process event facility // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
 // @insp SO/linux-posix-equivalent-for-win32s-createevent-setevent-waitforsingleobject
 #pragma once // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
 namespace IndependentProcess {

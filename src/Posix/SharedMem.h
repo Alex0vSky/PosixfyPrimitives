@@ -1,4 +1,4 @@
-﻿// src/Posix/SharedMem.h - shared memory facility
+﻿// src/Posix/SharedMem.h - ipc shared memory facility
 #pragma once // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
 namespace Ipc {
 class CSharedMem {
@@ -12,6 +12,7 @@ class CSharedMem {
 		, m_size( size )
     {
 		const mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+		// TODO(alex): initial value
 		bool is_exists;
 		int fd = -1;
 		if ( !open_existing ) {

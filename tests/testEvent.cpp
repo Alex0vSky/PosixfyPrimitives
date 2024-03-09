@@ -1,4 +1,4 @@
-﻿// tests/testEvent.cpp - test posixfy event // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
+﻿// tests/testEvent.cpp - test posixfy independent process event // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
 #include "CTools.h"
 #ifdef _WIN32
 #	include "Windows/Event.h"
