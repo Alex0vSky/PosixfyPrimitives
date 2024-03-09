@@ -24,68 +24,43 @@ class CSharedMem {
 			fd = shm_open( m_name.c_str( ), O_CREAT | O_EXCL | O_RDWR, mode );
 			if ( -1 != fd ) {
 				if ( -1 == ftruncate( fd, m_size ) ) {
-
 					// tmp
 					errExit("ftruncate3");
 				}
 			}
 			if ( -1 == fd ) {
 				is_exists = ( EEXIST == errno );
-
 				if ( is_exists )
 					fd = shm_open( m_name.c_str( ), O_RDWR, 0 );
-				//// tmp
-				//if ( -1 == fd ) {
-				//	errExit( "shm_open2" );
-				//}
 			}
-
-			if ( -1 != fd ) {
-
-				m_buff = mmap( NULL, m_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0 );
-			
-				// tmp
-				if ( !m_buff ) {
-					errExit("mmap11");
-				}
-
-				if ( MAP_FAILED == m_buff ) {
-					m_buff = nullptr;
-					// tmp
-					errExit("mmap12");
-				}
-			}
-
 		} else {
 			fd = shm_open( m_name.c_str( ), O_RDWR, mode );
-			// To known size
-			struct stat buf = { };
-			//int n = stat( m_name.c_str( ), &buf );
-			int n = fstat( fd, &buf );
-			if ( -1 == n ) {
-				errExit( "stat" );
-			}
-			printf( "buf.st_size: %d", buf.st_size );
-			m_size = buf.st_size;
-
 			// tmp
 			if ( -1 == fd ) {
-				errExit( "shm_open21" );
+				errExit( "shm_open" );
 			}
-			if ( -1 != fd ) {
+			// To known size
+			struct stat buf = { };
+			int n = fstat( fd, &buf );
+			if ( -1 == n ) {
+				errExit( "fstat" );
+			}
+			printf( "buf.st_size: %d\n", buf.st_size );
+			m_size = buf.st_size;
+		}
 
-				m_buff = mmap( NULL, m_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0 ); 
+		if ( -1 != fd ) {
+			m_buff = mmap( NULL, m_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0 );
 			
-				// tmp
-				if ( !m_buff ) {
-					errExit("mmap22");
-				}
+			// tmp
+			if ( !m_buff ) {
+				errExit("!m_buff");
+			}
 
-				if ( MAP_FAILED == m_buff ) {
-					m_buff = nullptr;
-					// tmp
-					errExit("mmap21");
-				}
+			if ( MAP_FAILED == m_buff ) {
+				m_buff = nullptr;
+				// tmp
+				errExit("MAP_FAILED");
 			}
 		}
 

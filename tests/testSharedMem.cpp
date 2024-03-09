@@ -8,11 +8,10 @@
 using CSharedMem = Ipc::CSharedMem;
 static const unsigned c_size = 4096;
 static char g_name[] = "my_lucky_unique_name";
-static char g_name2[] = "my_second_lucky_unique_name";
 
 namespace testSharedMemory_ { 
 
-/*
+//*
 TEST(SharedMemory_create, already_exists) {
 	bool already_exists;
 	char name[] = "some_name";
