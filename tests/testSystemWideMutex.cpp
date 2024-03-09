@@ -98,8 +98,8 @@ TEST(SystemWideMutex_locks, separate_environment_immediately_not_recursive_by_re
 
 	std::atomic_bool started;
 	std::thread thread([&started, &systemWideMutex1] {
-			//// try take ownership
-			//EXPECT_TRUE( systemWideMutex1.Lock( 0 ) );
+			// try take ownership
+			EXPECT_TRUE( systemWideMutex1.Lock( 0 ) );
 			started = true;
 		});
 	while ( !started )
