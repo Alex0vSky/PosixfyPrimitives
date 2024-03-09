@@ -50,10 +50,13 @@ TEST(SharedMemory_using, create_write_open_read) {
 	EXPECT_FALSE( sharedMemWriter ->IsError( ) );
 	EXPECT_FALSE( sharedMemReader ->IsError( ) );
 
-	if ( true
-		&& !sharedMemWriter ->IsError( ) 
-		&& !sharedMemReader ->IsError( ) 
-	) {
+	bool success = ( true
+			&& !sharedMemWriter ->IsError( ) 
+			&& !sharedMemReader ->IsError( ) 
+		);
+
+	EXPECT_TRUE( success );
+	if ( success ) {
 		auto writer = reinterpret_cast<char *>( sharedMemWriter ->GetMemPtr( ) );
 		for ( int i = 0; i < c_size; ++i ) 
 			writer[ i ] = static_cast< char >( i );
