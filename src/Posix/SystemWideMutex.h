@@ -90,8 +90,9 @@ public:
 		if ( h_semaphore == SEM_FAILED )
 			return false;
 
-		if ( std::this_thread::get_id( ) == m_tid && m_counter_recursive > 0 )
-			return ++m_counter_recursive, true;
+		if ( std::this_thread::get_id( ) == m_tid ) {
+			sem_post( h_semaphore );
+		}
 
 		// TODO(alex): to separate
 		timespec abstime = { };
