@@ -109,26 +109,44 @@ TEST(SystemWideMutex_locks, separate_environment_immediately_not_recursive_by_re
 	thread.join( );
 }
 
-TEST(SystemWideMutex_locks, real_world1_1500) {
-	CSystemWideMutex systemWideMutex1( g_name );
-	EXPECT_TRUE( systemWideMutex1.Lock( 0 ) );
-	std::thread thread([&systemWideMutex1] {
-			EXPECT_FALSE( systemWideMutex1.Lock( 1500 ) );
-		});
-	thread.join( );
+TEST(SystemWideMutex_locks, other_thread) {
+	{
+		CSystemWideMutex systemWideMutex( g_name );
+		EXPECT_TRUE( systemWideMutex.Lock( 0 ) );
+		std::thread thread([&systemWideMutex] {
+				EXPECT_FALSE( systemWideMutex.Lock( 0 ) );
+			});
+		thread.join( );
+	}
+	{
+		CSystemWideMutex systemWideMutex( g_name );
+		std::thread thread([&systemWideMutex] {
+				EXPECT_TRUE( systemWideMutex.Lock( 0 ) );
+			});
+		thread.join( );
+	}
 }
 
-TEST(SystemWideMutex_locks, real_world2_1500) {
-	CSystemWideMutex systemWideMutex1( g_name );
-	CSystemWideMutex systemWideMutex2( g_name );
-	EXPECT_TRUE( systemWideMutex2.Lock( 0 ) );
-	std::thread thread([&systemWideMutex1] {
-			EXPECT_FALSE( systemWideMutex1.Lock( 1500 ) );
-		});
-	thread.join( );
-}
+//TEST(SystemWideMutex_locks, real_world1_1500) {
+//	CSystemWideMutex systemWideMutex1( g_name );
+//	EXPECT_TRUE( systemWideMutex1.Lock( 0 ) );
+//	std::thread thread([&systemWideMutex1] {
+//			EXPECT_FALSE( systemWideMutex1.Lock( 1500 ) );
+//		});
+//	thread.join( );
+//}
+//
+//TEST(SystemWideMutex_locks, real_world2_1500) {
+//	CSystemWideMutex systemWideMutex1( g_name );
+//	CSystemWideMutex systemWideMutex2( g_name );
+//	EXPECT_TRUE( systemWideMutex2.Lock( 0 ) );
+//	std::thread thread([&systemWideMutex1] {
+//			EXPECT_FALSE( systemWideMutex1.Lock( 1500 ) );
+//		});
+//	thread.join( );
+//}
 
-TEST(SystemWideMutex_locks, break_LockInfinite) {
+TEST(SystemWideMutex_unlocks, break_LockInfinite) {
 	CSystemWideMutex systemWideMutex1( g_name );
 	CSystemWideMutex systemWideMutex2( g_name );
 

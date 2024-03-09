@@ -5,9 +5,8 @@ class CSystemWideMutex {
 	sem_t *h_semaphore;
 	const std::string m_name;
 	bool m_open_existing;
-	unsigned m_counter_recursive;
 	const std::thread::id m_tid;
-	std::string m_string_tid;
+	int m_sval;
 
 	// @insp https://stackoverflow.com/questions/15024623/convert-milliseconds-to-timespec-for-gnu-port
 	static void ms2ts(timespec *ts, unsigned long milli) {
@@ -35,11 +34,9 @@ public:
 		h_semaphore( SEM_FAILED )
 		, m_name( std::string( "\\" ) + name )
 		, m_open_existing( open_existing )
-		, m_counter_recursive( 0 )
 		, m_tid( std::this_thread::get_id( ) )
 	{		
 		//m_string_tid = ( ( std::ostringstream( ) << m_tid ).str( ) )
-		std::ostringstream oss; oss << m_tid; m_string_tid = oss.str( );
 
 		bool is_exists = false;
 		//int mode = 0644;
@@ -52,9 +49,8 @@ public:
 			h_semaphore = sem_open( m_name.c_str( ), O_CREAT | O_EXCL, mode, value );
 		} else {
 			is_exists = true;
-			int sval = 12345;
-			sem_getvalue( h_semaphore, &sval );
-			printf( "tid: %s, sval1: %d\n", m_string_tid.c_str( ), sval );
+			sem_getvalue( h_semaphore, &m_sval );
+			printf( "sval exists: %d\n", m_sval );
 		}
 		if ( open_existing && !is_exists )
 			h_semaphore = SEM_FAILED;
@@ -99,17 +95,14 @@ public:
 		if ( h_semaphore == SEM_FAILED )
 			return false;
 
-		std::ostringstream oss; oss << std::this_thread::get_id( ); m_string_tid = oss.str( );
 		if ( std::this_thread::get_id( ) == m_tid ) {
-			int sval = 12345;
-			sem_getvalue( h_semaphore, &sval );
-			printf( "tid: %s, creator thread, sval: %d\n", m_string_tid.c_str( ), sval );
-			if ( sval )
+			sem_getvalue( h_semaphore, &m_sval );
+			printf( "creator thread, sval: %d\n", m_sval );
+			if ( m_sval )
 				sem_post( h_semaphore );
 		} else {
-			int sval = 12345;
-			sem_getvalue( h_semaphore, &sval );
-			printf( "tid: %s, other thread, sval: %d\n", m_string_tid.c_str( ), sval );
+			sem_getvalue( h_semaphore, &m_sval );
+			printf( "other thread, sval: %d\n", m_sval );
 		}
 
 		// TODO(alex): to separate
@@ -125,12 +118,9 @@ public:
 		}
 
 		bool success = ( !sem_timedwait( h_semaphore, &abstime ) );
-		if ( success )
-			++m_counter_recursive;
 		{
-			int sval = 12345;
-			sem_getvalue( h_semaphore, &sval );
-			printf( "tid: %s, after wait sval: %d, %s\n", m_string_tid.c_str( ), sval, ( success ?"true" :"false" ) );
+			sem_getvalue( h_semaphore, &m_sval );
+			printf( "after wait sval: %d, %s\n", m_sval, ( success ?"true" :"false" ) );
 		}
 		return success;
 
@@ -155,15 +145,12 @@ public:
 		//ReleaseMutex(h_semaphore);
 		// TODO(alex): broken logic detected, handle got from `CreateMutex()/OpenMutex()`
 
-		//int sval = 12345;
-		//sem_getvalue( h_semaphore, &sval );
-		//while ( sval-- ) {
+		//int m _sval = 12345;
+		//sem_getvalue( h_semaphore, &m _sval );
+		//while ( m _sval-- ) {
 		//	sem_post( h_semaphore );
 		//}
 		sem_close( h_semaphore ), h_semaphore = SEM_FAILED;
-
-//		if ( success && std::this_thread::get_id( ) == m_tid )
-//			--m_counter_recursive;
 	}
 };
 } // namespace Ipc
