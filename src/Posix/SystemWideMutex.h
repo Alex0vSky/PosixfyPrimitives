@@ -17,7 +17,9 @@ public:
 		{
 			h_mutex = sem_open( m_name.c_str( ), O_CREAT | O_EXCL, mode, value );
 			is_exists = ( EEXIST == errno );
-			h_mutex = sem_open( m_name.c_str( ), O_CREAT, mode, value );
+			h_mutex = SEM_FAILED;
+			if ( is_exists )
+				h_mutex = sem_open( m_name.c_str( ), O_CREAT, mode, value );
 		}
 		else
 		{
