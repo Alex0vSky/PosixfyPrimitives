@@ -85,7 +85,7 @@ int sem_close(sem_t *sem);
 int sem_getvalue(sem_t *sem, int *sval);
 
 
-struct pid_t{};
+typedef int pid_t;
 struct posix_spawn_file_actions_t{};
 struct posix_spawnattr_t{};
 int posix_spawn(pid_t *pid, const char *path,

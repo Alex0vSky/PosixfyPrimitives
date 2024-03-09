@@ -6,7 +6,7 @@ public:
 
 private:
 	// child_pid
-	pid_t *h_process;
+	pid_t h_process;
 	process_id_t m_id_process;
 	int m_err;
 
@@ -40,7 +40,7 @@ public:
 			*_perr = m_err;
 		}
 								
-		return h_process == nullptr;
+		return h_process == 0;
 	}
 							
 	//bool IsProcessActive(unsigned wait_ms=0) const {
@@ -81,13 +81,13 @@ private:
 	//}
 							
 	CProcess(const char *_cmdline,const char *cwd) : 
-		h_process( nullptr ), m_id_process(GetInvalidProcessId()), m_err(-1)
+		h_process( 0 ), m_id_process(GetInvalidProcessId()), m_err(-1)
 	{
 		char *argv[] = { "sh", "-c", nullptr, nullptr };
 		std::string cmdline2 = _cmdline;
 		std::vector< char > cmdline( cmdline2.begin( ), cmdline2.end( ) );
 		argv[ 2 ] = cmdline.data( );
-		if ( posix_spawnp( h_process, argv[ 0 ], nullptr, nullptr, argv, environ ) ) {
+		if ( posix_spawnp( &h_process, argv[ 0 ], nullptr, nullptr, argv, environ ) ) {
 			m_err = errno;
 			perror( "posix_spawnp" );
 		}
