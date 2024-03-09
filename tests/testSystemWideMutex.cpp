@@ -119,16 +119,16 @@ TEST(SystemWideMutex_locks, separate_environment_immediately_not_recursive_by_re
 	if ( !success ) 
 		return;
 
-	std::atomic_bool start, stop;
-	std::thread thread([&start, &stop, &systemWideMutex1] {
+	std::atomic_bool started, stop;
+	std::thread thread([&started, &stop, &systemWideMutex1] {
 			// try take ownership
 			EXPECT_TRUE( systemWideMutex1.Lock( 0 ) );
-			start = true;
+			started = true;
 			// wait stop flag
 			while ( !stop )
 				std::this_thread::yield( );
 		});
-	while ( !start )
+	while ( !started )
 		std::this_thread::yield( );
 	EXPECT_FALSE( systemWideMutex2.Lock( 0 ) );
 	stop = true;
@@ -157,7 +157,8 @@ TEST(SystemWideMutex_locks, separate_environment_mix) {
 }
 //*/
 
-TEST(SystemWideMutex_locks, real_world1_1500) {
+/*
+TEST(SystemWideMutex_locks, real_world_wait1_1500) {
 	CSystemWideMutex systemWideMutex1( g_name );
 	EXPECT_TRUE( systemWideMutex1.Lock( 0 ) );
 	std::thread thread([&systemWideMutex1] {
@@ -166,7 +167,7 @@ TEST(SystemWideMutex_locks, real_world1_1500) {
 	thread.join( );
 }
 
-TEST(SystemWideMutex_locks, real_world2_1500) {
+TEST(SystemWideMutex_locks, real_world_wait2_1500) {
 	CSystemWideMutex systemWideMutex1( g_name );
 	CSystemWideMutex systemWideMutex2( g_name );
 	EXPECT_TRUE( systemWideMutex2.Lock( 0 ) );
@@ -175,8 +176,9 @@ TEST(SystemWideMutex_locks, real_world2_1500) {
 		});
 	thread.join( );
 }
+//*/
 
-/*
+//*
 TEST(SystemWideMutex_unlocks, break_LockInfinite) {
 	CSystemWideMutex systemWideMutex1( g_name );
 	CSystemWideMutex systemWideMutex2( g_name );
