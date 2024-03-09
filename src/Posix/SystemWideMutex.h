@@ -49,8 +49,6 @@ public:
 			h_semaphore = sem_open( m_name.c_str( ), O_CREAT | O_EXCL, mode, value );
 		} else {
 			is_exists = true;
-			sem_getvalue( h_semaphore, &m_sval );
-			printf( "sval exists: %d\n", m_sval );
 		}
 		if ( open_existing && !is_exists )
 			h_semaphore = SEM_FAILED;

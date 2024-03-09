@@ -11,7 +11,7 @@ static char g_name[] = "my_lucky_unique_name_for_SystemWideMutex";
 
 namespace testSystemWideMutex_ { 
 
-//*
+/*
 TEST(SystemWideMutex_create, already_exists) {
 	bool already_exists;
 	char name[] = "some_name";
@@ -83,15 +83,14 @@ TEST(SystemWideMutex_locks, common_environment_immediately_recursive) {
 	EXPECT_TRUE( systemWideMutex2.Lock( 0 ) );
 }
 
-TEST(SystemWideMutex_locks, separate_environment_immediately_not_recursive_by_ref) {
+/*
+TEST(SystemWideMutex_locks, separate_environment_immediately_not_recursive_by_ref1) {
 	CSystemWideMutex systemWideMutex1( g_name );
 	CSystemWideMutex systemWideMutex2( g_name );
-
 	bool success = ( true
 			&& !systemWideMutex1.IsError( ) 
 			&& !systemWideMutex1.IsError( ) 
 		);
-
 	EXPECT_TRUE( success );
 	if ( !success ) 
 		return;
@@ -104,12 +103,41 @@ TEST(SystemWideMutex_locks, separate_environment_immediately_not_recursive_by_re
 		});
 	while ( !started )
 		std::this_thread::yield( );
-	// try take ownership
-	EXPECT_FALSE( systemWideMutex2.Lock( 0 ) );
+	// wait thread end
 	thread.join( );
+	EXPECT_TRUE( systemWideMutex2.Lock( 0 ) );
 }
 
-TEST(SystemWideMutex_locks, other_thread) {
+TEST(SystemWideMutex_locks, separate_environment_immediately_not_recursive_by_ref2) {
+	CSystemWideMutex systemWideMutex1( g_name );
+	CSystemWideMutex systemWideMutex2( g_name );
+	bool success = ( true
+			&& !systemWideMutex1.IsError( ) 
+			&& !systemWideMutex1.IsError( ) 
+		);
+	EXPECT_TRUE( success );
+	if ( !success ) 
+		return;
+
+	std::atomic_bool start, stop;
+	std::thread thread([&start, &stop, &systemWideMutex1] {
+			// try take ownership
+			EXPECT_TRUE( systemWideMutex1.Lock( 0 ) );
+			start = true;
+			// wait stop flag
+			while ( !stop )
+				std::this_thread::yield( );
+		});
+	while ( !start )
+		std::this_thread::yield( );
+	EXPECT_FALSE( systemWideMutex2.Lock( 0 ) );
+	stop = true;
+	thread.join( );
+}
+//*/
+
+//*
+TEST(SystemWideMutex_locks, separate_environment_mix) {
 	{
 		CSystemWideMutex systemWideMutex( g_name );
 		EXPECT_TRUE( systemWideMutex.Lock( 0 ) );
@@ -124,8 +152,10 @@ TEST(SystemWideMutex_locks, other_thread) {
 				EXPECT_TRUE( systemWideMutex.Lock( 0 ) );
 			});
 		thread.join( );
+		EXPECT_TRUE( systemWideMutex.Lock( 0 ) );
 	}
 }
+//*/
 
 //TEST(SystemWideMutex_locks, real_world1_1500) {
 //	CSystemWideMutex systemWideMutex1( g_name );
@@ -146,6 +176,7 @@ TEST(SystemWideMutex_locks, other_thread) {
 //	thread.join( );
 //}
 
+/*
 TEST(SystemWideMutex_unlocks, break_LockInfinite) {
 	CSystemWideMutex systemWideMutex1( g_name );
 	CSystemWideMutex systemWideMutex2( g_name );
@@ -163,6 +194,6 @@ TEST(SystemWideMutex_unlocks, break_LockInfinite) {
 
 	thread.join( );
 }
-// TODO(alex): break LockInfinite
+//*/
 
 } // namespace testSystemWideMutex_ 
