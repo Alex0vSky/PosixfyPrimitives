@@ -149,12 +149,9 @@ public:
 		//ReleaseMutex(h_semaphore);
 		// TODO(alex): broken logic detected, handle got from `CreateMutex()/OpenMutex()`
 
-		//do {
-		//	sem_getvalue( h_semaphore, &m_sval );
-		//	if ( m_sval )
-		//} while ( m_sval )
-		sem_post( h_semaphore );
-		//sem_close( h_semaphore ), h_semaphore = SEM_FAILED;
+		sem_getvalue( h_semaphore, &m_sval );
+		if ( !m_sval )
+			sem_post( h_semaphore );
 	}
 };
 } // namespace Ipc
