@@ -109,10 +109,19 @@ TEST(SystemWideMutex_locks, separate_environment_immediately_not_recursive_by_re
 	thread.join( );
 }
 
-TEST(SystemWideMutex_locks, real_world_1500) {
+TEST(SystemWideMutex_locks, real_world1_1500) {
+	CSystemWideMutex systemWideMutex1( g_name );
+	EXPECT_TRUE( systemWideMutex1.Lock( 0 ) );
+	std::thread thread([&systemWideMutex1] {
+			EXPECT_FALSE( systemWideMutex1.Lock( 1500 ) );
+		});
+	thread.join( );
+}
+
+TEST(SystemWideMutex_locks, real_world2_1500) {
 	CSystemWideMutex systemWideMutex1( g_name );
 	CSystemWideMutex systemWideMutex2( g_name );
-	EXPECT_TRUE( systemWideMutex1.Lock( 0 ) );
+	EXPECT_TRUE( systemWideMutex2.Lock( 0 ) );
 	std::thread thread([&systemWideMutex1] {
 			EXPECT_FALSE( systemWideMutex1.Lock( 1500 ) );
 		});
