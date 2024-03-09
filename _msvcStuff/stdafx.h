@@ -34,6 +34,7 @@
 #	include <fcntl.h>
 #	include <semaphore.h>
 #	include <spawn.h>
+#	include <signal.h>
 #endif // _WIN32
 
 #include <stdlib.h>

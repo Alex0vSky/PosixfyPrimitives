@@ -43,9 +43,31 @@ public:
 		return h_process == 0;
 	}
 							
-	//bool IsProcessActive(unsigned wait_ms=0) const {
-	//	return h_process ? WaitForSingleObject(h_process,wait_ms) == WAIT_TIMEOUT : false;
-	//}
+	// @insp https://stackoverflow.com/questions/45037193/how-to-check-if-a-process-is-running-in-c
+	bool IsProcessActive(unsigned wait_ms=0) const {
+		pid_t w;
+		int status;
+		////w = waitpid( cpid, &status, WUNTRACED | WCONTINUED | WNOHANG );
+  //      if ( w == -1) {
+  //          perror("waitpid");
+		//	return false;
+		//}
+		//return WIFCONTINUED( status );
+
+		// Wait for child process, this should clean up defunct processes
+		waitpid( h_process, nullptr, WNOHANG );
+		// kill failed let's see why..
+		if ( kill( h_process, 0) == -1 ) {
+			// First of all kill may fail with EPERM if we run as a different user and we have no access, so let's make sure the errno is ESRCH (Process not found!)
+			if (errno != ESRCH)
+			{
+				return true;
+			}
+			return false;
+		}
+		// If kill didn't fail the process is still running
+		return true;
+	}
 
 	//bool GetExitCode(int& _ec) const {
 	//	bool rc = false;

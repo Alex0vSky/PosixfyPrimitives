@@ -98,8 +98,14 @@ int posix_spawnp(pid_t *pid, const char *file,
                 const posix_spawnattr_t *attrp,
                 char *const argv[],
                 char *const envp[]);
-// global variable 
-//_DCRTIMP extern "C" char ** environ;
+pid_t waitpid(pid_t pid, int *status, int options);
+#define WUNTRACED 1
+#define WCONTINUED 2
+#define WNOHANG 3
+#define WIFCONTINUED( ... ) 1
+
+int kill(pid_t pid, int sig);
+
 
 #endif // A0S_INDEVELOP
 

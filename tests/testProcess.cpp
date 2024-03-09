@@ -13,8 +13,8 @@ namespace testProcess_ {
 TEST(Process_create, simple) {
 	CProcess *proc = CProcess::Create( "ping 8.8.8.8" );
 	EXPECT_FALSE( proc ->IsError( ) );
-	//while ( proc ->IsProcessActive( ) )
-	//	std::this_thread::yield( );
+	while ( proc ->IsProcessActive( ) )
+		std::this_thread::yield( );
 }
 
 /*
