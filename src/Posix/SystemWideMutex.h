@@ -72,11 +72,11 @@ public:
 	~CSystemWideMutex() {
 		if ( h_semaphore == SEM_FAILED )
 			return;
-		// TODO(alex): cause code-dump
+		// ?TODO(alex): cause code-dump
 		// TODO(alex): via iface `CTools::CloseAndInvalidateHandle(h_semaphore);`
 		sem_close( h_semaphore ), h_semaphore = SEM_FAILED;
-		//if ( !m_open_existing )
-		//	sem_unlink( m_name.c_str( ) );
+		if ( !m_open_existing )
+			sem_unlink( m_name.c_str( ) );
 	}
 
 	bool IsError() const {

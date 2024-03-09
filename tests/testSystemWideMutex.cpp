@@ -106,6 +106,7 @@ TEST(SystemWideMutex_locks, separate_environment_immediately_not_recursive_by_re
 		std::this_thread::yield( );
 	// try take ownership
 	EXPECT_FALSE( systemWideMutex2.Lock( 0 ) );
+	thread.join( );
 }
 
 // TODO(alex): break LockInfinite
