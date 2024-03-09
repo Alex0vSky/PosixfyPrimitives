@@ -13,6 +13,13 @@ public:
 		bool is_exists = false;
 		int mode = 0644;
 		int value = 1;
+		if ( open_existing )
+		{
+			h_mutex = sem_open( m_name.c_str( ), O_CREAT | O_EXCL, mode, value );
+			is_exists = ( EEXIST == errno );
+			h_mutex = sem_open( m_name.c_str( ), O_CREAT, mode, value );
+		}
+		else
 		{
 			h_mutex = sem_open( m_name.c_str( ), O_CREAT | O_EXCL, mode, value );
 			if ( SEM_FAILED == h_mutex ) {
