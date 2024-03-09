@@ -43,7 +43,7 @@ TEST(SharedMemory_create, freeable) {
 	CSharedMem::Free( sharedMem );
 }
 
-TEST(SharedMemory_using, read_write) {
+TEST(SharedMemory_using, create_write_open_read) {
 	CSharedMem *sharedMemWriter = CSharedMem::Create( g_name, c_size );
 	CSharedMem *sharedMemReader = CSharedMem::Open( g_name );
 
