@@ -39,7 +39,7 @@ public:
 		, m_tid( std::this_thread::get_id( ) )
 	{		
 		//m_string_tid = ( ( std::ostringstream( ) << m_tid ).str( ) )
-		m_string_tid = "ctor";
+		std::ostringstream oss; oss << m_tid; m_string_tid = oss.str( );
 
 		bool is_exists = false;
 		//int mode = 0644;
@@ -99,18 +99,17 @@ public:
 		if ( h_semaphore == SEM_FAILED )
 			return false;
 
-		std::ostringstream oss; oss << m_tid; m_string_tid = oss.str( );
+		std::ostringstream oss; oss << std::this_thread::get_id( ); m_string_tid = oss.str( );
 		if ( std::this_thread::get_id( ) == m_tid ) {
 			int sval = 12345;
 			sem_getvalue( h_semaphore, &sval );
-			printf( "tid: %s, sval21: %d\n", m_string_tid.c_str( ), sval );
-			sem_post( h_semaphore );
-			sem_getvalue( h_semaphore, &sval );
-			printf( "tid: %s, sval22: %d\n", m_string_tid.c_str( ), sval );
+			printf( "tid: %s, creator thread, sval: %d\n", m_string_tid.c_str( ), sval );
+			if ( sval )
+				sem_post( h_semaphore );
 		} else {
 			int sval = 12345;
 			sem_getvalue( h_semaphore, &sval );
-			printf( "tid: %s, sval3: %d\n", m_string_tid.c_str( ), sval );
+			printf( "tid: %s, other thread, sval: %d\n", m_string_tid.c_str( ), sval );
 		}
 
 		// TODO(alex): to separate
@@ -131,7 +130,7 @@ public:
 		{
 			int sval = 12345;
 			sem_getvalue( h_semaphore, &sval );
-			printf( "tid: %s, sval0: %d, %s\n", m_string_tid.c_str( ), sval, ( success ?"true" :"false" ) );
+			printf( "tid: %s, after wait sval: %d, %s\n", m_string_tid.c_str( ), sval, ( success ?"true" :"false" ) );
 		}
 		return success;
 
