@@ -11,7 +11,7 @@ static char g_name[] = "my_lucky_unique_name_for_SystemWideMutex";
 
 namespace testSystemWideMutex_ { 
 
-/*
+//*
 TEST(SystemWideMutex_create, already_exists) {
 	bool already_exists;
 	char name[] = "some_name";
