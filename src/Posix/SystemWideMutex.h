@@ -7,6 +7,7 @@ class CSystemWideMutex {
 	bool m_open_existing;
 	unsigned m_counter_recursive;
 	const std::thread::id m_tid;
+	const std::string m_string_tid;
 
 	// @insp https://stackoverflow.com/questions/15024623/convert-milliseconds-to-timespec-for-gnu-port
 	static void ms2ts(timespec *ts, unsigned long milli) {
@@ -36,7 +37,9 @@ public:
 		, m_open_existing( open_existing )
 		, m_counter_recursive( 0 )
 		, m_tid( std::this_thread::get_id( ) )
-	{
+		, m_string_tid( ( std::ostringstream( ) << m_tid ).str( ) )
+	{		
+
 		bool is_exists = false;
 		//int mode = 0644;
 		int mode = 0777;
@@ -50,7 +53,7 @@ public:
 			is_exists = true;
 			int sval = 12345;
 			sem_getvalue( h_semaphore, &sval );
-			printf( "sval1: %d\n", sval );
+			printf( "tid: %s, sval1: %d\n", m_string_tid.c_str( ), sval );
 		}
 		if ( open_existing && !is_exists )
 			h_semaphore = SEM_FAILED;
@@ -98,14 +101,14 @@ public:
 		if ( std::this_thread::get_id( ) == m_tid ) {
 			int sval = 12345;
 			sem_getvalue( h_semaphore, &sval );
-			printf( "sval21: %d\n", sval );
+			printf( "tid: %s, sval21: %d\n", m_string_tid.c_str( ), sval );
 			sem_post( h_semaphore );
 			sem_getvalue( h_semaphore, &sval );
-			printf( "sval22: %d\n", sval );
+			printf( "tid: %s, sval22: %d\n", m_string_tid.c_str( ), sval );
 		} else {
 			int sval = 12345;
 			sem_getvalue( h_semaphore, &sval );
-			printf( "sval3: %d\n", sval );
+			printf( "tid: %s, sval3: %d\n", m_string_tid.c_str( ), sval );
 		}
 
 		// TODO(alex): to separate
@@ -120,10 +123,15 @@ public:
 			safe_add( &abstime, &adding ); //abstime.tv_sec += adding.tv_sec; abstime.tv_nsec += adding.tv_nsec;
 		}
 
-		bool sucess = ( !sem_timedwait( h_semaphore, &abstime ) );
-		if ( sucess )
+		bool success = ( !sem_timedwait( h_semaphore, &abstime ) );
+		if ( success )
 			++m_counter_recursive;
-		return sucess;
+		{
+			int sval = 12345;
+			sem_getvalue( h_semaphore, &sval );
+			printf( "tid: %s, sval0: %d, %s\n", m_string_tid.c_str( ), sval, ( success ?"true" :"false" ) );
+		}
+		return success;
 
 		//// TODO(alex): makeme
 		//while ((s = sem_timedwait(&sem, &ts)) == -1 && errno == EINTR)
