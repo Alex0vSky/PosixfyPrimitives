@@ -119,6 +119,7 @@ TEST(event_assignment_operator, wait) {
 TEST(event_in_threads, set) { 
 	CEvent event( false, false );
 	std::atomic_bool started;
+	started = false;
 	std::thread thread( [&started, &event]{ 
 			event.Set( );
 			started = true;

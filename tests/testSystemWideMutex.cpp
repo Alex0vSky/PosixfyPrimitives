@@ -96,6 +96,7 @@ TEST(SystemWideMutex_locks, separate_environment_immediately_norecursive_by_ref1
 		GTEST_SKIP( );
 
 	std::atomic_bool started;
+	started = false;
 	std::thread thread([&started, &systemWideMutex1] {
 			// try take ownership
 			EXPECT_TRUE( systemWideMutex1.Lock( 0 ) );
@@ -115,6 +116,7 @@ TEST(SystemWideMutex_locks, separate_environment_immediately_norecursive_by_ref2
 		GTEST_SKIP( );
 
 	std::atomic_bool started, stop;
+	started = stop = false;
 	std::thread thread([&started, &stop, &systemWideMutex] {
 			// try take ownership
 			EXPECT_TRUE( systemWideMutex.Lock( 0 ) );
@@ -229,6 +231,7 @@ TEST(SystemWideMutex_copy_ctor, separate_environment) {
 	systemWideMutex1.reset( );
 
 	std::atomic_bool started, stop;
+	started = stop = false;
 	std::thread thread([&started, &stop, &systemWideMutex2] {
 			// try take ownership
 			EXPECT_TRUE( systemWideMutex2.Lock( 0 ) );
