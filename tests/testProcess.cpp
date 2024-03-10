@@ -163,7 +163,6 @@ TEST(Process_terminate, basic) {
 	EXPECT_FALSE( proc ->IsError( ) );
 	EXPECT_TRUE( CProcess::TerminateWaitDestroy( proc, 60 *1000 ) );
 	EXPECT_EQ( nullptr, proc );
-	EXPECT_FALSE( proc ->IsProcessActive( ) );
 }
 
 /*
