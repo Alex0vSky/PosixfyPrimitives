@@ -2,10 +2,13 @@
 #pragma once // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
 namespace Ipc {
 
-namespace detail { 
+thread_local static int g_counter = 1;
+thread_local struct Foo_tls {
+	void save_owner() {
+	}
+} g_foo;
 thread_local class ThreadExiter {
 	std::function<void()> m_exit_func;
-
 public:
     ThreadExiter() = default;
     ThreadExiter(ThreadExiter const&) = delete; void operator=(ThreadExiter const&) = delete;
@@ -13,21 +16,21 @@ public:
 		if ( m_exit_func )
 			m_exit_func( );
     }
-    void set(std::function<void()> func) {
+    void add(std::function<void()> func) {
 		m_exit_func = func;
     }   
 } g_threadExiter;
-} // namespace detail
 
 class CSystemWideMutex {
 	sem_t *h_semaphore;
 	const std::string m_name;
 	bool m_open_existing;
-	const std::thread::id m_creator_tid;
+	const std::thread::id m_tid;
+	int m_sval;
 
-	std::thread::id m_owner_tid;
-	// for tidy compare
+	// for compare
 	const std::thread::id m_empty_tid;
+	std::thread::id m_owner_tid;
 
 	// @insp https://stackoverflow.com/questions/15024623/convert-milliseconds-to-timespec-for-gnu-port
 	static void ms2ts(timespec *ts, unsigned long milli) {
@@ -50,21 +53,14 @@ class CSystemWideMutex {
 		}
 	}
 
-	int getvalue() const {
-		int sval;
-		// ignore error
-		sem_getvalue( h_semaphore, &sval );
-		return sval;
-	}
-
 public:
 	CSystemWideMutex(const char *name,bool *p_already_exists=NULL,bool open_existing=false) :
 		h_semaphore( SEM_FAILED )
 		, m_name( std::string( "\\" ) + name )
 		, m_open_existing( open_existing )
-		, m_creator_tid( std::this_thread::get_id( ) )
+		, m_tid( std::this_thread::get_id( ) )
 	{		
-		//m_string_tid = ( ( std::ostringstream( ) << m_creator_tid ).str( ) )
+		//m_string_tid = ( ( std::ostringstream( ) << m_tid ).str( ) )
 
 		bool is_exists = false;
 		//int mode = 0644;
@@ -86,13 +82,9 @@ public:
 	}
 
 	CSystemWideMutex(const CSystemWideMutex& other) = delete;
-	//CSystemWideMutex(const CSystemWideMutex& other) :
-	//	h_semaphore( sem_open( other.m_name.c_str( ), O_RDWR ) )
-	//	, m_name( other.m_name )
-	//	, m_open_existing( other.m_open_existing )
-	//	, m_creator_tid( other.m_creator_tid )
-	//	, m_owner_tid( other.m_owner_tid )
-	//{}
+	//CSystemWideMutex(const CSystemWideMutex& other) {
+	//	//h_semaphore = CTools::CopyHandle(other.h_semaphore);
+	//}
 
 	const CSystemWideMutex& operator = (const CSystemWideMutex& other) = delete;
 	//const CSystemWideMutex& operator = (const CSystemWideMutex& other) {
@@ -107,6 +99,7 @@ public:
 	~CSystemWideMutex() {
 		if ( h_semaphore == SEM_FAILED )
 			return;
+		// ?TODO(alex): cause code-dump
 		// TODO(alex): via iface `CTools::CloseAndInvalidateHandle(h_semaphore);`
 		sem_close( h_semaphore ), h_semaphore = SEM_FAILED;
 		if ( !m_open_existing )
@@ -123,15 +116,26 @@ public:
 		if ( h_semaphore == SEM_FAILED )
 			return false;
 
-		// implement recursive mutex, prolog
-		int sval1;
-		if ( -1 == sem_getvalue( h_semaphore, &sval1 ) )
-			return false;
-		const std::thread::id current_tid = std::this_thread::get_id( );
-		if ( current_tid == m_creator_tid ) 
-			if ( !sval1 ) 
-				if ( m_creator_tid == m_owner_tid || m_empty_tid == m_owner_tid )
-					sem_post( h_semaphore );
+		if ( std::this_thread::get_id( ) == m_tid ) {
+			int sval;
+			sem_getvalue( h_semaphore, &sval );
+			printf( "creator thread, BEG sval: %d\n", sval );
+			if ( !sval ) {
+				//if ( m_empty_tid != m_owner_tid ) 
+				{
+					// TODO(alex): call dtor or something on thread exit
+					//std::thread
+					m_owner_tid;
+					if ( m_tid == m_owner_tid || m_empty_tid == m_owner_tid ) {
+						sem_post( h_semaphore );
+					}
+				}
+			}
+			sem_getvalue( h_semaphore, &sval );
+			printf( "creator thread, END sval: %d\n", sval );
+		} else {
+			sem_getvalue( h_semaphore, &m_sval ); printf( "other thread, sval: %d\n", m_sval );
+		}
 
 		// TODO(alex): to separate
 		timespec abstime = { };
@@ -156,18 +160,18 @@ public:
 			interupt = ( !success && errno == EINTR );
 		} while ( interupt );
 
-		// implement recursive mutex, epilog
-		int sval2;
-		if ( -1 == sem_getvalue( h_semaphore, &sval2 ) )
-			return false;
-		if ( success && !sval2 ) {
-			m_owner_tid = current_tid;
-			detail::g_threadExiter.set([this] {
+		sem_getvalue( h_semaphore, &m_sval );
+		if ( success && !m_sval ) {
+			//g_foo.save_owner( );
+			m_owner_tid = std::this_thread::get_id( );
+			g_threadExiter.add([this] {
 					m_owner_tid = m_empty_tid;
 				});
 		} else {
 			m_owner_tid = m_empty_tid;
 		}
+		printf( "after wait sval: %d, %s\n", m_sval, ( success ?"true" :"false" ) );
+		if ( !success ) perror( "!success" );
 
 		return success;
 	}
@@ -180,10 +184,8 @@ public:
 	void Unlock() {
 		if ( h_semaphore == SEM_FAILED )
 			return;
-		int sval;
-		if ( -1 == sem_getvalue( h_semaphore, &sval ) )
-			return;
-		if ( !sval )
+		sem_getvalue ( h_semaphore, &m_sval );
+		if ( !m_sval )
 			sem_post( h_semaphore );
 	}
 	// TODO(alex): broken logic detected, unusable object, handle got from `CreateMutex()/OpenMutex()`

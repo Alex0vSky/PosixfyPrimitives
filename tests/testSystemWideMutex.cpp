@@ -187,14 +187,14 @@ TEST(SystemWideMutex_unlocks, break_LockInfinite) {
 		std::this_thread::yield( );
 	// waiting less then infinite
 	auto next_clock = now( ) + std::chrono::milliseconds{ 100 };
-	bool not_atomic_stoped = false;
+	bool noatomic_stoped = false;
 	while ( now( ) < next_clock ) {
-		not_atomic_stoped = stoped;
-		if ( not_atomic_stoped )
+		noatomic_stoped = stoped;
+		if ( noatomic_stoped )
 			break;
 		std::this_thread::yield( );
 	}
-	EXPECT_FALSE( not_atomic_stoped );
+	EXPECT_FALSE( noatomic_stoped );
 	systemWideMutex.Unlock( );
 
 	thread.join( );
