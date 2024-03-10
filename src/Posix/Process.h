@@ -52,7 +52,10 @@ public:
 		auto next_clock = now( ) + std::chrono::milliseconds{ wait_milli };
 		do {
 			// Wait for child process, this should clean up defunct processes
-			waitpid( h_process, nullptr, WNOHANG );
+			if ( -1 == waitpid( h_process, nullptr, WNOHANG ) ) {
+				// TODO(alex): just to known
+				perror( "waitpid IsProcessActive" );
+			}
 			// kill failed let's see why..
 			if ( kill( h_process, 0 ) == -1 ) {
 				// First of all kill may fail with EPERM if we run as a different user and we have no access, 
@@ -69,16 +72,15 @@ public:
 	bool GetExitCode(int& _ec) const {
 		if ( c_invalid == h_process )
 			return false;
-		bool rc = false;
 		int status;
-		waitpid( h_process, &status, 0 );
-	//		DWORD ec = STILL_ACTIVE;
-	//		if ( GetExitCodeProcess(h_process,&ec) && ec != STILL_ACTIVE )
-	//		{
-	//			rc = true;
-	//			_ec = (int)ec;
-	//		}
-		return rc;
+		if ( -1 == waitpid( h_process, &status, WNOHANG ) ) {
+			perror( "waitpid GetExitCode" );
+			return false;
+		}
+		if ( !WIFEXITED( status ) )
+			return false;
+		_ec = WEXITSTATUS( status );
+		return true;
 	}
 
 	//process_id_t GetProcessId() const {
