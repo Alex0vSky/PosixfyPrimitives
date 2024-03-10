@@ -5,6 +5,7 @@ namespace Ipc {
 namespace detail { 
 thread_local class ThreadExiter {
 	std::function<void()> m_exit_func;
+
 public:
     ThreadExiter() = default;
     ThreadExiter(ThreadExiter const&) = delete; void operator=(ThreadExiter const&) = delete;
@@ -12,7 +13,7 @@ public:
 		if ( m_exit_func )
 			m_exit_func( );
     }
-    void add(std::function<void()> func) {
+    void set(std::function<void()> func) {
 		m_exit_func = func;
     }   
 } g_threadExiter;
@@ -23,11 +24,10 @@ class CSystemWideMutex {
 	const std::string m_name;
 	bool m_open_existing;
 	const std::thread::id m_creator_tid;
-	int m_sval;
 
-	// for compare
-	const std::thread::id m_empty_tid;
 	std::thread::id m_owner_tid;
+	// for tidy compare
+	const std::thread::id m_empty_tid;
 
 	// @insp https://stackoverflow.com/questions/15024623/convert-milliseconds-to-timespec-for-gnu-port
 	static void ms2ts(timespec *ts, unsigned long milli) {
@@ -48,6 +48,13 @@ class CSystemWideMutex {
 		} else {
 			accum ->tv_nsec = sum_tv_nsec;
 		}
+	}
+
+	int getvalue() const {
+		int sval;
+		// ignore error
+		sem_getvalue( h_semaphore, &sval );
+		return sval;
 	}
 
 public:
@@ -112,21 +119,15 @@ public:
 		if ( h_semaphore == SEM_FAILED )
 			return false;
 
+		// implement recursive mutex, prolog
+		int sval1;
+		if ( -1 == sem_getvalue( h_semaphore, &sval1 ) )
+			return false;
 		const std::thread::id current_tid = std::this_thread::get_id( );
-		if ( current_tid == m_creator_tid ) {
-			int sval;
-			sem_getvalue( h_semaphore, &sval );
-			printf( "creator thread, BEG sval: %d\n", sval );
-			if ( !sval ) {
-				if ( m_creator_tid == m_owner_tid || m_empty_tid == m_owner_tid ) {
+		if ( current_tid == m_creator_tid ) 
+			if ( !sval1 ) 
+				if ( m_creator_tid == m_owner_tid || m_empty_tid == m_owner_tid )
 					sem_post( h_semaphore );
-				}
-			}
-			sem_getvalue( h_semaphore, &sval );
-			printf( "creator thread, END sval: %d\n", sval );
-		} else {
-			sem_getvalue( h_semaphore, &m_sval ); printf( "other thread, sval: %d\n", m_sval );
-		}
 
 		// TODO(alex): to separate
 		timespec abstime = { };
@@ -151,17 +152,18 @@ public:
 			interupt = ( !success && errno == EINTR );
 		} while ( interupt );
 
-		sem_getvalue( h_semaphore, &m_sval );
-		if ( success && !m_sval ) {
+		// implement recursive mutex, epilog
+		int sval2;
+		if ( -1 == sem_getvalue( h_semaphore, &sval2 ) )
+			return false;
+		if ( success && !sval2 ) {
 			m_owner_tid = current_tid;
-			detail::g_threadExiter.add([this] {
+			detail::g_threadExiter.set([this] {
 					m_owner_tid = m_empty_tid;
 				});
 		} else {
 			m_owner_tid = m_empty_tid;
 		}
-		printf( "after wait sval: %d, %s\n", m_sval, ( success ?"true" :"false" ) );
-		if ( !success ) perror( "!success" );
 
 		return success;
 	}
@@ -174,8 +176,10 @@ public:
 	void Unlock() {
 		if ( h_semaphore == SEM_FAILED )
 			return;
-		sem_getvalue ( h_semaphore, &m_sval );
-		if ( !m_sval )
+		int sval;
+		if ( -1 == sem_getvalue( h_semaphore, &sval ) )
+			return;
+		if ( !sval )
 			sem_post( h_semaphore );
 	}
 	// TODO(alex): broken logic detected, unusable object, handle got from `CreateMutex()/OpenMutex()`
