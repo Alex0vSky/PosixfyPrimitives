@@ -40,10 +40,7 @@ public:
 
 	bool IsError(int *_perr=nullptr) const {
 		if ( _perr )
-		{
 			*_perr = m_err;
-		}
-								
 		return h_process == c_invalid;
 	}
 							
@@ -52,7 +49,7 @@ public:
 	bool IsProcessActive(unsigned wait_milli=0) const {
 		auto next_clock = now( ) + std::chrono::milliseconds{ wait_milli };
 		do {
-			int status;
+			int status = 0;
 			// Wait for child process, this should clean up defunct processes
 			if ( -1 == waitpid( h_process, &status, WNOHANG ) ) {
 				// TODO(alex): just to known
@@ -176,7 +173,7 @@ private:
 		// Awaiting free
 		auto next_clock = now( ) + std::chrono::milliseconds{ wait_timeout_milli };
 		do {
-			// @Warning! Race condition by pid number unique
+			// @Warning! Race condition by pid number
 			if ( ( kill( h_process, 0 ) == -1 ) && ( errno == ESRCH ) )
 				return true;
 			std::this_thread::yield( );

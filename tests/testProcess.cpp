@@ -10,12 +10,13 @@ using CProcess = Ipc::CProcess;
 #ifdef WIN32
 	const char *g_long_playing = "ping -n 2 8.8.8.8";
 #else
-	const char *g_long_playing = "ping -w 2 8.8.8.8";
+	const char *g_long_playing = "ping -c 2 8.8.8.8";
 #endif // WIN32
 
 //*
 namespace testProcess_ { 
 
+namespace detail {
 struct SilenceStdout {
 	SilenceStdout() {
 		testing::internal::CaptureStdout( );
@@ -24,83 +25,6 @@ struct SilenceStdout {
 		testing::internal::GetCapturedStdout( );
 	}
 };
-
-//*
-TEST(Process_create, simple) {
-	SilenceStdout anonimous_;
-	CProcess *proc = CProcess::Create( g_long_playing );
-	EXPECT_FALSE( proc ->IsError( ) );
-}
-
-
-TEST(Process_create, set_and_verify_real_cwd) {
-    std::string tmpnam = std::tmpnam( nullptr );
-	size_t pos;
-	pos = tmpnam.find_last_of( '/' );
-	if ( std::string::npos == pos )
-		pos = tmpnam.find_last_of( '\\' );
-	if ( std::string::npos == pos )
-		GTEST_SKIP( );
-    std::string directory = tmpnam.substr( 0, pos );
-
-	// get current directory shell command
-#ifdef WIN32
-	std::string cmdline = "cmd /c echo %cd%";
-#else
-	std::string cmdline = "echo $(pwd)";
-#endif // WIN32
-
-	testing::internal::CaptureStdout( );
-	CProcess *proc = CProcess::Create( cmdline.c_str( ), directory.c_str( ) );
-	while ( proc ->IsProcessActive( ) )
-		std::this_thread::yield( );
-	std::string output = testing::internal::GetCapturedStdout( );
-
-	EXPECT_FALSE( proc ->IsError( ) );
-	EXPECT_NE( std::string::npos, output.find( directory ) );
-}
-//*/
-
-//*
-TEST(Process_alive, awaiting_until_end) {
-	SilenceStdout anonimous_;
-	CProcess *proc = CProcess::Create( g_long_playing );
-	EXPECT_FALSE( proc ->IsProcessActive( INFINITE ) );
-	EXPECT_FALSE( proc ->IsError( ) );
-}
-
-TEST(Process_alive, immediately) {
-	SilenceStdout anonimous_;
-	CProcess *proc = CProcess::Create( g_long_playing );
-	EXPECT_TRUE( proc ->IsProcessActive( ) );
-	EXPECT_FALSE( proc ->IsError( ) );
-}
-
-TEST(Process_alive, timeout) {
-	SilenceStdout anonimous_;
-	CProcess *proc = CProcess::Create( g_long_playing );
-	// less then will execute
-	EXPECT_TRUE( proc ->IsProcessActive( 300 ) );
-	EXPECT_FALSE( proc ->IsError( ) );
-}
-
-TEST(Process_exit_code, for_finished) {
-	// set process return code shell command
-#ifdef WIN32
-	std::string cmdline = "cmd /c exit 42";
-#else
-	std::string cmdline = "exit 42";
-#endif // WIN32
-
-	CProcess *proc = CProcess::Create( cmdline.c_str( ) );
-	proc ->IsProcessActive( 300 );
-	EXPECT_FALSE( proc ->IsError( ) );
-	int exit_code;
-	EXPECT_TRUE( proc ->GetExitCode( exit_code ) );
-	EXPECT_EQ( 42, exit_code );
-}
-//*/
-
 // Warning! static variable
 class PrinterToStderr {
 	class EventListener : public testing::EmptyTestEventListener {
@@ -138,11 +62,94 @@ public:
 	}
 };
 testing::TestEventListener *PrinterToStderr::s_original = nullptr;
+} // namespace detail 
+
+typedef std::tuple< detail::SilenceStdout, detail::PrinterToStderr > 
+	silenceStdoutAndPinterToStderr_t;
 
 //*
+TEST(Process_create, simple) {
+	silenceStdoutAndPinterToStderr_t anonimous_;
+	CProcess *proc = CProcess::Create( g_long_playing );
+	EXPECT_FALSE( true );
+	EXPECT_FALSE( proc ->IsError( ) );
+}
+
+TEST(Process_create, set_and_verify_real_cwd) {
+    std::string tmpnam = std::tmpnam( nullptr );
+	size_t pos;
+	pos = tmpnam.find_last_of( '/' );
+	if ( std::string::npos == pos )
+		pos = tmpnam.find_last_of( '\\' );
+	if ( std::string::npos == pos )
+		GTEST_SKIP( );
+    std::string directory = tmpnam.substr( 0, pos );
+
+	// get current directory shell command
+#ifdef WIN32
+	std::string cmdline = "cmd /c echo %cd%";
+#else
+	std::string cmdline = "echo $(pwd)";
+#endif // WIN32
+
+	testing::internal::CaptureStdout( );
+	CProcess *proc = CProcess::Create( cmdline.c_str( ), directory.c_str( ) );
+	while ( proc ->IsProcessActive( ) )
+		std::this_thread::yield( );
+	std::string output = testing::internal::GetCapturedStdout( );
+
+	EXPECT_FALSE( proc ->IsError( ) );
+	EXPECT_NE( std::string::npos, output.find( directory ) );
+}
+//*/
+
+//*
+TEST(Process_alive, awaiting_until_end) {
+	silenceStdoutAndPinterToStderr_t anonimous_;
+	CProcess *proc = CProcess::Create( g_long_playing );
+	EXPECT_FALSE( proc ->IsProcessActive( INFINITE ) );
+	EXPECT_FALSE( proc ->IsError( ) );
+	// memory leaks
+}
+
+TEST(Process_alive, immediately) {
+	silenceStdoutAndPinterToStderr_t anonimous_;
+	CProcess *proc = CProcess::Create( g_long_playing );
+	EXPECT_TRUE( proc ->IsProcessActive( ) );
+	EXPECT_FALSE( proc ->IsError( ) );
+	// memory leaks
+}
+
+TEST(Process_alive, timeout) {
+	silenceStdoutAndPinterToStderr_t anonimous_;
+	CProcess *proc = CProcess::Create( g_long_playing );
+	// less then will execute
+	EXPECT_TRUE( proc ->IsProcessActive( 300 ) );
+	EXPECT_FALSE( proc ->IsError( ) );
+	// memory leaks
+}
+//*/
+
+//*
+TEST(Process_exit_code, for_finished) {
+	// set process return code shell command
+#ifdef WIN32
+	std::string cmdline = "cmd /c exit 42";
+#else
+	std::string cmdline = "exit 42";
+#endif // WIN32
+
+	CProcess *proc = CProcess::Create( cmdline.c_str( ) );
+	proc ->IsProcessActive( 300 );
+	EXPECT_FALSE( proc ->IsError( ) );
+	int exit_code;
+	EXPECT_TRUE( proc ->GetExitCode( exit_code ) );
+	EXPECT_EQ( 42, exit_code );
+	// memory leaks
+}
+
 TEST(Process_exit_code, immediately_for_long_playing) {
-	PrinterToStderr anonimous2_;
-	SilenceStdout anonimous_;
+	silenceStdoutAndPinterToStderr_t anonimous_;
 
 	// set process return code shell command
 #ifdef WIN32
@@ -155,24 +162,21 @@ TEST(Process_exit_code, immediately_for_long_playing) {
 	EXPECT_FALSE( proc ->IsError( ) );
 	int exit_code;
 	EXPECT_FALSE( proc ->GetExitCode( exit_code ) );
+	// memory leaks
 }
 //*/
 
-TEST(Process_terminate, basic) {
-	CProcess *proc = CProcess::Create( g_long_playing );
-	EXPECT_FALSE( proc ->IsError( ) );
-	EXPECT_TRUE( CProcess::TerminateWaitDestroy( proc, 60 *1000 ) );
-	EXPECT_EQ( nullptr, proc );
-}
-
 //*
-TEST(Process_mix, pid) {
+TEST(Process_mix, current_pid) {
 	EXPECT_TRUE( ( CProcess::GetThisProcessId( ) > 0 ) );
 }
 
+TEST(Process_mix, invalid_pid) {
+	EXPECT_NE( CProcess::GetThisProcessId( ), CProcess::GetInvalidProcessId( ) );
+}
+
 TEST(Process_open, basic) {
-	PrinterToStderr anonimous2_;
-	SilenceStdout anonimous_;
+	silenceStdoutAndPinterToStderr_t anonimous_;
 	CProcess *proc1 = CProcess::Create( g_long_playing );
 	EXPECT_FALSE( proc1 ->IsError( ) );
 	CProcess *proc2 = CProcess::Open( proc1 ->GetProcessId( ), false );
@@ -182,9 +186,15 @@ TEST(Process_open, basic) {
 	// memory leaks
 }
 
+TEST(Process_terminate, basic) {
+	CProcess *proc = CProcess::Create( g_long_playing );
+	EXPECT_FALSE( proc ->IsError( ) );
+	EXPECT_TRUE( CProcess::TerminateWaitDestroy( proc, 60 *1000 ) );
+	EXPECT_EQ( nullptr, proc );
+}
+
 TEST(Process_terminate, then_terminate_pair) {
-	//PrinterToStderr anonimous2_;
-	//SilenceStdout anonimous_;
+	silenceStdoutAndPinterToStderr_t anonimous_;
 	CProcess *proc1 = CProcess::Create( g_long_playing );
 	EXPECT_FALSE( proc1 ->IsError( ) );
 	CProcess *proc2 = CProcess::Open( proc1 ->GetProcessId( ), true );
@@ -192,17 +202,16 @@ TEST(Process_terminate, then_terminate_pair) {
 	EXPECT_TRUE( CProcess::TerminateWaitDestroy( proc1, 300 ) );
 	EXPECT_EQ( nullptr, proc1 );
 	EXPECT_FALSE( proc2 ->IsProcessActive( ) );
+	// memory leaks
 }
 
 TEST(Process_terminate, double_terminate) {
-	PrinterToStderr anonimous2_;
-	SilenceStdout anonimous_;
+	silenceStdoutAndPinterToStderr_t anonimous_;
 	CProcess *proc = CProcess::Create( g_long_playing );
 	EXPECT_TRUE( CProcess::TerminateWaitDestroy( proc, 300 ) );
 	EXPECT_EQ( nullptr, proc );
 	EXPECT_TRUE( CProcess::TerminateWaitDestroy( proc, 300 ) );
 }
-
 //*/
 
 /*
