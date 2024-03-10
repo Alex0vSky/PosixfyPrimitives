@@ -47,11 +47,13 @@ public:
 		return h_process == c_invalid;
 	}
 							
-	// @insp https://stackoverflow.com/questions/45037193/how-to-check-if-a-process-is-running-in-c
+	// @insp SO/how-to-check-if-a-process-is-running-in-c
+	// @insp SO/get-exit-code-from-non-child-process-in-linux
 	bool IsProcessActive(unsigned wait_milli=0) const {
 		auto next_clock = now( ) + std::chrono::milliseconds{ wait_milli };
 		do {
 			// Wait for child process, this should clean up defunct processes
+			// (you can wait for a process only once)
 			if ( -1 == waitpid( h_process, nullptr, WNOHANG ) ) {
 				// TODO(alex): just to known
 				perror( "waitpid IsProcessActive" );
@@ -79,7 +81,7 @@ public:
 			perror( "waitpid GetExitCode" );
 //			return false;
 		}
-		printf( "WIFEXITED( status ): %s", ( WIFEXITED( status ) ?"true" :"false" ) );
+		printf( "WIFEXITED( status ): %s\n", ( WIFEXITED( status ) ?"true" :"false" ) );
 		if ( !WIFEXITED( status ) )
 			return false;
 		_ec = WEXITSTATUS( status );
