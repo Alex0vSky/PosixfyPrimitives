@@ -30,13 +30,12 @@ public:
 		obj = nullptr;
 		return rc;
 	}
-	//static void DestroyNoTerminate(CProcess*& obj) {
-	//	if ( obj )
-	//	{
-	//		obj->_DestroyNoTerminate();
-	//		obj = NULL;
-	//	}
-	//}
+	static void DestroyNoTerminate(CProcess*& obj) {
+		if ( !obj )
+			return;
+		obj ->_DestroyNoTerminate( );
+		obj = nullptr;
+	}
 
 	bool IsError(int *_perr=nullptr) const {
 		if ( _perr )
@@ -182,9 +181,9 @@ private:
 		return false;
 	}
 
-	//void _DestroyNoTerminate() {
-	//	delete this;
-	//}
+	void _DestroyNoTerminate() {
+		delete this;
+	}
 };
 
 } // namespace Ipc

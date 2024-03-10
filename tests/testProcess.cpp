@@ -64,8 +64,14 @@ public:
 testing::TestEventListener *PrinterToStderr::s_original = nullptr;
 } // namespace detail 
 
+#ifdef WIN32
 typedef std::tuple< detail::SilenceStdout, detail::PrinterToStderr > 
 	silenceStdoutAndPinterToStderr_t;
+#else
+// dummy
+typedef void *
+	silenceStdoutAndPinterToStderr_t;
+#endif // WIN32
 
 //*
 TEST(Process_create, simple) {
@@ -212,6 +218,13 @@ TEST(Process_terminate, double_terminate) {
 	EXPECT_TRUE( CProcess::TerminateWaitDestroy( proc, 300 ) );
 }
 //*/
+
+TEST(Process_DestroyNoTerminate, basic) {
+	CProcess *proc = CProcess::Create( g_long_playing );
+	EXPECT_FALSE( proc ->IsError( ) );
+	CProcess::DestroyNoTerminate( proc );
+	EXPECT_EQ( nullptr, proc );
+}
 
 /*
 TEST(Process_open, then_actions) {
