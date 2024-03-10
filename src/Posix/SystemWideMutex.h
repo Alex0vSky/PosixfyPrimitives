@@ -77,6 +77,7 @@ public:
 	}
 
 	CSystemWideMutex(const CSystemWideMutex& other) :
+		// TODO(alex): via iface `CTools::CopyHandle(other);`
 		h_semaphore( sem_open( other.m_name.c_str( ), O_RDWR ) )
 		, m_name( other.m_name )
 		, m_open_existing( other.m_open_existing )
@@ -84,13 +85,13 @@ public:
 		, m_owner_tid( other.m_owner_tid )
 	{}
 
-	//const CSystemWideMutex& operator = (const CSystemWideMutex& other) = delete;
 	const CSystemWideMutex& operator= (const CSystemWideMutex& other) {
 		if ( this != &other ) {
-			//CTools::CloseAndInvalidateHandle(h_semaphore);
+			// TODO(alex): via iface `CTools::CloseAndInvalidateHandle(h_semaphore);`
 			sem_close( h_semaphore );
 			if ( !m_open_existing )
 				sem_unlink( m_name.c_str( ) );
+			// TODO(alex): via iface `CTools::CopyHandle(other);`
 			h_semaphore = sem_open( other.m_name.c_str( ), O_RDWR );
 		}
 		return *this;
@@ -153,6 +154,8 @@ public:
 			return false;
 		if ( success && !sval2 ) {
 			m_owner_tid = current_tid;
+			// To reset owner on thread exit
+			// TODO(alex): bug, UB if owner destroyed before thread end
 			detail::g_threadExiter.set([this] {
 					m_owner_tid = m_empty_tid;
 				});
@@ -177,7 +180,6 @@ public:
 		if ( !sval )
 			sem_post( h_semaphore );
 	}
-	// TODO(alex): broken logic detected, unusable object, handle got from `CreateMutex()/OpenMutex()`
 
 };
 } // namespace Ipc
