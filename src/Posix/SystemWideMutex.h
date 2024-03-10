@@ -119,14 +119,14 @@ public:
 		if ( current_tid == m_creator_tid ) {
 			int sval;
 			sem_getvalue( h_semaphore, &sval );
-			printf( "creator thread, BEG sval: %d\n", sval );
+			//printf( "creator thread, BEG sval: %d\n", sval );
 			if ( !sval ) {
 				if ( m_creator_tid == m_owner_tid || m_empty_tid == m_owner_tid ) {
 					sem_post( h_semaphore );
 				}
 			}
-			sem_getvalue( h_semaphore, &sval );
-			printf( "creator thread, END sval: %d\n", sval );
+			//sem_getvalue( h_semaphore, &sval );
+			//printf( "creator thread, END sval: %d\n", sval );
 		} else {
 //			sem_getvalue( h_semaphore, &m_sval ); printf( "other thread, sval: %d\n", m_sval );
 		}
