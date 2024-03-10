@@ -145,6 +145,7 @@ TEST(Process_exit_code, for_finished) {
 #endif // WIN32
 
 	CProcess *proc = CProcess::Create( cmdline.c_str( ) );
+	// less then will execute
 	proc ->IsProcessActive( 300 );
 	EXPECT_FALSE( proc ->IsError( ) );
 	int exit_code;
@@ -160,7 +161,7 @@ TEST(Process_exit_code, immediately_for_long_playing) {
 #ifdef WIN32
 	std::string cmdline = "cmd /c ping -n 2 8.8.8.8 && exit 42";
 #else
-	std::string cmdline = "ping -n 2 8.8.8.8 && exit 42";
+	std::string cmdline = "ping -c 2 8.8.8.8 && exit 42";
 #endif // WIN32
 
 	CProcess *proc = CProcess::Create( cmdline.c_str( ) );
