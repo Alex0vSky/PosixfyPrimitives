@@ -29,6 +29,8 @@ class CSystemWideMutex {
 	// for tidy compare
 	const std::thread::id m_empty_tid;
 
+	int m_sval;
+
 	// @insp https://stackoverflow.com/questions/15024623/convert-milliseconds-to-timespec-for-gnu-port
 	static void ms2ts(timespec *ts, unsigned long milli) {
 		ts ->tv_sec = milli / 1000;
@@ -112,7 +114,6 @@ public:
 		if ( h_semaphore == SEM_FAILED )
 			return false;
 
-		int m_sval;
 		// implement recursive mutex, prolog
 		const std::thread::id current_tid = std::this_thread::get_id( );
 		if ( current_tid == m_creator_tid ) {
