@@ -164,10 +164,10 @@ private:
 
 	// returns true if no timeout occurs
 	bool _TerminateWaitDestroy(unsigned wait_timeout_milli) { 
-		//// TODO(alex): Segmentation fault      (core dumped)
-		//struct Deleter { 
-		//	CProcess *x; Deleter(CProcess *y) : x( y ) { } ~Deleter() { delete x ; }
-		//} unused_( this );
+		// ?TODO(alex): Segmentation fault (core dumped)
+		struct Deleter { 
+			CProcess *x; Deleter(CProcess *y) : x( y ) { } ~Deleter() { delete x ; }
+		} unused_( this );
 
 		//printf( "IsProcessActive BEG\n" );
 		//if ( IsProcessActive( ) ) {
@@ -181,6 +181,7 @@ private:
 			int status = kill( h_process, SIGKILL );
 			printf( "do2 kill, status: %d\n", status );
 			printf( "do2 kill, errno: %d\n", errno );
+			// @insp SO/cant-kill-pid-started-with-spawn
 			waitpid( h_process, nullptr, 0 );
 		}
 
@@ -201,7 +202,7 @@ private:
 				s_once3 = true, printf( "kill status: %d\n", status );
 
 			if ( status == -1 ) {
-				if ( errno == ESRCH || errno == ENOENT )
+				if ( errno == ESRCH )
 					return true;
 			}
 			static bool s_once2 = false;
