@@ -8,9 +8,9 @@
 using CProcess = Ipc::CProcess;
 // Long-playing command, to ping Google via gtest
 #ifdef WIN32
-	const char *g_long_playing = "ping -n 1 8.8.8.8";
+	const char *g_long_playing = "ping -n 2 8.8.8.8";
 #else
-	const char *g_long_playing = "ping -c 1 8.8.8.8";
+	const char *g_long_playing = "ping -c 2 8.8.8.8";
 #endif // WIN32
 
 //*
@@ -31,7 +31,7 @@ TEST(Process_create, simple) {
 }
 
 //*
-TEST(Process_create, cwd) {
+TEST(Process_create, set_and_verify_real_cwd) {
     std::string tmpnam = std::tmpnam( nullptr );
 	size_t pos;
 	pos = tmpnam.find_last_of( '/' );
@@ -73,10 +73,15 @@ TEST(Process_alive, infinite) {
 	EXPECT_FALSE( proc ->IsError( ) );
 }
 
-/*
 TEST(Process_alive, timeout) {
+	SilenceStdout anonimous_;
+	CProcess *proc = CProcess::Create( g_long_playing );
+	// more then two pings
+	EXPECT_TRUE( proc ->IsProcessActive( 300 ) );
+	EXPECT_FALSE( proc ->IsError( ) );
 }
 
+/*
 TEST(Process_create, xxx) {
 	//getcwd( );
 	CProcess *proc = CProcess::Create( "cmd /c dir" );
