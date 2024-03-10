@@ -174,8 +174,8 @@ TEST(Process_open, basic) {
 
 //*
 TEST(Process_open, then_terminate_pair) {
-	PrinterToStderr anonimous2_;
-	SilenceStdout anonimous_;
+	//PrinterToStderr anonimous2_;
+	//SilenceStdout anonimous_;
 	CProcess *proc1 = CProcess::Create( g_long_playing );
 	EXPECT_FALSE( proc1 ->IsError( ) );
 	CProcess *proc2 = CProcess::Open( proc1 ->GetProcessId( ), true );
