@@ -97,7 +97,8 @@ public:
 	//}
 
 	~CSystemWideMutex() {
-		printf( "dtor on this: 0x%08X\n", this );
+		const auto sid = ( ( std::ostringstream( ) << std::this_thread::get_id( ) ).str( ) );
+		printf( "%s dtor on this: 0x%p\n", sid.c_str( ), this );
 		if ( h_semaphore == SEM_FAILED )
 			return;
 		// TODO(alex): via iface `CTools::CloseAndInvalidateHandle(h_semaphore);`
@@ -155,9 +156,11 @@ public:
 			return false;
 		if ( success && !sval2 ) {
 			m_owner_tid = current_tid;
-			printf( "set on this: 0x%08X\n", this );
+			const auto sid = ( ( std::ostringstream( ) << std::this_thread::get_id( ) ).str( ) );
+			printf( "%s set on this: 0x%p\n", sid.c_str( ), this );
 			detail::g_threadExiter.set([this] {
-					printf( "reset on this: 0x%08X\n", this );
+					const auto sid = ( ( std::ostringstream( ) << std::this_thread::get_id( ) ).str( ) );
+					printf( "%s reset on this: 0x%p\n", sid.c_str( ), this );
 					m_owner_tid = m_empty_tid;
 				});
 		} else {
