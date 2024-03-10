@@ -154,7 +154,7 @@ private:
 
 	~CProcess() {
 		if ( c_invalid != h_process )
-			h_process = c_invalid;
+			waitpid( h_process, nullptr, 0 ), h_process = c_invalid;
 	}
 
 	// returns true if no timeout occurs
