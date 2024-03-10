@@ -10,7 +10,7 @@ using CProcess = Ipc::CProcess;
 #ifdef WIN32
 	const char *g_long_playing = "ping -n 2 8.8.8.8";
 #else
-	const char *g_long_playing = "ping -c 2 8.8.8.8";
+	const char *g_long_playing = "ping -w 2 8.8.8.8";
 #endif // WIN32
 
 //*
