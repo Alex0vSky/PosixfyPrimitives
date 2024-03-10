@@ -21,11 +21,7 @@ public:
 		return new CProcess(cmdline,cwd);
 	}
 	static CProcess* Open(process_id_t pid,bool terminate_access_needed) {
-		return new CProcess( 
-				pid
-				//, SYNCHRONIZE 
-				//	| ( terminate_access_needed ?PROCESS_TERMINATE :0 )
-			);
+		return new CProcess( pid );
 	}
 
 	// returns true if no timeout occurs
@@ -113,9 +109,7 @@ public:
 	}
 
 private:
-	CProcess(process_id_t pid
-		//,DWORD access
-	) {
+	CProcess(process_id_t pid) {
 		m_id_process = pid;
 		h_process = pid;
 		m_err = -1;
@@ -161,13 +155,10 @@ private:
 		m_id_process = h_process;
 	}
 
-	//~CProcess() {
-	//	if ( h_process )
-	//	{
-	//		CloseHandle(h_process);
-	//		h_process = NULL;
-	//	}
-	//}
+	~CProcess() {
+		if ( c_invalid != h_process )
+			h_process = c_invalid;
+	}
 
 	// returns true if no timeout occurs
 	bool _TerminateWaitDestroy(unsigned wait_timeout_milli) { 
@@ -175,13 +166,19 @@ private:
 			CProcess *x; Deleter(CProcess *y) : x( y ) { } ~Deleter() { delete x ; }
 		} unused_( this );
 
-		printf( "IsProcessActive BEG\n" );
-		if ( IsProcessActive( ) ) {
+		//printf( "IsProcessActive BEG\n" );
+		//if ( IsProcessActive( ) ) {
+		//	int status = kill( h_process, SIGKILL );
+		//	printf( "do kill, status: %d\n", status );
+		//	printf( "do kill, errno: %d\n", errno );
+		//}
+		//printf( "IsProcessActive END\n" );
+
+		if ( !kill( h_process, 0 ) ) {
 			int status = kill( h_process, SIGKILL );
-			printf( "do kill, status: %d\n", status );
-			printf( "do kill, errno: %d\n", errno );
+			printf( "do2 kill, status: %d\n", status );
+			printf( "do2 kill, errno: %d\n", errno );
 		}
-		printf( "IsProcessActive END\n" );
 
 		// Awaiting free
 		auto next_clock = now( ) + std::chrono::milliseconds{ wait_timeout_milli };

@@ -158,6 +158,14 @@ TEST(Process_exit_code, immediately_for_long_playing) {
 }
 //*/
 
+TEST(Process_terminate, basic) {
+	CProcess *proc = CProcess::Create( g_long_playing );
+	EXPECT_FALSE( proc ->IsError( ) );
+	EXPECT_TRUE( CProcess::TerminateWaitDestroy( proc, 60 *1000 ) );
+	EXPECT_EQ( nullptr, proc );
+	EXPECT_FALSE( proc ->IsProcessActive( ) );
+}
+
 /*
 TEST(Process_mix, pid) {
 	EXPECT_TRUE( ( CProcess::GetThisProcessId( ) > 0 ) );
@@ -173,14 +181,6 @@ TEST(Process_open, basic) {
 	EXPECT_TRUE( proc2 ->IsProcessActive( ) );
 	EXPECT_EQ( proc1 ->GetProcessId( ), proc2 ->GetProcessId( ) );
 	// memory leaks
-}
-
-TEST(Process_terminate, basic) {
-	CProcess *proc = CProcess::Create( g_long_playing );
-	EXPECT_FALSE( proc ->IsError( ) );
-	EXPECT_TRUE( CProcess::TerminateWaitDestroy( proc, INFINITE ) );
-	EXPECT_EQ( nullptr, proc );
-	EXPECT_FALSE( proc ->IsProcessActive( ) );
 }
 
 //TEST(Process_terminate, then_terminate_pair) {
