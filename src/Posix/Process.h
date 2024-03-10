@@ -74,8 +74,9 @@ public:
 			return false;
 		int status;
 		if ( -1 == waitpid( h_process, &status, WNOHANG ) ) {
+			// TODO(alex): just to known
 			perror( "waitpid GetExitCode" );
-			return false;
+//			return false;
 		}
 		if ( !WIFEXITED( status ) )
 			return false;
