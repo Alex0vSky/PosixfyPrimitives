@@ -14,7 +14,7 @@ TEST(Process_create, simple) {
 #ifdef WIN32
 	CProcess *proc = CProcess::Create( "ping 8.8.8.8" );
 #else
-	CProcess *proc = CProcess::Create( "ping -с1 8.8.8.8" );
+	CProcess *proc = CProcess::Create( "ping -c 1 8.8.8.8" );
 #endif // WIN32
 	EXPECT_FALSE( proc ->IsError( ) );
 	while ( proc ->IsProcessActive( ) )
