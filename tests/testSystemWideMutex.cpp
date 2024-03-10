@@ -7,12 +7,13 @@
 #endif
 using CSystemWideMutex = Ipc::CSystemWideMutex;
 static char g_name[] = "my_lucky_unique_name_for_SystemWideMutex";
+static char g_name2[] = "my_lucky_unique_name_for_SystemWideMutex2";
 constexpr auto now = std::chrono::high_resolution_clock::now;
 
 //*
 namespace testSystemWideMutex_ { 
 
-//*
+/*
 TEST(SystemWideMutex_create, already_exists) {
 	bool already_exists;
 	char name[] = "some_name";
@@ -169,7 +170,6 @@ TEST(SystemWideMutex_locks, real_world_wait2_1500) {
 		});
 	thread.join( );
 }
-//*/
 
 TEST(SystemWideMutex_unlocks, break_LockInfinite) {
 	CSystemWideMutex systemWideMutex( g_name );
@@ -213,9 +213,7 @@ TEST(SystemWideMutex_tricks, dry_unlock) {
 #endif // WIN32
 	EXPECT_TRUE( systemWideMutex.Lock( 0 ) );
 }
-//*/
 
-//*
 TEST(SystemWideMutex_copy_ctor, separate_environment) {
 	auto systemWideMutex1 = std::make_unique< CSystemWideMutex >( g_name );
 	CSystemWideMutex systemWideMutex2( *systemWideMutex1 );
@@ -246,6 +244,37 @@ TEST(SystemWideMutex_copy_ctor, separate_environment) {
 	thread.join( );
 }
 //*/
+
+TEST(SystemWideMutex_assignment, separate_environment) {
+	auto systemWideMutex1 = std::make_unique< CSystemWideMutex >( g_name );
+	CSystemWideMutex systemWideMutex2( g_name2 );
+	systemWideMutex2 = *systemWideMutex1;
+	bool success = ( true 
+			&& !systemWideMutex1 ->IsError( ) 
+			&& !systemWideMutex2.IsError( ) 
+		);
+	EXPECT_TRUE( success );
+	if ( !success ) 
+		GTEST_SKIP( );
+	// to ensurance that a first object is not exists 
+	systemWideMutex1.reset( );
+
+	std::atomic_bool started, stop;
+	started = stop = false;
+	std::thread thread([&started, &stop, &systemWideMutex2] {
+			// try take ownership
+			EXPECT_TRUE( systemWideMutex2.Lock( 0 ) );
+			started = true;
+			// wait stop flag
+			while ( !stop )
+				std::this_thread::yield( );
+		});
+	while ( !started )
+		std::this_thread::yield( );
+	EXPECT_FALSE( systemWideMutex2.Lock( 0 ) );
+	stop = true;
+	thread.join( );
+}
 
 } // namespace testSystemWideMutex_ 
 //*/

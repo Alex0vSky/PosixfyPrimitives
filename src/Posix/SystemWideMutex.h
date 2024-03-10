@@ -84,15 +84,17 @@ public:
 		, m_owner_tid( other.m_owner_tid )
 	{}
 
-	const CSystemWideMutex& operator = (const CSystemWideMutex& other) = delete;
-	//const CSystemWideMutex& operator = (const CSystemWideMutex& other) {
-	//	if ( this != &other )
-	//	{
-	//		//CTools::CloseAndInvalidateHandle(h_semaphore);
-	//		//h_semaphore = CTools::CopyHandle(other.h_semaphore);
-	//	}
-	//	return *this;
-	//}
+	//const CSystemWideMutex& operator = (const CSystemWideMutex& other) = delete;
+	const CSystemWideMutex& operator= (const CSystemWideMutex& other) {
+		if ( this != &other ) {
+			//CTools::CloseAndInvalidateHandle(h_semaphore);
+			sem_close( h_semaphore );
+			if ( !m_open_existing )
+				sem_unlink( m_name.c_str( ) );
+			h_semaphore = sem_open( other.m_name.c_str( ), O_RDWR );
+		}
+		return *this;
+	}
 
 	~CSystemWideMutex() {
 		if ( h_semaphore == SEM_FAILED )
