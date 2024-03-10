@@ -128,7 +128,7 @@ public:
 			sem_getvalue( h_semaphore, &sval );
 			printf( "creator thread, END sval: %d\n", sval );
 		} else {
-			sem_getvalue( h_semaphore, &m_sval ); printf( "other thread, sval: %d\n", m_sval );
+//			sem_getvalue( h_semaphore, &m_sval ); printf( "other thread, sval: %d\n", m_sval );
 		}
 
 		// TODO(alex): to separate
