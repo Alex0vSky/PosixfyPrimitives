@@ -6,22 +6,32 @@
 #	include "Posix/Process.h"
 #endif
 using CProcess = Ipc::CProcess;
+// Long-playing command, to ping Google via gtest
+#ifdef WIN32
+	const char *g_long_playing = "ping -n 1 8.8.8.8";
+#else
+	const char *g_long_playing = "ping -c 1 8.8.8.8";
+#endif // WIN32
 
 //*
 namespace testProcess_ { 
 
+struct SilenceStdout {
+	SilenceStdout() {
+		testing::internal::CaptureStdout( );
+	}
+	~SilenceStdout() {
+		testing::internal::GetCapturedStdout( );
+	}
+};
 TEST(Process_create, simple) {
-	// To ping Google via gtest
-#ifdef WIN32
-	CProcess *proc = CProcess::Create( "ping -n 1 8.8.8.8" );
-#else
-	CProcess *proc = CProcess::Create( "ping -c 1 8.8.8.8" );
-#endif // WIN32
+	SilenceStdout anonimous_;
+	CProcess *proc = CProcess::Create( g_long_playing );
 	EXPECT_FALSE( proc ->IsError( ) );
 }
 
 //*
-TEST(Process_create, simple_cwd) {
+TEST(Process_create, cwd) {
     std::string tmpnam = std::tmpnam( nullptr );
 	size_t pos;
 	pos = tmpnam.find_last_of( '/' );
@@ -30,7 +40,6 @@ TEST(Process_create, simple_cwd) {
 	if ( std::string::npos == pos )
 		GTEST_SKIP( );
     std::string directory = tmpnam.substr( 0, pos );
-	printf( "directory: '%s'\n", directory.c_str( ) );
 
 	// get current directory shell command
 #ifdef WIN32
@@ -44,29 +53,27 @@ TEST(Process_create, simple_cwd) {
 	while ( proc ->IsProcessActive( ) )
 		std::this_thread::yield( );
 	std::string output = testing::internal::GetCapturedStdout( );
-	printf( "output: '%s'\n", output.c_str( ) );
 
 	EXPECT_FALSE( proc ->IsError( ) );
 	EXPECT_NE( std::string::npos, output.find( directory ) );
 }
 //*/
 
-/*
 TEST(Process_alive, immediately) {
-	// To ping Google via gtest
-#ifdef WIN32
-	CProcess *proc = CProcess::Create( "ping -n 1 8.8.8.8" );
-#else
-	CProcess *proc = CProcess::Create( "ping -c 1 8.8.8.8" );
-#endif // WIN32
+	SilenceStdout anonimous_;
+	CProcess *proc = CProcess::Create( g_long_playing );
+	EXPECT_TRUE( proc ->IsProcessActive( ) );
 	EXPECT_FALSE( proc ->IsError( ) );
-	while ( proc ->IsProcessActive( ) )
-		std::this_thread::yield( );
 }
 
 TEST(Process_alive, infinite) {
+	SilenceStdout anonimous_;
+	CProcess *proc = CProcess::Create( g_long_playing );
+	EXPECT_FALSE( proc ->IsProcessActive( INFINITE ) );
+	EXPECT_FALSE( proc ->IsError( ) );
 }
 
+/*
 TEST(Process_alive, timeout) {
 }
 

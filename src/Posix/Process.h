@@ -12,6 +12,7 @@ private:
 
 	static const unsigned c_maximumPathLength = PATH_MAX;
 	static const pid_t c_invalid = 0;
+	static constexpr auto now = std::chrono::high_resolution_clock::now;
 
 public:
 	static CProcess* Create(const char *cmdline, const char *cwd=nullptr)
@@ -47,16 +48,21 @@ public:
 	}
 							
 	// @insp https://stackoverflow.com/questions/45037193/how-to-check-if-a-process-is-running-in-c
-	bool IsProcessActive(unsigned wait_ms=0) const {
-		// Wait for child process, this should clean up defunct processes
-		waitpid( h_process, nullptr, WNOHANG );
-		// kill failed let's see why..
-		if ( kill( h_process, 0) == -1 ) {
-			// First of all kill may fail with EPERM if we run as a different user and we have no access, 
-			// so let's make sure the errno is ESRCH (Process not found!)
-			return ( errno != ESRCH );
-		}
-		// If kill didn't fail the process is still running
+	bool IsProcessActive(unsigned wait_milli=0) const {
+		auto next_clock = now( ) + std::chrono::milliseconds{ wait_milli };
+		do {
+			// Wait for child process, this should clean up defunct processes
+			waitpid( h_process, nullptr, WNOHANG );
+			// kill failed let's see why..
+			if ( kill( h_process, 0) == -1 ) {
+				// First of all kill may fail with EPERM if we run as a different user and we have no access, 
+				// so let's make sure the errno is ESRCH (Process not found!)
+				if ( errno == ESRCH )
+					return false;
+			}
+			// If kill didn't fail the process is still running
+			std::this_thread::yield( );
+		} while ( now( ) < next_clock );
 		return true;
 	}
 
@@ -118,16 +124,8 @@ private:
 			if ( posix_spawn_file_actions_addchdir_np( &action, cwd ) )
 				return;
 
-		int a[3] = {1, 2, 3};
-		auto asd0 = const_cast<const int(&)[3]>(a);
-
 		std::vector< char > cmdline( _cmdline, _cmdline + len + 1 );
 		const char *const argv_[] = { "sh", "-c", cmdline.data( ), nullptr };
-		//argv_[ 0 ] = 0;
-		//argv_[ 0 ][ 0 ] = 0;
-		//auto argv = const_cast< char *const(&)[]>( argv_ );
-		//auto argv = reinterpret_cast<char const*const(&)[]>( argv_ );
-		//auto argv = const_cast< char *const(&)[]>( reinterpret_cast<char const*const(&)[]>( argv_ ) );
 		auto argv = const_cast< char *const*>( argv_ );
 		if ( posix_spawnp( &h_process, argv[ 0 ], &action, nullptr, argv, environ ) ) {
 			h_process = c_invalid;
