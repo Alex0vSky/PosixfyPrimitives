@@ -178,21 +178,12 @@ private:
 		if ( IsProcessActive( ) )
 			kill( h_process, SIGKILL );
 
+		// Awaiting free
 		auto next_clock = now( ) + std::chrono::milliseconds{ wait_timeout_milli };
 		do {
-			int status;
-			// Wait for child process, this should clean up defunct processes
-			if ( -1 == waitpid( h_process, &status, WNOHANG ) ) {
-				// TODO(alex): just to known
-				static bool s_once = false;
-				if ( !s_once )
-					s_once = true, perror( "waitpid _TerminateWaitDestroy" );
-			}
-			// save exit code, can wait for a process only once
-			if ( WIFEXITED( status ) ) {
+			// @Warning! Race condition by pid number unique
+			if ( ( kill( h_process, 0 ) == -1 ) && ( errno == ESRCH ) )
 				return true;
-			}
-
 			std::this_thread::yield( );
 		} while ( now( ) < next_clock );
 
