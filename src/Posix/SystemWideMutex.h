@@ -29,7 +29,7 @@ class CSystemWideMutex {
 	// for tidy compare
 	const std::thread::id m_empty_tid;
 
-	int x_some_value;
+//	int x_some_value;
 
 	// @insp https://stackoverflow.com/questions/15024623/convert-milliseconds-to-timespec-for-gnu-port
 	static void ms2ts(timespec *ts, unsigned long milli) {
