@@ -89,7 +89,6 @@ public:
 		if ( -1 == waitpid( h_process, &status, WNOHANG | WUNTRACED | WCONTINUED ) ) {
 			// TODO(alex): just to known
 			perror( "waitpid GetExitCode" );
-//			return false;
 		}
 		printf( "WIFEXITED( status ): %s\n", ( WIFEXITED( status ) ?"true" :"false" ) );
 		if ( !WIFEXITED( status ) )

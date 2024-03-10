@@ -59,7 +59,7 @@ TEST(Process_create, set_and_verify_real_cwd) {
 }
 //*/
 
-/*
+//*
 TEST(Process_alive, immediately) {
 	SilenceStdout anonimous_;
 	CProcess *proc = CProcess::Create( g_long_playing );
@@ -93,7 +93,6 @@ TEST(Process_exit_code, for_finished) {
 
 	CProcess *proc = CProcess::Create( cmdline.c_str( ) );
 	proc ->IsProcessActive( INFINITE );
-//	std::this_thread::sleep_for( std::chrono::milliseconds( 500 ) );
 	EXPECT_FALSE( proc ->IsError( ) );
 	int exit_code;
 	EXPECT_TRUE( proc ->GetExitCode( exit_code ) );
