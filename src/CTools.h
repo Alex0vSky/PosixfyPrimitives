@@ -105,7 +105,9 @@ pid_t waitpid(pid_t pid, int *status, int options);
 #define WIFCONTINUED( ... ) 1
 
 int kill(pid_t pid, int sig);
-
+int posix_spawn_file_actions_init(posix_spawn_file_actions_t *);
+int posix_spawn_file_actions_addchdir_np(posix_spawn_file_actions_t *file_actions, const char *path);
+int posix_spawn_file_actions_destroy(posix_spawn_file_actions_t *);
 
 #endif // A0S_INDEVELOP
 

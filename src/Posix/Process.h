@@ -93,11 +93,22 @@ private:
 	CProcess(const char *_cmdline,const char *cwd) : 
 		h_process( 0 ), m_id_process(GetInvalidProcessId()), m_err(-1)
 	{
+		posix_spawn_file_actions_t action;
+		if ( posix_spawn_file_actions_init( &action ) )
+			return;
+		struct Destroy { 
+			posix_spawn_file_actions_t &x; Destroy(posix_spawn_file_actions_t &y) : x( y ) { } ~Destroy() { 
+				posix_spawn_file_actions_destroy( &x ); }
+		} unused_( action );
+		if ( cwd ) 
+			if ( posix_spawn_file_actions_addchdir_np( &action, cwd ) )
+				return;
+
 		char *argv[] = { "sh", "-c", nullptr, nullptr };
 		std::string cmdline2 = _cmdline;
 		std::vector< char > cmdline( cmdline2.begin( ), cmdline2.end( ) );
 		argv[ 2 ] = cmdline.data( );
-		if ( posix_spawnp( &h_process, argv[ 0 ], nullptr, nullptr, argv, environ ) ) {
+		if ( posix_spawnp( &h_process, argv[ 0 ], &action, nullptr, argv, environ ) ) {
 			m_err = errno;
 			perror( "posix_spawnp" );
 		}
