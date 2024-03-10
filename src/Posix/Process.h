@@ -103,7 +103,7 @@ private:
 		size_t len = strnlen_s( _cmdline, c_maximumPathLength );
 #else
 		size_t len = strnlen( _cmdline, c_maximumPathLength );
-#endif __STDC_LIB_EXT1__ 
+#endif // __STDC_LIB_EXT1__ 
 		if ( !len )
 			return;
 
@@ -125,8 +125,10 @@ private:
 		const char *const argv_[] = { "sh", "-c", cmdline.data( ), nullptr };
 		//argv_[ 0 ] = 0;
 		//argv_[ 0 ][ 0 ] = 0;
-		//auto argv = const_cast< char *const(&)[4]>( argv_ );
-		auto argv = reinterpret_cast<char *const(&)[]>( argv_ );
+		//auto argv = const_cast< char *const(&)[]>( argv_ );
+		//auto argv = reinterpret_cast<char const*const(&)[]>( argv_ );
+		//auto argv = const_cast< char *const(&)[]>( reinterpret_cast<char const*const(&)[]>( argv_ ) );
+		auto argv = const_cast< char *const*>( argv_ );
 		if ( posix_spawnp( &h_process, argv[ 0 ], &action, nullptr, argv, environ ) ) {
 			h_process = c_invalid;
 			m_err = errno;
