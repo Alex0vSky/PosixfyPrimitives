@@ -5,6 +5,9 @@
 #	pragma clang diagnostic ignored "-Wmicrosoft-include"
 #endif // __clang__
 
+// for `strnlen_s()`
+#define __STDC_WANT_LIB_EXT1__ 1
+
 #include "include/gtest/gtest.h"
 #include "include/gmock/gmock.h"
 
