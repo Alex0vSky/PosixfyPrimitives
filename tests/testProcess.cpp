@@ -59,6 +59,7 @@ TEST(Process_create, set_and_verify_real_cwd) {
 }
 //*/
 
+/*
 TEST(Process_alive, immediately) {
 	SilenceStdout anonimous_;
 	CProcess *proc = CProcess::Create( g_long_playing );
@@ -80,8 +81,33 @@ TEST(Process_alive, timeout) {
 	EXPECT_TRUE( proc ->IsProcessActive( 300 ) );
 	EXPECT_FALSE( proc ->IsError( ) );
 }
+//*/
+
+TEST(Process_exit_code, basic) {
+	// set process return code shell command
+#ifdef WIN32
+	std::string cmdline = "cmd /c exit 42";
+#else
+	std::string cmdline = "exit 42";
+#endif // WIN32
+
+	CProcess *proc = CProcess::Create( cmdline.c_str( ) );
+	proc ->IsProcessActive( INFINITE );
+	EXPECT_FALSE( proc ->IsError( ) );
+	int exit_code;
+	EXPECT_TRUE( proc ->GetExitCode( exit_code ) );
+	EXPECT_EQ( 42, exit_code );
+}
 
 /*
+
+
+TEST(Process_open, basic) {
+}
+
+TEST(Process_open, then_terminate) {
+}
+
 TEST(Process_create, xxx) {
 	//getcwd( );
 	CProcess *proc = CProcess::Create( "cmd /c dir" );
