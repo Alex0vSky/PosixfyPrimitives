@@ -189,7 +189,7 @@ private:
 			//if ( ( kill( h_process, 0 ) == -1 ) && ( errno == ESRCH ) )
 
 			if ( kill( h_process, 0 ) == -1 ) {
-				if ( errno == ESRCH )
+				if ( errno == ESRCH || errno == ENOENT )
 					return true;
 			}
 			static bool s_once = false;
