@@ -12,7 +12,7 @@ constexpr auto now = std::chrono::high_resolution_clock::now;
 //*
 namespace testSystemWideMutex_ { 
 
-/*
+//*
 TEST(SystemWideMutex_create, already_exists) {
 	bool already_exists;
 	char name[] = "some_name";
@@ -236,7 +236,6 @@ TEST(SystemWideMutex_copy_ctor, separate_environment) {
 	EXPECT_FALSE( systemWideMutex2.Lock( 0 ) );
 	stop = true;
 	thread.join( );
-
 }
 
 } // namespace testSystemWideMutex_ 

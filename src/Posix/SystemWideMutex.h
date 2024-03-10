@@ -85,7 +85,6 @@ public:
 			*p_already_exists = is_exists;
 	}
 
-	//CSystemWideMutex(const CSystemWideMutex& other) = delete;
 	CSystemWideMutex(const CSystemWideMutex& other) :
 		h_semaphore( sem_open( other.m_name.c_str( ), O_RDWR ) )
 		, m_name( other.m_name )
@@ -162,9 +161,9 @@ public:
 			return false;
 		if ( success && !sval2 ) {
 			m_owner_tid = current_tid;
-			//detail::g_threadExiter.set([this] {
-			//		m_owner_tid = m_empty_tid;
-			//	});
+			detail::g_threadExiter.set([this] {
+					m_owner_tid = m_empty_tid;
+				});
 		} else {
 			m_owner_tid = m_empty_tid;
 		}
