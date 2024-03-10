@@ -83,7 +83,7 @@ TEST(Process_alive, timeout) {
 }
 //*/
 
-TEST(Process_exit_code, basic) {
+TEST(Process_exit_code, for_finished) {
 	// set process return code shell command
 #ifdef WIN32
 	std::string cmdline = "cmd /c exit 42";
@@ -98,8 +98,6 @@ TEST(Process_exit_code, basic) {
 	EXPECT_TRUE( proc ->GetExitCode( exit_code ) );
 	EXPECT_EQ( 42, exit_code );
 }
-
-
 
 class PrinterToStderr : public testing::EmptyTestEventListener {
 	void OnTestPartResult(const testing::TestPartResult& test_part_result) override {

@@ -69,15 +69,17 @@ public:
 		return true;
 	}
 
+	// @insp SO/get-exit-code-from-non-child-process-in-linux
 	bool GetExitCode(int& _ec) const {
 		if ( c_invalid == h_process )
 			return false;
 		int status;
-		if ( -1 == waitpid( h_process, &status, WNOHANG ) ) {
+		if ( -1 == waitpid( h_process, &status, WNOHANG | WUNTRACED | WCONTINUED ) ) {
 			// TODO(alex): just to known
 			perror( "waitpid GetExitCode" );
 //			return false;
 		}
+		printf( "WIFEXITED( status ): %s", ( WIFEXITED( status ) ?"true" :"false" ) );
 		if ( !WIFEXITED( status ) )
 			return false;
 		_ec = WEXITSTATUS( status );
