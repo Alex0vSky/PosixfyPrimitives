@@ -220,19 +220,20 @@ TEST(Process_terminate, double_terminate) {
 //*/
 
 TEST(Process_DestroyNoTerminate, basic) {
+	silenceStdoutAndPinterToStderr_t anonimous_;
 	CProcess *proc = CProcess::Create( g_long_playing );
 	EXPECT_FALSE( proc ->IsError( ) );
 	CProcess::DestroyNoTerminate( proc );
 	EXPECT_EQ( nullptr, proc );
 }
 
-/*
-TEST(Process_open, then_actions) {
+TEST(Process_traits, dtor_or_delete_unaccesible) {
+	EXPECT_FALSE( std::is_destructible_v< CProcess > );
 }
 
-TEST(Process_delete, unaccesible?) {
+TEST(Process_traits, ctor_or_new_unaccesible) {
+	EXPECT_FALSE( std::is_constructible_v< CProcess > );
 }
-//*/
 
 } // namespace testProcess_ 
 //*/
