@@ -118,8 +118,15 @@ private:
 			if ( posix_spawn_file_actions_addchdir_np( &action, cwd ) )
 				return;
 
+		int a[3] = {1, 2, 3};
+		auto asd0 = const_cast<const int(&)[3]>(a);
+
 		std::vector< char > cmdline( _cmdline, _cmdline + len + 1 );
-		char *const argv[] = { "sh", "-c", cmdline.data( ), nullptr };
+		const char *const argv_[] = { "sh", "-c", cmdline.data( ), nullptr };
+		//argv_[ 0 ] = 0;
+		//argv_[ 0 ][ 0 ] = 0;
+		//auto argv = const_cast< char *const(&)[4]>( argv_ );
+		auto argv = reinterpret_cast<char *const(&)[]>( argv_ );
 		if ( posix_spawnp( &h_process, argv[ 0 ], &action, nullptr, argv, environ ) ) {
 			h_process = c_invalid;
 			m_err = errno;
