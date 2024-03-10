@@ -13,7 +13,7 @@ using CProcess = Ipc::CProcess;
 	const char *g_long_playing = "ping -c 2 8.8.8.8";
 #endif // WIN32
 
-//*
+/*
 namespace testProcess_ { 
 
 namespace detail {
@@ -73,7 +73,6 @@ typedef void *
 	silenceStdoutAndPinterToStderr_t;
 #endif // WIN32
 
-//*
 TEST(Process_create, simple) {
 	silenceStdoutAndPinterToStderr_t anonimous_;
 	CProcess *proc = CProcess::Create( g_long_playing );
@@ -106,9 +105,7 @@ TEST(Process_create, set_and_verify_real_cwd) {
 	EXPECT_FALSE( proc ->IsError( ) );
 	EXPECT_NE( std::string::npos, output.find( directory ) );
 }
-//*/
 
-//*
 TEST(Process_alive, awaiting_until_end) {
 	silenceStdoutAndPinterToStderr_t anonimous_;
 	CProcess *proc = CProcess::Create( g_long_playing );
@@ -133,9 +130,7 @@ TEST(Process_alive, timeout) {
 	EXPECT_FALSE( proc ->IsError( ) );
 	// memory leaks
 }
-//*/
 
-//*
 TEST(Process_exit_code, for_finished) {
 	// set process return code shell command
 #ifdef WIN32
@@ -170,9 +165,7 @@ TEST(Process_exit_code, immediately_for_long_playing) {
 	EXPECT_FALSE( proc ->GetExitCode( exit_code ) );
 	// memory leaks
 }
-//*/
 
-//*
 TEST(Process_mix, current_pid) {
 	EXPECT_TRUE( ( CProcess::GetThisProcessId( ) > 0 ) );
 }
@@ -218,7 +211,6 @@ TEST(Process_terminate, double_terminate) {
 	EXPECT_EQ( nullptr, proc );
 	EXPECT_TRUE( CProcess::TerminateWaitDestroy( proc, 300 ) );
 }
-//*/
 
 TEST(Process_DestroyNoTerminate, basic) {
 	silenceStdoutAndPinterToStderr_t anonimous_;

@@ -162,9 +162,9 @@ public:
 			return false;
 		if ( success && !sval2 ) {
 			m_owner_tid = current_tid;
-			detail::g_threadExiter.set([this] {
-					m_owner_tid = m_empty_tid;
-				});
+			//detail::g_threadExiter.set([this] {
+			//		m_owner_tid = m_empty_tid;
+			//	});
 		} else {
 			m_owner_tid = m_empty_tid;
 		}
