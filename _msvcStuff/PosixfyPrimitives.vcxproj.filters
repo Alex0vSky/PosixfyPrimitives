@@ -98,5 +98,8 @@
     <ClInclude Include="..\src\Posix\Process.h">
       <Filter>Source Files\primitives\Posix</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\Private.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
