@@ -181,7 +181,8 @@ public:
 			return;
 		int sval;
 		if ( -1 == sem_getvalue( h_semaphore, &sval ) )
-			return;
+			// TODO(alex): just to see
+			return perror( "Unlock sem_getvalue" ), (void)0;
 		if ( !sval )
 			sem_post( h_semaphore );
 	}
