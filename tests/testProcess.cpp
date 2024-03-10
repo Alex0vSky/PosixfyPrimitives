@@ -228,11 +228,11 @@ TEST(Process_DestroyNoTerminate, basic) {
 }
 
 TEST(Process_traits, dtor_or_delete_unaccesible) {
-	EXPECT_FALSE( std::is_destructible_v< CProcess > );
+	EXPECT_FALSE( std::is_destructible< CProcess >::value );
 }
 
 TEST(Process_traits, ctor_or_new_unaccesible) {
-	EXPECT_FALSE( std::is_constructible_v< CProcess > );
+	EXPECT_FALSE( std::is_constructible< CProcess >::value );
 }
 
 } // namespace testProcess_ 
