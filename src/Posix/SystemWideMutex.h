@@ -115,12 +115,12 @@ public:
 	// it is safe to call Unlock() without corresp. Lock() returned true
 	bool Lock(unsigned timeout_milli)  {
 		if ( h_semaphore == SEM_FAILED )
-			return false;
+			return perror( "return_false" ), false;
 
 		// implement recursive mutex, prolog
 		int sval1;
 		if ( -1 == sem_getvalue( h_semaphore, &sval1 ) )
-			return false;
+			return perror( "return_false" ), false;
 		const std::thread::id current_tid = std::this_thread::get_id( );
 		if ( current_tid == m_creator_tid ) 
 			if ( !sval1 ) 
@@ -129,6 +129,7 @@ public:
 
 		// TODO(alex): to separate
 		timespec abstime = { };
+		{
 		if ( INFINITE == timeout_milli ) {
 			abstime.tv_sec = std::numeric_limits< decltype( abstime.tv_sec ) >::max( );
 			abstime.tv_nsec = std::numeric_limits< decltype( abstime.tv_nsec ) >::max( );
@@ -142,18 +143,16 @@ public:
 		const unsigned limit = 1'000'000'000;
 		if ( abstime.tv_nsec >= limit )
 			abstime.tv_nsec = limit - 1;
-
-		// If user will use signal handler
-		bool interupt, success = false;
-		do {
+		}
+		bool interupt, success = false; do {
 			success = ( !sem_timedwait( h_semaphore, &abstime ) );
 			interupt = ( !success && errno == EINTR );
-		} while ( interupt );
+		} while ( interupt ); // If user will use signal handler
 
 		// implement recursive mutex, epilog
 		int sval2;
 		if ( -1 == sem_getvalue( h_semaphore, &sval2 ) )
-			return false;
+			return perror( "return_false" ), false;
 		if ( success && !sval2 ) {
 			m_owner_tid = current_tid;
 			const auto sid = ( ( std::ostringstream( ) << std::this_thread::get_id( ) ).str( ) );
@@ -167,6 +166,7 @@ public:
 			m_owner_tid = m_empty_tid;
 		}
 
+		printf( "after wait sval: %d, %s\n", sval2, ( success ?"true" :"false" ) );
 		return success;
 	}
 
