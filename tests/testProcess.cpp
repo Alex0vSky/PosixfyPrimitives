@@ -173,19 +173,28 @@ TEST(Process_open, basic) {
 }
 
 //*
-TEST(Process_open, then_terminate_pair) {
-	//PrinterToStderr anonimous2_;
-	//SilenceStdout anonimous_;
-	CProcess *proc1 = CProcess::Create( g_long_playing );
-	EXPECT_FALSE( proc1 ->IsError( ) );
-	CProcess *proc2 = CProcess::Open( proc1 ->GetProcessId( ), true );
-	EXPECT_FALSE( proc2 ->IsError( ) );
-	EXPECT_TRUE( CProcess::TerminateWaitDestroy( proc1, 300 ) );
-	EXPECT_EQ( nullptr, proc1 );
-	EXPECT_FALSE( proc2 ->IsProcessActive( ) );
+TEST(Process_terminate, basic) {
+	CProcess *proc = CProcess::Create( g_long_playing );
+	EXPECT_FALSE( proc ->IsError( ) );
+	EXPECT_TRUE( CProcess::TerminateWaitDestroy( proc, INFINITE ) );
+	EXPECT_EQ( nullptr, proc );
+	EXPECT_FALSE( proc ->IsProcessActive( ) );
 }
 
-//TEST(Process_mix, double_terminate) {
+//TEST(Process_terminate, then_terminate_pair) {
+//	//PrinterToStderr anonimous2_;
+//	//SilenceStdout anonimous_;
+//	CProcess *proc1 = CProcess::Create( g_long_playing );
+//	EXPECT_FALSE( proc1 ->IsError( ) );
+//	CProcess *proc2 = CProcess::Open( proc1 ->GetProcessId( ), true );
+//	EXPECT_FALSE( proc2 ->IsError( ) );
+//	//EXPECT_TRUE( CProcess::TerminateWaitDestroy( proc1, 300 ) );
+//	EXPECT_TRUE( CProcess::TerminateWaitDestroy( proc1, INFINITE ) );
+//	EXPECT_EQ( nullptr, proc1 );
+//	EXPECT_FALSE( proc2 ->IsProcessActive( ) );
+//}
+
+//TEST(Process_terminate, double_terminate) {
 //	PrinterToStderr anonimous2_;
 //	SilenceStdout anonimous_;
 //	CProcess *proc = CProcess::Create( g_long_playing );

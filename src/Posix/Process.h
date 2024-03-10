@@ -187,7 +187,7 @@ private:
 		do {
 			// @Warning! Race condition by pid number unique
 			//if ( ( kill( h_process, 0 ) == -1 ) && ( errno == ESRCH ) )
-
+			// EINVAL
 			static bool s_once = false;
 			if ( !s_once )
 				s_once = true, perror( "BEFORE kill" );
