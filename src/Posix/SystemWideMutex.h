@@ -85,10 +85,14 @@ public:
 			*p_already_exists = is_exists;
 	}
 
-	CSystemWideMutex(const CSystemWideMutex& other) = delete;
-	//CSystemWideMutex(const CSystemWideMutex& other) {
-	//	//h_semaphore = CTools::CopyHandle(other.h_semaphore);
-	//}
+	//CSystemWideMutex(const CSystemWideMutex& other) = delete;
+	CSystemWideMutex(const CSystemWideMutex& other) :
+		h_semaphore( other.h_semaphore )
+		, m_name( other.m_name )
+		, m_open_existing( other.m_open_existing )
+		, m_creator_tid( other.m_creator_tid )
+		, m_owner_tid( other.m_owner_tid )
+	{}
 
 	const CSystemWideMutex& operator = (const CSystemWideMutex& other) = delete;
 	//const CSystemWideMutex& operator = (const CSystemWideMutex& other) {

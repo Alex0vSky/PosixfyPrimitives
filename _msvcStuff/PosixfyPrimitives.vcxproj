@@ -173,13 +173,13 @@
     <ClCompile Include="..\tests\testEvent.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\tests\testProcess.cpp" />
+    <ClCompile Include="..\tests\testProcess.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\tests\testSharedMem.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\tests\testSystemWideMutex.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="..\tests\testSystemWideMutex.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="true">Create</PrecompiledHeader>
     </ClCompile>
