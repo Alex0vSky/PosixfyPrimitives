@@ -189,12 +189,12 @@ private:
 			//if ( ( kill( h_process, 0 ) == -1 ) && ( errno == ESRCH ) )
 
 			if ( kill( h_process, 0 ) == -1 ) {
-				static bool s_once = false;
-				if ( !s_once )
-					s_once = true, perror( "kill" );
 				if ( errno == ESRCH )
 					return true;
 			}
+			static bool s_once = false;
+			if ( !s_once )
+				s_once = true, perror( "kill" );
 			std::this_thread::yield( );
 		} while ( now( ) < next_clock );
 
