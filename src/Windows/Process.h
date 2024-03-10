@@ -44,7 +44,7 @@ public:
 	}
 							
 	bool IsProcessActive(unsigned wait_ms=0) const {
-		return h_process ? WaitForSingleObject(h_process,wait_ms) == WAIT_TIMEOUT : false;
+		return h_process ? ::WaitForSingleObject(h_process,wait_ms) == WAIT_TIMEOUT : false;
 	}
 
 	bool GetExitCode(int& _ec) const {
@@ -66,7 +66,7 @@ public:
 	}
 
 	static process_id_t GetThisProcessId() {
-		return (process_id_t)::GetCurrentProcessId();
+		return (process_id_t)::GetCurrentProcessId( );
 	}
 
 	static process_id_t GetInvalidProcessId() {
@@ -76,7 +76,7 @@ public:
 private:
 	CProcess(process_id_t pid,DWORD access) {
 		m_id_process = pid;
-		h_process = OpenProcess(access,FALSE,pid);
+		h_process = ::OpenProcess(access,FALSE,pid);
 		m_err = ::GetLastError();
 	}
 							
@@ -90,18 +90,18 @@ private:
 			ZeroMemory(&si,sizeof(si));
 			si.cb = sizeof(si);
 
-			UINT err_mode = SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOGPFAULTERRORBOX|SEM_NOOPENFILEERRORBOX);
+			UINT err_mode = ::SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOGPFAULTERRORBOX|SEM_NOOPENFILEERRORBOX);
 
 			BOOL rc;
 			cmdline += '\0';  // paranoia
-			rc = CreateProcessA(NULL,&cmdline[0],NULL,NULL,FALSE,0,NULL,cwd,&si,&pi);
+			rc = ::CreateProcessA(NULL,&cmdline[0],NULL,NULL,FALSE,0,NULL,cwd,&si,&pi);
 									 
 			m_err = ::GetLastError();
-			SetErrorMode(err_mode);
+			::SetErrorMode(err_mode);
 
 			if ( rc )
 			{
-				CloseHandle(pi.hThread);
+				::CloseHandle( pi.hThread );
 
 				h_process = pi.hProcess;
 				m_id_process = pi.dwProcessId;
@@ -113,7 +113,7 @@ private:
 	~CProcess() {
 		if ( h_process )
 		{
-			CloseHandle(h_process);
+			::CloseHandle( h_process );
 			h_process = NULL;
 		}
 	}
@@ -122,10 +122,13 @@ private:
 	{
 		if ( IsProcessActive() )
 		{
-			TerminateProcess(h_process,0);  // async
+			::TerminateProcess( h_process, 0 );  // async
 		}
 								
-		DWORD wc = (h_process ? WaitForSingleObject(h_process,wait_timeout_ms) : WAIT_FAILED);
+		DWORD wc = ( h_process 
+				? ::WaitForSingleObject( h_process, wait_timeout_ms ) 
+				: WAIT_FAILED
+			);
 
 		delete this;
 

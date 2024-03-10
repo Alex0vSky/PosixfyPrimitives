@@ -169,9 +169,10 @@ TEST(Process_open, basic) {
 	EXPECT_FALSE( proc2 ->IsError( ) );
 	EXPECT_TRUE( proc2 ->IsProcessActive( ) );
 	EXPECT_EQ( proc1 ->GetProcessId( ), proc2 ->GetProcessId( ) );
+	// memory leaks
 }
 
-/*
+//*
 TEST(Process_open, then_terminate_pair) {
 	PrinterToStderr anonimous2_;
 	SilenceStdout anonimous_;
@@ -180,6 +181,7 @@ TEST(Process_open, then_terminate_pair) {
 	CProcess *proc2 = CProcess::Open( proc1 ->GetProcessId( ), true );
 	EXPECT_FALSE( proc2 ->IsError( ) );
 	EXPECT_TRUE( CProcess::TerminateWaitDestroy( proc1, INFINITE ) );
+	EXPECT_EQ( nullptr, proc1 );
 	EXPECT_FALSE( proc2 ->IsProcessActive( ) );
 }
 //*/

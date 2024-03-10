@@ -28,12 +28,12 @@ public:
 			);
 	}
 
-	//// returns true if no timeout occurs
-	//static bool TerminateWaitDestroy(CProcess*& obj,unsigned wait_timeout_ms) {
-	//	bool rc = obj ? obj->_TerminateWaitDestroy(wait_timeout_ms) : true;
-	//	obj = NULL;
-	//	return rc;
-	//}
+	// returns true if no timeout occurs
+	static bool TerminateWaitDestroy(CProcess*& obj,unsigned wait_timeout_milli) {
+		bool rc = obj ? obj ->_TerminateWaitDestroy( wait_timeout_milli ) : true;
+		obj = nullptr;
+		return rc;
+	}
 	//static void DestroyNoTerminate(CProcess*& obj) {
 	//	if ( obj )
 	//	{
@@ -169,17 +169,35 @@ private:
 	//	}
 	//}
 
-	//bool _TerminateWaitDestroy(unsigned wait_timeout_ms)  // returns true if no timeout occurs
-	//{
-	//	if ( IsProcessActive() )
-	//	{
-	//		TerminateProcess(h_process,0);  // async
-	//	}
-	//							
-	//	DWORD wc = (h_process ? WaitForSingleObject(h_process,wait_timeout_ms) : WAIT_FAILED);
-	//	delete this;
-	//	return wc == WAIT_OBJECT_0;
-	//}
+	// returns true if no timeout occurs
+	bool _TerminateWaitDestroy(unsigned wait_timeout_milli) { 
+		struct Deleter { 
+			CProcess *x; Deleter(CProcess *y) : x( y ) { } ~Deleter() { delete x ; }
+		} unused_( this );
+
+		if ( IsProcessActive( ) )
+			kill( h_process, SIGKILL );
+
+		auto next_clock = now( ) + std::chrono::milliseconds{ wait_timeout_milli };
+		do {
+			int status;
+			// Wait for child process, this should clean up defunct processes
+			if ( -1 == waitpid( h_process, &status, WNOHANG ) ) {
+				// TODO(alex): just to known
+				static bool s_once = false;
+				if ( !s_once )
+					s_once = true, perror( "waitpid _TerminateWaitDestroy" );
+			}
+			// save exit code, can wait for a process only once
+			if ( WIFEXITED( status ) ) {
+				return true;
+			}
+
+			std::this_thread::yield( );
+		} while ( now( ) < next_clock );
+
+		return false;
+	}
 
 	//void _DestroyNoTerminate() {
 	//	delete this;
