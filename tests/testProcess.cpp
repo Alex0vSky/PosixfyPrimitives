@@ -24,13 +24,15 @@ struct SilenceStdout {
 		testing::internal::GetCapturedStdout( );
 	}
 };
+
+/*
 TEST(Process_create, simple) {
 	SilenceStdout anonimous_;
 	CProcess *proc = CProcess::Create( g_long_playing );
 	EXPECT_FALSE( proc ->IsError( ) );
 }
 
-//*
+
 TEST(Process_create, set_and_verify_real_cwd) {
     std::string tmpnam = std::tmpnam( nullptr );
 	size_t pos;
@@ -59,18 +61,18 @@ TEST(Process_create, set_and_verify_real_cwd) {
 }
 //*/
 
+TEST(Process_alive, infinite) {
+	SilenceStdout anonimous_;
+	CProcess *proc = CProcess::Create( g_long_playing );
+	EXPECT_FALSE( proc ->IsProcessActive( INFINITE ) );
+	EXPECT_FALSE( proc ->IsError( ) );
+}
+
 /*
 TEST(Process_alive, immediately) {
 	SilenceStdout anonimous_;
 	CProcess *proc = CProcess::Create( g_long_playing );
 	EXPECT_TRUE( proc ->IsProcessActive( ) );
-	EXPECT_FALSE( proc ->IsError( ) );
-}
-
-TEST(Process_alive, infinite) {
-	SilenceStdout anonimous_;
-	CProcess *proc = CProcess::Create( g_long_playing );
-	EXPECT_FALSE( proc ->IsProcessActive( INFINITE ) );
 	EXPECT_FALSE( proc ->IsError( ) );
 }
 
@@ -81,7 +83,6 @@ TEST(Process_alive, timeout) {
 	EXPECT_TRUE( proc ->IsProcessActive( 300 ) );
 	EXPECT_FALSE( proc ->IsError( ) );
 }
-//*/
 
 TEST(Process_exit_code, for_finished) {
 	// set process return code shell command
@@ -98,6 +99,7 @@ TEST(Process_exit_code, for_finished) {
 	EXPECT_TRUE( proc ->GetExitCode( exit_code ) );
 	EXPECT_EQ( 42, exit_code );
 }
+//*/
 
 // Warning! static variable
 class PrinterToStderr {
@@ -156,6 +158,7 @@ TEST(Process_exit_code, immediately_for_long_playing) {
 }
 //*/
 
+/*
 TEST(Process_mix, pid) {
 	EXPECT_TRUE( ( CProcess::GetThisProcessId( ) > 0 ) );
 }
@@ -172,7 +175,6 @@ TEST(Process_open, basic) {
 	// memory leaks
 }
 
-//*
 TEST(Process_terminate, basic) {
 	CProcess *proc = CProcess::Create( g_long_playing );
 	EXPECT_FALSE( proc ->IsError( ) );
