@@ -21,9 +21,9 @@ public:
 
 class CSystemWideMutex {
 	sem_t *h_semaphore;
-	const std::string m_name;
+	std::string m_name;
 	bool m_open_existing;
-	const std::thread::id m_creator_tid;
+	std::thread::id m_creator_tid;
 
 	std::thread::id m_owner_tid;
 	// for tidy compare
@@ -93,6 +93,10 @@ public:
 				sem_unlink( m_name.c_str( ) );
 			// TODO(alex): via iface `CTools::CopyHandle(other);`
 			h_semaphore = sem_open( other.m_name.c_str( ), O_RDWR );
+			m_name = ( other.m_name );
+			m_open_existing = ( other.m_open_existing );
+			m_creator_tid = ( other.m_creator_tid );
+			m_owner_tid = ( other.m_owner_tid );
 		}
 		return *this;
 	}
