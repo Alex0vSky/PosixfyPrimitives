@@ -157,16 +157,17 @@ private:
 		m_id_process = h_process;
 	}
 
-	~CProcess() {
-		if ( c_invalid != h_process )
-			h_process = c_invalid;
-	}
+	//~CProcess() {
+	//	if ( c_invalid != h_process )
+	//		h_process = c_invalid;
+	//}
 
 	// returns true if no timeout occurs
 	bool _TerminateWaitDestroy(unsigned wait_timeout_milli) { 
-		struct Deleter { 
-			CProcess *x; Deleter(CProcess *y) : x( y ) { } ~Deleter() { delete x ; }
-		} unused_( this );
+		//// TODO(alex): Segmentation fault      (core dumped)
+		//struct Deleter { 
+		//	CProcess *x; Deleter(CProcess *y) : x( y ) { } ~Deleter() { delete x ; }
+		//} unused_( this );
 
 		//printf( "IsProcessActive BEG\n" );
 		//if ( IsProcessActive( ) ) {
@@ -180,6 +181,7 @@ private:
 			int status = kill( h_process, SIGKILL );
 			printf( "do2 kill, status: %d\n", status );
 			printf( "do2 kill, errno: %d\n", errno );
+			waitpid( h_process, nullptr, 0 );
 		}
 
 		// Awaiting free
