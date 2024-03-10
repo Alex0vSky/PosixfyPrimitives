@@ -29,7 +29,7 @@ class CSystemWideMutex {
 	// for tidy compare
 	const std::thread::id m_empty_tid;
 
-	int m_sval;
+	int x_some_value;
 
 	// @insp https://stackoverflow.com/questions/15024623/convert-milliseconds-to-timespec-for-gnu-port
 	static void ms2ts(timespec *ts, unsigned long milli) {
@@ -59,8 +59,6 @@ public:
 		, m_open_existing( open_existing )
 		, m_creator_tid( std::this_thread::get_id( ) )
 	{		
-		//m_string_tid = ( ( std::ostringstream( ) << m_creator_tid ).str( ) )
-
 		bool is_exists = false;
 		//int mode = 0644;
 		int mode = 0777;
@@ -80,10 +78,13 @@ public:
 			*p_already_exists = is_exists;
 	}
 
-	CSystemWideMutex(const CSystemWideMutex& other) = delete;
-	//CSystemWideMutex(const CSystemWideMutex& other) {
-	//	//h_semaphore = CTools::CopyHandle(other.h_semaphore);
-	//}
+	CSystemWideMutex(const CSystemWideMutex& other) :
+		h_semaphore( sem_open( other.m_name.c_str( ), O_RDWR ) )
+		, m_name( other.m_name )
+		, m_open_existing( other.m_open_existing )
+		, m_creator_tid( other.m_creator_tid )
+		, m_owner_tid( other.m_owner_tid )
+	{}
 
 	const CSystemWideMutex& operator = (const CSystemWideMutex& other) = delete;
 	//const CSystemWideMutex& operator = (const CSystemWideMutex& other) {
@@ -115,21 +116,14 @@ public:
 			return false;
 
 		// implement recursive mutex, prolog
+		int sval1;
+		if ( -1 == sem_getvalue( h_semaphore, &sval1 ) )
+			return false;
 		const std::thread::id current_tid = std::this_thread::get_id( );
-		if ( current_tid == m_creator_tid ) {
-			int sval;
-			sem_getvalue( h_semaphore, &sval );
-			//printf( "creator thread, BEG sval: %d\n", sval );
-			if ( !sval ) {
-				if ( m_creator_tid == m_owner_tid || m_empty_tid == m_owner_tid ) {
+		if ( current_tid == m_creator_tid ) 
+			if ( !sval1 ) 
+				if ( m_creator_tid == m_owner_tid || m_empty_tid == m_owner_tid )
 					sem_post( h_semaphore );
-				}
-			}
-			//sem_getvalue( h_semaphore, &sval );
-			//printf( "creator thread, END sval: %d\n", sval );
-		} else {
-//			sem_getvalue( h_semaphore, &m_sval ); printf( "other thread, sval: %d\n", m_sval );
-		}
 
 		// TODO(alex): to separate
 		timespec abstime = { };
@@ -157,8 +151,7 @@ public:
 		// implement recursive mutex, epilog
 		int sval2;
 		if ( -1 == sem_getvalue( h_semaphore, &sval2 ) )
-			// TODO(alex): just to see
-			return perror( "epilog sem_getvalue" ), false;
+			return false;
 		if ( success && !sval2 ) {
 			m_owner_tid = current_tid;
 			detail::g_threadExiter.set([this] {
@@ -181,8 +174,7 @@ public:
 			return;
 		int sval;
 		if ( -1 == sem_getvalue( h_semaphore, &sval ) )
-			// TODO(alex): just to see
-			return perror( "Unlock sem_getvalue" ), (void)0;
+			return;
 		if ( !sval )
 			sem_post( h_semaphore );
 	}
