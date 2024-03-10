@@ -29,8 +29,6 @@ class CSystemWideMutex {
 	// for tidy compare
 	const std::thread::id m_empty_tid;
 
-//	int x_some_value;
-
 	// @insp https://stackoverflow.com/questions/15024623/convert-milliseconds-to-timespec-for-gnu-port
 	static void ms2ts(timespec *ts, unsigned long milli) {
 		ts ->tv_sec = milli / 1000;
@@ -97,8 +95,6 @@ public:
 	//}
 
 	~CSystemWideMutex() {
-		const auto sid = ( ( std::ostringstream( ) << std::this_thread::get_id( ) ).str( ) );
-		printf( "%s dtor on this: 0x%p\n", sid.c_str( ), this );
 		if ( h_semaphore == SEM_FAILED )
 			return;
 		// TODO(alex): via iface `CTools::CloseAndInvalidateHandle(h_semaphore);`
@@ -115,12 +111,12 @@ public:
 	// it is safe to call Unlock() without corresp. Lock() returned true
 	bool Lock(unsigned timeout_milli)  {
 		if ( h_semaphore == SEM_FAILED )
-			return perror( "return_false" ), false;
+			return false;
 
 		// implement recursive mutex, prolog
 		int sval1;
 		if ( -1 == sem_getvalue( h_semaphore, &sval1 ) )
-			return perror( "return_false" ), false;
+			return false;
 		const std::thread::id current_tid = std::this_thread::get_id( );
 		if ( current_tid == m_creator_tid ) 
 			if ( !sval1 ) 
@@ -152,21 +148,16 @@ public:
 		// implement recursive mutex, epilog
 		int sval2;
 		if ( -1 == sem_getvalue( h_semaphore, &sval2 ) )
-			return perror( "return_false" ), false;
+			return false;
 		if ( success && !sval2 ) {
 			m_owner_tid = current_tid;
-			const auto sid = ( ( std::ostringstream( ) << std::this_thread::get_id( ) ).str( ) );
-			printf( "%s set on this: 0x%p\n", sid.c_str( ), this );
 			detail::g_threadExiter.set([this] {
-					const auto sid = ( ( std::ostringstream( ) << std::this_thread::get_id( ) ).str( ) );
-					printf( "%s reset on this: 0x%p\n", sid.c_str( ), this );
 					m_owner_tid = m_empty_tid;
 				});
 		} else {
 			m_owner_tid = m_empty_tid;
 		}
 
-		printf( "after wait sval: %d, %s\n", sval2, ( success ?"true" :"false" ) );
 		return success;
 	}
 
