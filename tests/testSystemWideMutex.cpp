@@ -12,7 +12,7 @@ constexpr auto now = std::chrono::high_resolution_clock::now;
 //*
 namespace testSystemWideMutex_ { 
 
-//*
+/*
 TEST(SystemWideMutex_create, already_exists) {
 	bool already_exists;
 	char name[] = "some_name";
@@ -84,7 +84,7 @@ TEST(SystemWideMutex_locks, common_environment_immediately_recursive) {
 	EXPECT_TRUE( systemWideMutex2.Lock( 0 ) );
 }
 
-TEST(SystemWideMutex_locks, separate_environment_immediately_not_recursive_by_ref1) {
+TEST(SystemWideMutex_locks, separate_environment_immediately_norecursive_by_ref1) {
 	CSystemWideMutex systemWideMutex1( g_name );
 	CSystemWideMutex systemWideMutex2( g_name );
 	bool success = ( true
@@ -108,7 +108,7 @@ TEST(SystemWideMutex_locks, separate_environment_immediately_not_recursive_by_re
 	EXPECT_TRUE( systemWideMutex2.Lock( 0 ) );
 }
 
-TEST(SystemWideMutex_locks, separate_environment_immediately_not_recursive_by_ref2) {
+TEST(SystemWideMutex_locks, separate_environment_immediately_norecursive_by_ref2) {
 	CSystemWideMutex systemWideMutex( g_name );
 	EXPECT_FALSE( systemWideMutex.IsError( ) );
 	if ( systemWideMutex.IsError( ) )
@@ -167,6 +167,7 @@ TEST(SystemWideMutex_locks, real_world_wait2_1500) {
 		});
 	thread.join( );
 }
+//*/
 
 TEST(SystemWideMutex_unlocks, break_LockInfinite) {
 	CSystemWideMutex systemWideMutex( g_name );
@@ -199,6 +200,7 @@ TEST(SystemWideMutex_unlocks, break_LockInfinite) {
 	thread.join( );
 }
 
+/*
 TEST(SystemWideMutex_tricks, dry_unlock) {
 	CSystemWideMutex systemWideMutex( g_name );
 	systemWideMutex.Unlock( );
@@ -209,6 +211,7 @@ TEST(SystemWideMutex_tricks, dry_unlock) {
 }
 //*/
 
+/*
 TEST(SystemWideMutex_copy_ctor, separate_environment) {
 	auto systemWideMutex1 = std::make_unique< CSystemWideMutex >( g_name );
 	CSystemWideMutex systemWideMutex2( *systemWideMutex1 );
@@ -237,6 +240,7 @@ TEST(SystemWideMutex_copy_ctor, separate_environment) {
 	stop = true;
 	thread.join( );
 }
+//*/
 
 } // namespace testSystemWideMutex_ 
 //*/

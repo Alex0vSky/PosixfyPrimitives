@@ -85,13 +85,14 @@ public:
 			*p_already_exists = is_exists;
 	}
 
-	CSystemWideMutex(const CSystemWideMutex& other) :
-		h_semaphore( sem_open( other.m_name.c_str( ), O_RDWR ) )
-		, m_name( other.m_name )
-		, m_open_existing( other.m_open_existing )
-		, m_creator_tid( other.m_creator_tid )
-		, m_owner_tid( other.m_owner_tid )
-	{}
+	CSystemWideMutex(const CSystemWideMutex& other) = delete;
+	//CSystemWideMutex(const CSystemWideMutex& other) :
+	//	h_semaphore( sem_open( other.m_name.c_str( ), O_RDWR ) )
+	//	, m_name( other.m_name )
+	//	, m_open_existing( other.m_open_existing )
+	//	, m_creator_tid( other.m_creator_tid )
+	//	, m_owner_tid( other.m_owner_tid )
+	//{}
 
 	const CSystemWideMutex& operator = (const CSystemWideMutex& other) = delete;
 	//const CSystemWideMutex& operator = (const CSystemWideMutex& other) {
