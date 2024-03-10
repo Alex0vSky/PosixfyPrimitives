@@ -10,6 +10,9 @@ private:
 	process_id_t m_id_process;
 	int m_err;
 
+	static const unsigned c_maximumPathLength = PATH_MAX;
+	static const pid_t c_invalid = 0;
+
 public:
 	static CProcess* Create(const char *cmdline, const char *cwd=nullptr)
 	{
@@ -40,7 +43,7 @@ public:
 			*_perr = m_err;
 		}
 								
-		return h_process == 0;
+		return h_process == c_invalid;
 	}
 							
 	// @insp https://stackoverflow.com/questions/45037193/how-to-check-if-a-process-is-running-in-c
@@ -91,8 +94,14 @@ private:
 	//}
 							
 	CProcess(const char *_cmdline,const char *cwd) : 
-		h_process( 0 ), m_id_process(GetInvalidProcessId()), m_err(-1)
+		h_process( c_invalid ), m_id_process(GetInvalidProcessId()), m_err(-1)
 	{
+		if ( !_cmdline )
+			return;
+		size_t len = strnlen_s( _cmdline, c_maximumPathLength );
+		if ( !len )
+			return;
+
 		posix_spawn_file_actions_t action;
 		if ( posix_spawn_file_actions_init( &action ) )
 			return;
@@ -104,11 +113,10 @@ private:
 			if ( posix_spawn_file_actions_addchdir_np( &action, cwd ) )
 				return;
 
-		char *argv[] = { "sh", "-c", nullptr, nullptr };
-		std::string cmdline2 = _cmdline;
-		std::vector< char > cmdline( cmdline2.begin( ), cmdline2.end( ) );
-		argv[ 2 ] = cmdline.data( );
+		std::vector< char > cmdline( _cmdline, _cmdline + len );
+		char *argv[] = { "sh", "-c", cmdline.data( ), nullptr };
 		if ( posix_spawnp( &h_process, argv[ 0 ], &action, nullptr, argv, environ ) ) {
+			h_process = c_invalid;
 			m_err = errno;
 			perror( "posix_spawnp" );
 		}
