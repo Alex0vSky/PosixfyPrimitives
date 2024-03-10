@@ -191,7 +191,11 @@ private:
 			if ( !s_once1 )
 				s_once1 = true, printf( "BEFORE kill errno: %d\n", errno ), perror( "BEFORE kill" );
 			int status = kill( h_process, 0 );
-			printf( "kill status: %d\n", status );
+
+			static bool s_once3 = false;
+			if ( !s_once3 )
+				s_once3 = true, printf( "kill status: %d\n", status );
+
 			if ( status == -1 ) {
 				if ( errno == ESRCH || errno == ENOENT )
 					return true;
