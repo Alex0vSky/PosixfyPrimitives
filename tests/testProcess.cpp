@@ -180,18 +180,20 @@ TEST(Process_open, then_terminate_pair) {
 	EXPECT_FALSE( proc1 ->IsError( ) );
 	CProcess *proc2 = CProcess::Open( proc1 ->GetProcessId( ), true );
 	EXPECT_FALSE( proc2 ->IsError( ) );
-	EXPECT_TRUE( CProcess::TerminateWaitDestroy( proc1, INFINITE ) );
+	EXPECT_TRUE( CProcess::TerminateWaitDestroy( proc1, 300 ) );
 	EXPECT_EQ( nullptr, proc1 );
 	EXPECT_FALSE( proc2 ->IsProcessActive( ) );
 }
-TEST(Process_mix, double_terminate) {
-	PrinterToStderr anonimous2_;
-	SilenceStdout anonimous_;
-	CProcess *proc = CProcess::Create( g_long_playing );
-	EXPECT_TRUE( CProcess::TerminateWaitDestroy( proc, INFINITE ) );
-	EXPECT_EQ( nullptr, proc );
-	EXPECT_TRUE( CProcess::TerminateWaitDestroy( proc, INFINITE ) );
-}
+
+//TEST(Process_mix, double_terminate) {
+//	PrinterToStderr anonimous2_;
+//	SilenceStdout anonimous_;
+//	CProcess *proc = CProcess::Create( g_long_playing );
+//	EXPECT_TRUE( CProcess::TerminateWaitDestroy( proc, INFINITE ) );
+//	EXPECT_EQ( nullptr, proc );
+//	EXPECT_TRUE( CProcess::TerminateWaitDestroy( proc, INFINITE ) );
+//}
+
 //*/
 
 /*

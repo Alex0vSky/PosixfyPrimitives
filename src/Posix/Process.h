@@ -175,15 +175,26 @@ private:
 			CProcess *x; Deleter(CProcess *y) : x( y ) { } ~Deleter() { delete x ; }
 		} unused_( this );
 
-		if ( IsProcessActive( ) )
+		printf( "IsProcessActive BEG\n" );
+		if ( IsProcessActive( ) ) {
 			kill( h_process, SIGKILL );
+			printf( "do kill\n" );
+		}
+		printf( "IsProcessActive END\n" );
 
 		// Awaiting free
 		auto next_clock = now( ) + std::chrono::milliseconds{ wait_timeout_milli };
 		do {
 			// @Warning! Race condition by pid number unique
-			if ( ( kill( h_process, 0 ) == -1 ) && ( errno == ESRCH ) )
-				return true;
+			//if ( ( kill( h_process, 0 ) == -1 ) && ( errno == ESRCH ) )
+
+			if ( kill( h_process, 0 ) == -1 ) {
+				static bool s_once = false;
+				if ( !s_once )
+					s_once = true, perror( "kill" );
+				if ( errno == ESRCH )
+					return true;
+			}
 			std::this_thread::yield( );
 		} while ( now( ) < next_clock );
 
