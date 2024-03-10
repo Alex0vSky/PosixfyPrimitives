@@ -99,6 +99,106 @@ TEST(Process_exit_code, basic) {
 	EXPECT_EQ( 42, exit_code );
 }
 
+
+//*
+class MinimalistPrinter : public testing::EmptyTestEventListener {
+	//// Called before a test starts.
+	//void OnTestStart(const testing::TestInfo& test_info) override {
+	//	printf("*** Test %s.%s starting.\n",
+	//			test_info.test_suite_name(), test_info.name());
+	//}
+
+	TestEventListener *m_p;
+	// Called after a failed assertion or a SUCCESS().
+	void OnTestPartResult(const testing::TestPartResult& test_part_result) override {
+		//// gtest-port.cc(1153):: Only one stdout capturer can exist at a time.
+		//testing::internal::CaptureStdout( );
+		//m_p ->OnTestPartResult( test_part_result );
+		//std::cerr << testing::internal::GetCapturedStdout( );
+
+		//const std::string& result = ::testing::internal::PrintTestPartResultToString( test_part_result );
+		//return (::testing::Message() << internal::FormatFileLocation(
+		//						test_part_result.file_name(),
+		//						test_part_result.line_number())
+		//				<< " "
+		//				<< ::testing::TestPartResultTypeToString(test_part_result.type())
+		//				<< test_part_result.message())
+		//	.GetString();
+
+		std::vector< char > buffer( 4096 );
+		snprintf( buffer.data( ), buffer.size( )
+				, "%s in %s:%d\n%s\n",
+				test_part_result.failed() ? "*** Failure" : "Success",
+				test_part_result.file_name(),
+				test_part_result.line_number(),
+				test_part_result.summary());
+		std::cerr << std::string( buffer.begin( ), buffer.end( ) );
+	}
+
+public:
+	MinimalistPrinter(TestEventListener *p) : m_p( p )
+	{}
+	~MinimalistPrinter() {
+		// delete default_result_printer;
+		delete m_p;
+	}
+
+	//// Called after a test ends.
+	//void OnTestEnd(const testing::TestInfo& test_info) override {
+	//	printf("*** Test %s.%s ending.\n",
+	//			test_info.test_suite_name(), test_info.name());
+	//}
+};
+//*/
+
+// Supress printf() @insp https://stackoverflow.com/questions/46728680/how-to-temporarily-suppress-output-from-printf
+#pragma warning( push )
+#pragma warning( disable: 4996 )
+class PrintSupressor { 
+	int m_fd;
+	// @insp https://github.com/winfsp/cgofuse/issues/3
+	static const int O_RDONLY = 0; static const int O_WRONLY = 1; static const int O_RDWR = 2;
+ public:
+	PrintSupressor() {
+		fflush( stdout );
+		m_fd = dup( 1 );
+		int nullfd = open( "nul", O_WRONLY );
+		dup2( nullfd, 1 );
+		close( nullfd );
+	}
+	~PrintSupressor(){
+		// Restore printf()
+		fflush( stdout );
+		dup2( m_fd, 1);
+		close( m_fd );
+	}
+};
+#pragma warning( pop )
+
+TEST(Process_exit_code, immediately_for_long_playing) {
+
+	testing::TestEventListeners& listeners =
+		testing::UnitTest::GetInstance()->listeners();
+	auto default_result_printer = listeners.Release( listeners.default_result_printer( ) );
+	listeners.Append( new MinimalistPrinter( default_result_printer ) );
+
+	SilenceStdout anonimous_;
+
+	// set process return code shell command
+#ifdef WIN32
+	std::string cmdline = "cmd /c ping -n 3 8.8.8.8 & exit 42";
+#else
+	std::string cmdline = "exit 42";
+#endif // WIN32
+
+	CProcess *proc = CProcess::Create( cmdline.c_str( ) );
+	EXPECT_FALSE( proc ->IsError( ) );
+	std::cerr << "Asdasdasd\n";
+	int exit_code;
+	EXPECT_TRUE( proc ->GetExitCode( exit_code ) );
+	EXPECT_EQ( 42, exit_code );
+}
+
 /*
 
 

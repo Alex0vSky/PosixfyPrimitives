@@ -54,7 +54,7 @@ public:
 			// Wait for child process, this should clean up defunct processes
 			waitpid( h_process, nullptr, WNOHANG );
 			// kill failed let's see why..
-			if ( kill( h_process, 0) == -1 ) {
+			if ( kill( h_process, 0 ) == -1 ) {
 				// First of all kill may fail with EPERM if we run as a different user and we have no access, 
 				// so let's make sure the errno is ESRCH (Process not found!)
 				if ( errno == ESRCH )
@@ -66,19 +66,20 @@ public:
 		return true;
 	}
 
-	//bool GetExitCode(int& _ec) const {
-	//	bool rc = false;
-	//	if ( h_process )
-	//	{
+	bool GetExitCode(int& _ec) const {
+		if ( c_invalid == h_process )
+			return false;
+		bool rc = false;
+		int status;
+		waitpid( h_process, &status, 0 );
 	//		DWORD ec = STILL_ACTIVE;
 	//		if ( GetExitCodeProcess(h_process,&ec) && ec != STILL_ACTIVE )
 	//		{
 	//			rc = true;
 	//			_ec = (int)ec;
 	//		}
-	//	}
-	//	return rc;
-	//}
+		return rc;
+	}
 
 	//process_id_t GetProcessId() const {
 	//	return m_id_process;
