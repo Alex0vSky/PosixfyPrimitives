@@ -36,7 +36,7 @@ TEST(Process_create, simple_cwd) {
 #ifdef WIN32
 	std::string cmdline = "cmd /c echo %cd%";
 #else
-	std::string cmdline = "pwd";
+	std::string cmdline = "echo $(pwd)";
 #endif // WIN32
 
 	testing::internal::CaptureStdout( );
