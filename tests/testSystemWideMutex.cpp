@@ -132,7 +132,6 @@ TEST(SystemWideMutex_locks, separate_environment_immediately_not_recursive_by_re
 	thread.join( );
 }
 
-//*
 TEST(SystemWideMutex_locks, separate_environment_mix) {
 	{
 		CSystemWideMutex systemWideMutex( g_name );
