@@ -92,8 +92,8 @@ TEST(Process_exit_code, for_finished) {
 #endif // WIN32
 
 	CProcess *proc = CProcess::Create( cmdline.c_str( ) );
-	//proc ->IsProcessActive( INFINITE );
-	std::this_thread::sleep_for( std::chrono::milliseconds( 500 ) );
+	proc ->IsProcessActive( INFINITE );
+//	std::this_thread::sleep_for( std::chrono::milliseconds( 500 ) );
 	EXPECT_FALSE( proc ->IsError( ) );
 	int exit_code;
 	EXPECT_TRUE( proc ->GetExitCode( exit_code ) );

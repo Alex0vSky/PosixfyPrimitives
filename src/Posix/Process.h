@@ -8,7 +8,8 @@ private:
 	// child_pid
 	pid_t h_process;
 	process_id_t m_id_process;
-	int m_err;
+	mutable int m_err;
+	mutable bool m_reaped_exit_code;
 
 	static const unsigned c_maximumPathLength = PATH_MAX;
 	static const pid_t c_invalid = 0;
@@ -52,12 +53,18 @@ public:
 	bool IsProcessActive(unsigned wait_milli=0) const {
 		auto next_clock = now( ) + std::chrono::milliseconds{ wait_milli };
 		do {
+			int status;
 			// Wait for child process, this should clean up defunct processes
-			// (you can wait for a process only once)
-			if ( -1 == waitpid( h_process, nullptr, WNOHANG ) ) {
+			if ( -1 == waitpid( h_process, &status, WNOHANG ) ) {
 				// TODO(alex): just to known
 				perror( "waitpid IsProcessActive" );
 			}
+			// save exit code, can wait for a process only once
+			if ( WIFEXITED( status ) ) {
+				m_reaped_exit_code = true;
+				m_err = WEXITSTATUS( status );
+			}
+
 			// kill failed let's see why..
 			if ( kill( h_process, 0 ) == -1 ) {
 				// First of all kill may fail with EPERM if we run as a different user and we have no access, 
@@ -73,6 +80,9 @@ public:
 
 	// @insp SO/get-exit-code-from-non-child-process-in-linux
 	bool GetExitCode(int& _ec) const {
+		if ( m_reaped_exit_code )
+			return _ec = m_err, true;
+
 		if ( c_invalid == h_process )
 			return false;
 		int status;
@@ -84,7 +94,7 @@ public:
 		printf( "WIFEXITED( status ): %s\n", ( WIFEXITED( status ) ?"true" :"false" ) );
 		if ( !WIFEXITED( status ) )
 			return false;
-		_ec = WEXITSTATUS( status );
+		_ec = m_err = WEXITSTATUS( status );
 		return true;
 	}
 
@@ -108,7 +118,10 @@ private:
 	//}
 							
 	CProcess(const char *_cmdline,const char *cwd) : 
-		h_process( c_invalid ), m_id_process(GetInvalidProcessId()), m_err(-1)
+		h_process( c_invalid )
+		, m_id_process(GetInvalidProcessId())
+		, m_err(-1)
+		, m_reaped_exit_code( false )
 	{
 		if ( !_cmdline )
 			return;
