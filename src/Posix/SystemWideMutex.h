@@ -29,7 +29,7 @@ class CSystemWideMutex {
 	// for tidy compare
 	const std::thread::id m_empty_tid;
 
-//	int x_some_value;
+	int x_some_value;
 
 	// @insp https://stackoverflow.com/questions/15024623/convert-milliseconds-to-timespec-for-gnu-port
 	static void ms2ts(timespec *ts, unsigned long milli) {
@@ -97,6 +97,7 @@ public:
 	//}
 
 	~CSystemWideMutex() {
+		printf( "dtor on this: 0x%08X\n", this );
 		if ( h_semaphore == SEM_FAILED )
 			return;
 		// TODO(alex): via iface `CTools::CloseAndInvalidateHandle(h_semaphore);`
@@ -154,7 +155,9 @@ public:
 			return false;
 		if ( success && !sval2 ) {
 			m_owner_tid = current_tid;
+			printf( "set on this: 0x%08X\n", this );
 			detail::g_threadExiter.set([this] {
+					printf( "reset on this: 0x%08X\n", this );
 					m_owner_tid = m_empty_tid;
 				});
 		} else {
