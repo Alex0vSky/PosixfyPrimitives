@@ -1,8 +1,7 @@
 ﻿// src/Windows/Process.h - process facility 
 #pragma once // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
-namespace Ipc {
 // объект для создания/запуска дочернего процесса
-class CProcess {
+namespace Ipc { class CProcess {
 public:
 	typedef unsigned process_id_t;
 

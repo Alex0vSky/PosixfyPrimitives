@@ -20,10 +20,13 @@ public:
 	{
 		return new CProcess(cmdline,cwd);
 	}
-	//static CProcess* Open(process_id_t pid,bool terminate_access_needed)
-	//{
-	//	return new CProcess(pid,SYNCHRONIZE|(terminate_access_needed?PROCESS_TERMINATE:0));
-	//}
+	static CProcess* Open(process_id_t pid,bool terminate_access_needed) {
+		return new CProcess( 
+				pid
+				//, SYNCHRONIZE 
+				//	| ( terminate_access_needed ?PROCESS_TERMINATE :0 )
+			);
+	}
 
 	//// returns true if no timeout occurs
 	//static bool TerminateWaitDestroy(CProcess*& obj,unsigned wait_timeout_ms) {
@@ -97,29 +100,31 @@ public:
 		return true;
 	}
 
-	//process_id_t GetProcessId() const {
-	//	return m_id_process;
-	//}
+	process_id_t GetProcessId() const {
+		return m_id_process;
+	}
 
-	//static process_id_t GetThisProcessId() {
-	//	return (process_id_t)::GetCurrentProcessId();
-	//}
+	static process_id_t GetThisProcessId() {
+		return (process_id_t)getpid( );
+	}
 
 	static process_id_t GetInvalidProcessId() {
 		return (process_id_t)-1;
 	}
 
 private:
-	//CProcess(process_id_t pid,DWORD access) {
-	//	m_id_process = pid;
-	//	h_process = OpenProcess(access,FALSE,pid);
-	//	m_err = ::GetLastError();
-	//}
-							
+	CProcess(process_id_t pid
+		//,DWORD access
+	) {
+		m_id_process = pid;
+		h_process = pid;
+		m_err = -1;
+	}
+
 	CProcess(const char *_cmdline,const char *cwd) : 
 		h_process( c_invalid )
-		, m_id_process(GetInvalidProcessId())
-		, m_err(-1)
+		, m_id_process( GetInvalidProcessId( ) )
+		, m_err( -1 )
 		, m_reaped_exit_code( false )
 	{
 		if ( !_cmdline )
@@ -151,7 +156,9 @@ private:
 			h_process = c_invalid;
 			m_err = errno;
 			perror( "posix_spawnp" );
+			return;
 		}
+		m_id_process = h_process;
 	}
 
 	//~CProcess() {

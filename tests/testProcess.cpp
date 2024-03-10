@@ -59,7 +59,7 @@ TEST(Process_create, set_and_verify_real_cwd) {
 }
 //*/
 
-//*
+/*
 TEST(Process_alive, immediately) {
 	SilenceStdout anonimous_;
 	CProcess *proc = CProcess::Create( g_long_playing );
@@ -99,32 +99,47 @@ TEST(Process_exit_code, for_finished) {
 	EXPECT_EQ( 42, exit_code );
 }
 
-class PrinterToStderr : public testing::EmptyTestEventListener {
-	void OnTestPartResult(const testing::TestPartResult& test_part_result) override {
-		//// gtest-port.cc(1153):: Only one stdout capturer can exist at a time.
-		//testing::internal::CaptureStdout( );
-		//m_p ->OnTestPartResult( test_part_result );
-		//std::cerr << testing::internal::GetCapturedStdout( );
+// Warning! static variable
+class PrinterToStderr {
+	class EventListener : public testing::EmptyTestEventListener {
+		void OnTestPartResult(const testing::TestPartResult& test_part_result) override {
+			std::vector< char > buffer( 4096 );
+			snprintf( buffer.data( ), buffer.size( )
+					, "%s in %s:%d\n%s\n",
+					test_part_result.failed() ? "*** Failure" : "Success",
+					test_part_result.file_name(),
+					test_part_result.line_number(),
+					test_part_result.summary());
+			std::cerr << std::string( buffer.begin( ), buffer.end( ) );
+		}
+	};
 
-		std::vector< char > buffer( 4096 );
-		snprintf( buffer.data( ), buffer.size( )
-				, "%s in %s:%d\n%s\n",
-				test_part_result.failed() ? "*** Failure" : "Success",
-				test_part_result.file_name(),
-				test_part_result.line_number(),
-				test_part_result.summary());
-		std::cerr << std::string( buffer.begin( ), buffer.end( ) );
+	std::unique_ptr< EventListener > m_eventListener;
+	static testing::TestEventListener *s_original;
+
+public:
+	// set printer
+	PrinterToStderr() :
+		m_eventListener( std::make_unique< EventListener >( ) )
+	{
+		auto& listeners = testing::UnitTest::GetInstance( ) ->listeners( );
+		if ( !s_original )
+			s_original = listeners.default_result_printer( );
+		listeners.Release( s_original );
+		listeners.Append( m_eventListener.get( ) );
+	}
+	// restore default printer
+	~PrinterToStderr() {
+		auto& listeners = testing::UnitTest::GetInstance( ) ->listeners( );
+		listeners.Release( m_eventListener.get( ) );
+		listeners.Append( s_original );
 	}
 };
+testing::TestEventListener *PrinterToStderr::s_original = nullptr;
 
+/*
 TEST(Process_exit_code, immediately_for_long_playing) {
-
-	// set printer
-	auto& listeners = testing::UnitTest::GetInstance( ) ->listeners( );
-	auto stderr_result_printer = std::make_unique< PrinterToStderr >( );
-	auto default_result_printer = listeners.Release( listeners.default_result_printer( ) );
-	listeners.Append( stderr_result_printer.get( ) );
-
+	PrinterToStderr anonimous2_;
 	SilenceStdout anonimous_;
 
 	// set process return code shell command
@@ -138,35 +153,42 @@ TEST(Process_exit_code, immediately_for_long_playing) {
 	EXPECT_FALSE( proc ->IsError( ) );
 	int exit_code;
 	EXPECT_FALSE( proc ->GetExitCode( exit_code ) );
+}
+//*/
 
-	// restore default printer
-	listeners.Release( stderr_result_printer.get( ) );
-	listeners.Append( default_result_printer );
+TEST(Process_mix, pid) {
+	EXPECT_TRUE( ( CProcess::GetThisProcessId( ) > 0 ) );
+}
+
+TEST(Process_open, basic) {
+	PrinterToStderr anonimous2_;
+	SilenceStdout anonimous_;
+	CProcess *proc1 = CProcess::Create( g_long_playing );
+	EXPECT_FALSE( proc1 ->IsError( ) );
+	CProcess *proc2 = CProcess::Open( proc1 ->GetProcessId( ), false );
+	EXPECT_FALSE( proc2 ->IsError( ) );
+	EXPECT_TRUE( proc2 ->IsProcessActive( ) );
+	EXPECT_EQ( proc1 ->GetProcessId( ), proc2 ->GetProcessId( ) );
 }
 
 /*
+TEST(Process_open, then_terminate_pair) {
+	PrinterToStderr anonimous2_;
+	SilenceStdout anonimous_;
+	CProcess *proc1 = CProcess::Create( g_long_playing );
+	EXPECT_FALSE( proc1 ->IsError( ) );
+	CProcess *proc2 = CProcess::Open( proc1 ->GetProcessId( ), true );
+	EXPECT_FALSE( proc2 ->IsError( ) );
+	EXPECT_TRUE( CProcess::TerminateWaitDestroy( proc1, INFINITE ) );
+	EXPECT_FALSE( proc2 ->IsProcessActive( ) );
+}
+//*/
 
-
-TEST(Process_open, basic) {
+/*
+TEST(Process_open, then_actions) {
 }
 
-TEST(Process_open, then_terminate) {
-}
-
-TEST(Process_create, xxx) {
-	//getcwd( );
-	CProcess *proc = CProcess::Create( "cmd /c dir" );
-	int perr;
-	//EXPECT_FALSE( proc ->IsError( &perr ) );
-	proc ->IsError( &perr );
-	printf( "perr: %d\n", perr );
-	EXPECT_TRUE( proc ->IsProcessActive( ) );
-	while ( proc ->IsProcessActive( ) )
-		std::this_thread::yield( );
-	int ec = 0;
-	EXPECT_TRUE( proc ->GetExitCode( ec ) );
-	printf( "ec: %d\n", ec );
-	EXPECT_NE( nullptr, proc );
+TEST(Process_delete, unaccesible?) {
 }
 //*/
 
