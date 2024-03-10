@@ -98,7 +98,11 @@ private:
 	{
 		if ( !_cmdline )
 			return;
+#ifdef __STDC_LIB_EXT1__ 
 		size_t len = strnlen_s( _cmdline, c_maximumPathLength );
+#else
+		size_t len = strnlen( _cmdline );
+#endif __STDC_LIB_EXT1__ 
 		if ( !len )
 			return;
 
@@ -113,8 +117,8 @@ private:
 			if ( posix_spawn_file_actions_addchdir_np( &action, cwd ) )
 				return;
 
-		std::vector< char > cmdline( _cmdline, _cmdline + len );
-		char *argv[] = { "sh", "-c", cmdline.data( ), nullptr };
+		std::vector< char > cmdline( _cmdline, _cmdline + len + 1 );
+		char *const argv[] = { "sh", "-c", cmdline.data( ), nullptr };
 		if ( posix_spawnp( &h_process, argv[ 0 ], &action, nullptr, argv, environ ) ) {
 			h_process = c_invalid;
 			m_err = errno;
