@@ -12,7 +12,7 @@ constexpr auto now = std::chrono::high_resolution_clock::now;
 //*
 namespace testSystemWideMutex_ { 
 
-/*
+//*
 TEST(SystemWideMutex_create, already_exists) {
 	bool already_exists;
 	char name[] = "some_name";
@@ -205,7 +205,6 @@ TEST(SystemWideMutex_unlocks, break_LockInfinite) {
 	thread.join( );
 }
 
-/*
 TEST(SystemWideMutex_tricks, dry_unlock) {
 	CSystemWideMutex systemWideMutex( g_name );
 	systemWideMutex.Unlock( );
@@ -216,7 +215,7 @@ TEST(SystemWideMutex_tricks, dry_unlock) {
 }
 //*/
 
-/*
+//*
 TEST(SystemWideMutex_copy_ctor, separate_environment) {
 	auto systemWideMutex1 = std::make_unique< CSystemWideMutex >( g_name );
 	CSystemWideMutex systemWideMutex2( *systemWideMutex1 );
