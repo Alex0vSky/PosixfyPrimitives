@@ -157,30 +157,19 @@ private:
 		m_id_process = h_process;
 	}
 
-	//~CProcess() {
-	//	if ( c_invalid != h_process )
-	//		h_process = c_invalid;
-	//}
+	~CProcess() {
+		if ( c_invalid != h_process )
+			h_process = c_invalid;
+	}
 
 	// returns true if no timeout occurs
 	bool _TerminateWaitDestroy(unsigned wait_timeout_milli) { 
-		// ?TODO(alex): Segmentation fault (core dumped)
 		struct Deleter { 
 			CProcess *x; Deleter(CProcess *y) : x( y ) { } ~Deleter() { delete x ; }
 		} unused_( this );
 
-		//printf( "IsProcessActive BEG\n" );
-		//if ( IsProcessActive( ) ) {
-		//	int status = kill( h_process, SIGKILL );
-		//	printf( "do kill, status: %d\n", status );
-		//	printf( "do kill, errno: %d\n", errno );
-		//}
-		//printf( "IsProcessActive END\n" );
-
 		if ( !kill( h_process, 0 ) ) {
-			int status = kill( h_process, SIGKILL );
-			printf( "do2 kill, status: %d\n", status );
-			printf( "do2 kill, errno: %d\n", errno );
+			kill( h_process, SIGKILL );
 			// @insp SO/cant-kill-pid-started-with-spawn
 			waitpid( h_process, nullptr, 0 );
 		}
@@ -189,27 +178,9 @@ private:
 		auto next_clock = now( ) + std::chrono::milliseconds{ wait_timeout_milli };
 		do {
 			// @Warning! Race condition by pid number unique
-			//if ( ( kill( h_process, 0 ) == -1 ) && ( errno == ESRCH ) )
-			// EINVAL
-
-			static bool s_once1 = false;
-			if ( !s_once1 )
-				s_once1 = true, printf( "BEFORE kill errno: %d\n", errno ), perror( "BEFORE kill" );
-			int status = kill( h_process, 0 );
-
-			static bool s_once3 = false;
-			if ( !s_once3 )
-				s_once3 = true, printf( "kill status: %d\n", status );
-
-			if ( status == -1 ) {
-				if ( errno == ESRCH )
-					return true;
-			}
-			static bool s_once2 = false;
-			if ( !s_once2 )
-				s_once2 = true, printf( "AFTER kill errno: %d\n", errno ), perror( "AFTER kill" );
-			//std::this_thread::yield( );
-			std::this_thread::sleep_for( std::chrono::milliseconds{ 100 } );
+			if ( ( kill( h_process, 0 ) == -1 ) && ( errno == ESRCH ) )
+				return true;
+			std::this_thread::yield( );
 		} while ( now( ) < next_clock );
 
 		return false;
