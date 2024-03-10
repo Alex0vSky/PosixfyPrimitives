@@ -145,11 +145,11 @@ private:
 
 		std::vector< char > cmdline( _cmdline, _cmdline + len + 1 );
 		const char *const argv_[] = { "sh", "-c", cmdline.data( ), nullptr };
-		//const char *const argv_[] = { "ping", "-w 2 8.8.8.8", nullptr };
 		auto argv = const_cast< char *const*>( argv_ );
 		if ( posix_spawnp( &h_process, argv[ 0 ], &action, nullptr, argv, environ ) ) {
 			h_process = c_invalid;
 			m_err = errno;
+			// TODO(alex): just to known
 			perror( "posix_spawnp" );
 			return;
 		}
