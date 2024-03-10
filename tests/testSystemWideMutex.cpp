@@ -178,6 +178,7 @@ TEST(SystemWideMutex_unlocks, break_LockInfinite) {
 	EXPECT_TRUE( systemWideMutex.Lock( 0 ) );
 
 	std::atomic_bool started, stoped;
+	started = stoped = false;
 	std::thread thread([&started, &stoped, &systemWideMutex] {
 			printf( "started = true\n" );
 			started = true;
