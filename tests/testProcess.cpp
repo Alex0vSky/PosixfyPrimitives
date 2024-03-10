@@ -71,7 +71,6 @@ typedef std::tuple< detail::SilenceStdout, detail::PrinterToStderr >
 TEST(Process_create, simple) {
 	silenceStdoutAndPinterToStderr_t anonimous_;
 	CProcess *proc = CProcess::Create( g_long_playing );
-	EXPECT_FALSE( true );
 	EXPECT_FALSE( proc ->IsError( ) );
 }
 
