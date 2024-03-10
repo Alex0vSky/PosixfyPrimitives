@@ -98,10 +98,11 @@ private:
 	{
 		if ( !_cmdline )
 			return;
+		// is poorly supported SO/stdc-lib-ext1-availability-in-gcc-and-clang
 #ifdef __STDC_LIB_EXT1__ 
 		size_t len = strnlen_s( _cmdline, c_maximumPathLength );
 #else
-		size_t len = strnlen( _cmdline );
+		size_t len = strnlen( _cmdline, c_maximumPathLength );
 #endif __STDC_LIB_EXT1__ 
 		if ( !len )
 			return;
