@@ -11,22 +11,17 @@ using CProcess = Ipc::CProcess;
 namespace testProcess_ { 
 
 TEST(Process_create, simple) {
+	// To ping Google via gtest
 #ifdef WIN32
-	CProcess *proc = CProcess::Create( "ping 8.8.8.8" );
+	CProcess *proc = CProcess::Create( "ping -n 1 8.8.8.8" );
 #else
 	CProcess *proc = CProcess::Create( "ping -c 1 8.8.8.8" );
 #endif // WIN32
 	EXPECT_FALSE( proc ->IsError( ) );
-	while ( proc ->IsProcessActive( ) )
-		std::this_thread::yield( );
 }
 
-/*
+//*
 TEST(Process_create, simple_cwd) {
-	//std::vector< char > buffer( 1024 );
-	//getcwd( buffer.data( ), buffer.size( ) );
-	//std::string cwd( buffer.begin( ), buffer.end( ) );
-
     std::string tmpnam = std::tmpnam( nullptr );
 	size_t pos;
 	pos = tmpnam.find_last_of( '/' );
@@ -57,6 +52,24 @@ TEST(Process_create, simple_cwd) {
 //*/
 
 /*
+TEST(Process_alive, immediately) {
+	// To ping Google via gtest
+#ifdef WIN32
+	CProcess *proc = CProcess::Create( "ping -n 1 8.8.8.8" );
+#else
+	CProcess *proc = CProcess::Create( "ping -c 1 8.8.8.8" );
+#endif // WIN32
+	EXPECT_FALSE( proc ->IsError( ) );
+	while ( proc ->IsProcessActive( ) )
+		std::this_thread::yield( );
+}
+
+TEST(Process_alive, infinite) {
+}
+
+TEST(Process_alive, timeout) {
+}
+
 TEST(Process_create, xxx) {
 	//getcwd( );
 	CProcess *proc = CProcess::Create( "cmd /c dir" );
