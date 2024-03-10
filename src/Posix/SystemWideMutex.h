@@ -120,14 +120,15 @@ public:
 			return false;
 
 		// implement recursive mutex, prolog
-		int sval1;
-		if ( -1 == sem_getvalue( h_semaphore, &sval1 ) )
-			return false;
 		const std::thread::id current_tid = std::this_thread::get_id( );
-		if ( current_tid == m_creator_tid ) 
+		if ( current_tid == m_creator_tid ) {
+			int sval1;
+			if ( -1 == sem_getvalue( h_semaphore, &sval1 ) )
+				return false;
 			if ( !sval1 ) 
 				if ( m_creator_tid == m_owner_tid || m_empty_tid == m_owner_tid )
 					sem_post( h_semaphore );
+		}
 
 		// TODO(alex): to separate
 		timespec abstime = { };
@@ -155,7 +156,8 @@ public:
 		// implement recursive mutex, epilog
 		int sval2;
 		if ( -1 == sem_getvalue( h_semaphore, &sval2 ) )
-			return false;
+			// TODO(alex): just to see
+			return perror( "epilog sem_getvalue" ), false;
 		if ( success && !sval2 ) {
 			m_owner_tid = current_tid;
 			detail::g_threadExiter.set([this] {
