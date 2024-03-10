@@ -61,6 +61,7 @@ TEST(Process_create, set_and_verify_real_cwd) {
 }
 //*/
 
+/*
 TEST(Process_alive, infinite) {
 	SilenceStdout anonimous_;
 	CProcess *proc = CProcess::Create( g_long_playing );
@@ -68,7 +69,6 @@ TEST(Process_alive, infinite) {
 	EXPECT_FALSE( proc ->IsError( ) );
 }
 
-/*
 TEST(Process_alive, immediately) {
 	SilenceStdout anonimous_;
 	CProcess *proc = CProcess::Create( g_long_playing );

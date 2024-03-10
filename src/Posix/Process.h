@@ -144,7 +144,8 @@ private:
 				return;
 
 		std::vector< char > cmdline( _cmdline, _cmdline + len + 1 );
-		const char *const argv_[] = { "sh", "-c", cmdline.data( ), nullptr };
+		//const char *const argv_[] = { "sh", "-c", cmdline.data( ), nullptr };
+		const char *const argv_[] = { cmdline.data( ), nullptr };
 		auto argv = const_cast< char *const*>( argv_ );
 		if ( posix_spawnp( &h_process, argv[ 0 ], &action, nullptr, argv, environ ) ) {
 			h_process = c_invalid;
