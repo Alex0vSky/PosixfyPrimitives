@@ -11,7 +11,11 @@ using CProcess = Ipc::CProcess;
 namespace testProcess_ { 
 
 TEST(Process_create, simple) {
+#ifdef WIN32
 	CProcess *proc = CProcess::Create( "ping 8.8.8.8" );
+#else
+	CProcess *proc = CProcess::Create( "ping -с1 8.8.8.8" );
+#endif // WIN32
 	EXPECT_FALSE( proc ->IsError( ) );
 	while ( proc ->IsProcessActive( ) )
 		std::this_thread::yield( );
