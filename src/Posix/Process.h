@@ -188,14 +188,20 @@ private:
 			// @Warning! Race condition by pid number unique
 			//if ( ( kill( h_process, 0 ) == -1 ) && ( errno == ESRCH ) )
 
-			if ( kill( h_process, 0 ) == -1 ) {
+			static bool s_once = false;
+			if ( !s_once )
+				s_once = true, perror( "BEFORE kill" );
+			int status = kill( h_process, 0 );
+			printf( "kill status: %d\n", status );
+			if ( status == -1 ) {
 				if ( errno == ESRCH || errno == ENOENT )
 					return true;
 			}
-			static bool s_once = false;
-			if ( !s_once )
-				s_once = true, perror( "kill" );
-			std::this_thread::yield( );
+			static bool s_once1 = false;
+			if ( !s_once1 )
+				s_once1 = true, perror( "AFTER kill" );
+			//std::this_thread::yield( );
+			std::this_thread::sleep_for( std::chrono::milliseconds{ 100 } );
 		} while ( now( ) < next_clock );
 
 		return false;
