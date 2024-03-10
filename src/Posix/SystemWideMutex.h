@@ -87,7 +87,7 @@ public:
 
 	//CSystemWideMutex(const CSystemWideMutex& other) = delete;
 	CSystemWideMutex(const CSystemWideMutex& other) :
-		h_semaphore( other.h_semaphore )
+		h_semaphore( SEM_FAILED )
 		, m_name( other.m_name )
 		, m_open_existing( other.m_open_existing )
 		, m_creator_tid( other.m_creator_tid )
