@@ -64,27 +64,6 @@ class CEvent {
 
 	bool *x;
 
-	// @insp https://stackoverflow.com/questions/15024623/convert-milliseconds-to-timespec-for-gnu-port
-	static void ms2ts(timespec *ts, unsigned long milli) {
-		ts ->tv_sec = milli / 1000;
-		ts ->tv_nsec = (milli % 1000) * 1000000;
-	}
-	// To avoid Integer overflow: abstime.tv_sec += adding.tv_sec; abstime.tv_nsec += adding.tv_nsec;
-	static void safe_add(timespec *accum, timespec *src) {
-		long sum_tv_sec; // decltype( timespec::tv_sec ) 
-		if ( __builtin_saddl_overflow( accum ->tv_sec, src ->tv_sec, &sum_tv_sec ) ) {
-			accum ->tv_sec = std::numeric_limits< long >::max( );
-		} else {
-			accum ->tv_sec = sum_tv_sec;
-		}
-		long sum_tv_nsec;
-		if ( __builtin_saddl_overflow( accum ->tv_nsec, src ->tv_nsec, &sum_tv_nsec ) ) {
-			accum ->tv_nsec = std::numeric_limits< long >::max( );
-		} else {
-			accum ->tv_nsec = sum_tv_nsec;
-		}
-	}
-
 public:
 	CEvent(bool is_manual_reset, bool initial_state) :
 		is_manual_reset_( is_manual_reset )
@@ -143,16 +122,7 @@ public:
 	bool Wait(unsigned timeout_milli=0) const {
 //		if ( !h_event ) return false;
 
-		timespec abstime = { };
-		if ( INFINITE == timeout_milli ) {
-			abstime.tv_sec = std::numeric_limits< decltype( abstime.tv_sec ) >::max( );
-			abstime.tv_nsec = std::numeric_limits< decltype( abstime.tv_nsec ) >::max( );
-		} else {
-			abstime.tv_sec = time( nullptr ); // clock_gettime( CLOCK_REALTIME, &abstime );
-			timespec adding = { }; 
-			ms2ts( &adding, timeout_milli );
-			safe_add( &abstime, &adding ); //abstime.tv_sec += adding.tv_sec; abstime.tv_nsec += adding.tv_nsec;
-		}
+		timespec abstime = CTools::MilliToAbsoluteTimespec( timeout_milli );
 
 		// Success if not enter to waiting
 		int timedwait = 0;
