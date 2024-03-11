@@ -81,7 +81,7 @@ public:
 		CTools::CloseAndInvalidateHandle( h_event );
 	}
 	void Set() {
-//		if ( !h_event ) return;
+		if ( !h_event ) return;
 		{
 			auto scoped_guard = mutex_.scoped_guard( );
 			signaled_ = true;
@@ -94,7 +94,7 @@ public:
 			::pthread_cond_signal( h_event );
 	}
 	void Reset() {
-//		if ( !h_event ) return;
+		if ( !h_event ) return;
 		{
 			auto scoped_guard = mutex_.scoped_guard( );
 			signaled_ = false;
@@ -103,7 +103,7 @@ public:
 		}
 	}
 	bool Wait(unsigned timeout_milli=0) const {
-//		if ( !h_event ) return false;
+		if ( !h_event ) return false;
 
 		timespec abstime = CTools::MilliToAbsoluteTimespec( timeout_milli );
 
