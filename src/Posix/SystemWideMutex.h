@@ -20,6 +20,7 @@ public:
 } // namespace detail
 
 class CSystemWideMutex {
+	WideMutexHandle h_semaphore2;
 	sem_t *h_semaphore;
 	std::string m_name;
 	bool m_open_existing;
@@ -79,6 +80,7 @@ public:
 	CSystemWideMutex(const CSystemWideMutex& other) :
 		// TODO(alex): via iface `CTools::CopyHandle(other);`
 		h_semaphore( sem_open( other.m_name.c_str( ), O_RDWR ) )
+		, h_semaphore2( CTools::CopyHandle( other.h_semaphore2 ) )
 		, m_name( other.m_name )
 		, m_open_existing( other.m_open_existing )
 		, m_creator_tid( other.m_creator_tid )

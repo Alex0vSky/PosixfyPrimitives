@@ -45,24 +45,47 @@ public:
 // opaque type wrapper @insp SO/how-can-i-test-equality-of-two-pthread-mutexes
 // POSIX documentation states that: "There are no defined comparison or assignment operators for the types pthread_attr_t, pthread_cond_t, pthread_condattr_t, pthread_mutex_t, pthread_mutexattr_t, pthread_rwlock_t and pthread_rwlockattr_t."
 class EventHandle {
-	//pthread_cond_t h_event; pthread_condattr_t attr_; pthread_cond_t h_invalid_event; pthread_condattr_t invalid_attr_;
-	bool m_valid = false;
+	bool m_valid;
 	pthread_cond_t m_handle;
 
 public:
 	EventHandle() : m_valid( true ) {
 		pthread_cond_init( &m_handle, nullptr );
-		//::pthread_cond_init( &h_invalid_event, &invalid_attr_ );
-		//// The attribute and control block parameters of the condition variable will not be valid after destruction, 
-		//// but can be reinitialized by calling pthread_cond_init() or statically.
-		//::pthread_cond_destroy( &h_invalid_event );
 	}
 	void CloseAndInvalidateHandle() {
+		if ( !m_valid )
+			return;
 		pthread_cond_destroy( &m_handle );
 		m_valid = false;
 	}
 	operator pthread_cond_t *() {
 		return &m_handle;
+	}
+	explicit operator bool() const {
+		return m_valid;
+	}
+};
+
+class WideMutexHandle {
+	bool m_valid;
+	sem_t *m_handle;
+
+public:
+	WideMutexHandle() : m_valid( false ) {
+		m_handle = SEM_FAILED;
+	}
+	void assign(sem_t *sem) {
+		m_handle = sem;
+		m_valid = ( m_handle != SEM_FAILED );
+	}
+	void CloseAndInvalidateHandle() {
+		if ( !m_valid )
+			return;
+		sem_close( m_handle ), m_handle = SEM_FAILED;
+		m_valid = false;
+	}
+	operator sem_t *() {
+		return m_handle;
 	}
 	explicit operator bool() const {
 		return m_valid;
@@ -93,6 +116,9 @@ class CTools {
 
 public:
 	static EventHandle CopyHandle(EventHandle input) {
+		return input;
+	}
+	static WideMutexHandle CopyHandle(WideMutexHandle input) {
 		return input;
 	}
 	//static void CloseAndInvalidateHandle(pthread_cond_t &handle) {
