@@ -9,8 +9,8 @@
 #	define INFINITE            0xFFFFFFFF  // Infinite timeout
 #endif // INFINITE
 
-class CTools {
 #ifdef _WIN32
+class CTools {
 	template <HANDLE invalid_value>
 	struct static_constexpr {
 		operator HANDLE() const {
@@ -38,11 +38,38 @@ public:
 			CloseHandle( handle );
 		handle = c_invalid;
 	}
+};
 
 #else // _WIN32
 
-	static constexpr pthread_cond_t c_invalid = PTHREAD_COND_INITIALIZER;
-	typedef pthread_cond_t handle_t;
+// opaque type wrapper @insp SO/how-can-i-test-equality-of-two-pthread-mutexes
+// POSIX documentation states that: "There are no defined comparison or assignment operators for the types pthread_attr_t, pthread_cond_t, pthread_condattr_t, pthread_mutex_t, pthread_mutexattr_t, pthread_rwlock_t and pthread_rwlockattr_t."
+class EventHandle {
+	//pthread_cond_t h_event; pthread_condattr_t attr_; pthread_cond_t h_invalid_event; pthread_condattr_t invalid_attr_;
+	bool m_valid = false;
+	pthread_cond_t m_handle;
+
+public:
+	EventHandle() : m_valid( true ) {
+		pthread_cond_init( &m_handle, nullptr );
+		//::pthread_cond_init( &h_invalid_event, &invalid_attr_ );
+		//// The attribute and control block parameters of the condition variable will not be valid after destruction, 
+		//// but can be reinitialized by calling pthread_cond_init() or statically.
+		//::pthread_cond_destroy( &h_invalid_event );
+	}
+	void CloseAndInvalidateHandle() {
+		pthread_cond_destroy( &m_handle );
+		m_valid = false;
+	}
+	operator pthread_cond_t *() {
+		return &m_handle;
+	}
+	operator bool() const {
+		return m_valid;
+	}
+};
+
+class CTools {
 	// @insp https://stackoverflow.com/questions/15024623/convert-milliseconds-to-timespec-for-gnu-port
 	static void ms2ts(timespec *ts, unsigned long milli) {
 		ts ->tv_sec = milli / 1000;
@@ -65,11 +92,12 @@ public:
 	}
 
 public:
-	static pthread_cond_t CopyHandle(pthread_cond_t input) {
+	static EventHandle CopyHandle(EventHandle input) {
 		return input;
 	}
-	static void CloseAndInvalidateHandle(pthread_cond_t &handle) {
-		pthread_cond_destroy( &handle );
+	//static void CloseAndInvalidateHandle(pthread_cond_t &handle) {
+	static void CloseAndInvalidateHandle(EventHandle &handle) {
+		handle.CloseAndInvalidateHandle( );
 	}
 	static timespec MilliToAbsoluteTimespec(unsigned milli=0) {
 		timespec abstime = { };
@@ -84,5 +112,5 @@ public:
 		}
 		return abstime;
 	}
-#endif // _WIN32
 };
+#endif // _WIN32

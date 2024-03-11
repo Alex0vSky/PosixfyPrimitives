@@ -43,7 +43,7 @@ class CEvent {
 	bool initial_state_;
 	// Is `mutable` to keep methods signatures
 	mutable bool signaled_;
-	mutable pthread_cond_t h_event;
+	mutable EventHandle h_event;
 	mutable MutexEvent mutex_;
 
 	bool *x;
@@ -55,7 +55,6 @@ public:
 		, signaled_( false )
 		, x( &signaled_ )
 	{
-		pthread_cond_init( &h_event, nullptr );
 		if ( initial_state_ )
 			Set( );
 	}
@@ -90,9 +89,9 @@ public:
 				*x = true;
 		}
 		if ( is_manual_reset_ )
-			::pthread_cond_broadcast( &h_event );
+			::pthread_cond_broadcast( h_event );
 		else
-			::pthread_cond_signal( &h_event );
+			::pthread_cond_signal( h_event );
 	}
 	void Reset() {
 //		if ( !h_event ) return;
@@ -114,7 +113,7 @@ public:
 			auto scoped_guard = mutex_.scoped_guard( );
 			// Spurious wakeups
 			while ( !*x ) {
-				timedwait = pthread_cond_timedwait( &h_event, mutex_, &abstime );
+				timedwait = pthread_cond_timedwait( h_event, mutex_, &abstime );
 				if ( ETIMEDOUT == timedwait )
 					break;
 			}
