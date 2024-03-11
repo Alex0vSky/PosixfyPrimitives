@@ -71,7 +71,7 @@ public:
 		if ( c_invalid == h_process )
 			return false;
 		int status = 0;
-		waitpid( h_process, &status, WNOHANG );
+		waitpid( h_process, &status, WNOHANG | WUNTRACED | WCONTINUED );
 		if ( !WIFEXITED( status ) )
 			return false;
 		_ec = m_err = WEXITSTATUS( status );
