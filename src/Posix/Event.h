@@ -48,7 +48,7 @@ class CEvent {
 	mutable EventHandle h_event;
 	mutable detail::MutexEvent mutex_;
 
-	class CEvent::ControlBlock;
+	class ControlBlock;
 
 public:
 	typedef std::shared_ptr< CEvent::ControlBlock > controlBlock_t;
@@ -76,6 +76,7 @@ private:
 			m_value = ( false );
 		}
 	};
+	controlBlock_t m_controlBlock;
 	bool *x;
 
 public:
@@ -84,6 +85,7 @@ public:
 		, initial_state_( initial_state )
 		, signaled_( false )
 		, x( &signaled_ )
+		, m_controlBlock( ControlBlock::create( ) )
 	{
 		if ( initial_state_ )
 			Set( );
