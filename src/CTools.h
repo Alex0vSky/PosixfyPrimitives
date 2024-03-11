@@ -64,7 +64,7 @@ public:
 	operator pthread_cond_t *() {
 		return &m_handle;
 	}
-	operator bool() const {
+	explicit operator bool() const {
 		return m_valid;
 	}
 };

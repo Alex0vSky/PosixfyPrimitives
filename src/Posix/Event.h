@@ -39,6 +39,40 @@ public:
 		return Guard( this );
 	}
 };
+
+class ControlBlock {
+	struct Private{};
+	detail::MutexEvent m_mutex;
+	// or std::atomic_bool without mutex, must faster
+	bool m_value;
+
+public:
+	typedef std::shared_ptr< ControlBlock > controlBlock_t;
+	//struct controlBlock_t : public std::shared_ptr< ControlBlock > {
+	//	operator bool() = delete;
+	//};
+	ControlBlock(Private, bool initial_state) : 
+		m_value( initial_state ) 
+	{}
+	static controlBlock_t create(bool initial_state = false) {
+		return std::make_shared< ControlBlock >( Private(), initial_state );
+	}
+	void set() {
+		m_mutex.scoped_guard( );
+		m_value = ( true );
+	}
+	void reset() {
+		m_mutex.scoped_guard( );
+		m_value = ( false );
+	}
+	bool isSet() const {
+		return m_value;
+	}
+};
+
+//// Avoid pointer bool
+//ControlBlock::controlBlock_t::operator bool(detail::ControlBlock::controlBlock_t const&) = delete;
+
 } // namespace detail
 
 class CEvent {
@@ -48,35 +82,8 @@ class CEvent {
 	mutable bool signaled_;
 	mutable EventHandle h_event;
 	mutable detail::MutexEvent mutex_;
-	class ControlBlock;
 
-public:
-	typedef std::shared_ptr< CEvent::ControlBlock > controlBlock_t;
-
-private:
-	class ControlBlock {
-		struct Private{};
-		detail::MutexEvent m_mutex;
-		// or std::atomic_bool without mutex, must faster
-		bool m_value;
-
-	public:
-		ControlBlock(Private, bool initial_state) : 
-			m_value( initial_state ) 
-		{}
-		static controlBlock_t create(bool initial_state = false) {
-			return std::make_shared< ControlBlock >( Private(), initial_state );
-		}
-		void set() {
-			m_mutex.scoped_guard( );
-			m_value = ( true );
-		}
-		void reset() {
-			m_mutex.scoped_guard( );
-			m_value = ( false );
-		}
-	};
-	controlBlock_t m_controlBlock;
+	detail::ControlBlock::controlBlock_t m_controlBlock;
 	bool *x;
 
 public:
@@ -85,7 +92,7 @@ public:
 		, initial_state_( initial_state )
 		, signaled_( false )
 		, x( &signaled_ )
-		, m_controlBlock( ControlBlock::create( initial_state ) )
+		, m_controlBlock( detail::ControlBlock::create( initial_state ) )
 	{
 		if ( initial_state_ )
 			Set( );
@@ -167,4 +174,5 @@ public:
 		return Wait( 0 );
 	}
 };
+
 } // namespace Intraprocess
