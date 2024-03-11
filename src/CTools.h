@@ -66,11 +66,19 @@ public:
 	}
 };
 
+// forward decl
+namespace Ipc{ class CSystemWideMutex; } // namespace Ipc
+
 class WideMutexHandle {
 	bool m_valid;
-	//const std::string m_name;
 	std::string m_name;
 	sem_t *m_handle;
+
+	friend class ::Ipc::CSystemWideMutex;
+	void set(sem_t *semaphore) {
+		m_valid = ( semaphore != SEM_FAILED );
+		m_handle = ( semaphore );
+	}
 
 public:
 	WideMutexHandle(std::string const& name) : 
@@ -83,19 +91,9 @@ public:
 		m_valid( rhs.m_valid ) 
 		, m_name( rhs.m_name ) 
 	{
-		m_handle = sem_open( m_name.c_str( ), O_RDWR );
+		set( sem_open( m_name.c_str( ), O_RDWR ) );
 	}
 	WideMutexHandle & operator=(WideMutexHandle const& rhs) = default;
-	//WideMutexHandle & operator=(WideMutexHandle const& rhs) {
-	//	m_valid = ( rhs.m_valid )
-	//	, m_name = ( rhs.m_name ) 
-	//	;
-	//}
-	// TODO(alex): ugly
-	void operator=(sem_t *semaphore) {
-		m_valid = ( semaphore != SEM_FAILED );
-		m_handle = ( semaphore );
-	}
 	void CloseAndInvalidateHandle() {
 		if ( !m_valid )
 			return;
@@ -114,7 +112,7 @@ public:
 };
 
 class CTools {
-	// @insp https://stackoverflow.com/questions/15024623/convert-milliseconds-to-timespec-for-gnu-port
+	// @insp SO/convert-milliseconds-to-timespec-for-gnu-port
 	static void ms2ts(timespec *ts, unsigned long milli) {
 		ts ->tv_sec = milli / 1000;
 		ts ->tv_nsec = (milli % 1000) * 1000000;

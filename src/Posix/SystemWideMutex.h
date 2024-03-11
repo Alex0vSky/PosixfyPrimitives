@@ -3,13 +3,13 @@
 namespace Ipc {
 
 namespace detail { 
-thread_local class ThreadExiter {
+thread_local class ThreadExiter_tls {
 	std::function<void()> m_exit_func;
 
 public:
-    ThreadExiter() = default;
-    ThreadExiter(ThreadExiter const&) = delete; void operator=(ThreadExiter const&) = delete;
-    ~ThreadExiter() {
+    ThreadExiter_tls() = default;
+    ThreadExiter_tls(ThreadExiter_tls const&) = delete; void operator=(ThreadExiter_tls const&) = delete;
+    ~ThreadExiter_tls() {
 		if ( m_exit_func )
 			m_exit_func( );
     }
@@ -20,45 +20,37 @@ public:
 } // namespace detail
 
 class CSystemWideMutex {
-	std::string m_name;
-	WideMutexHandle h_semaphore2;
+	WideMutexHandle m_semaphore;
 	bool m_open_existing;
-	std::thread::id m_creator_tid;
-	std::thread::id m_owner_tid;
-	// for tidy compare
-	const std::thread::id m_empty_tid;
+	std::thread::id m_creator_tid, m_owner_tid;
 
 public:
 	CSystemWideMutex(const char *name,bool *p_already_exists=NULL,bool open_existing=false) :
-		m_name( std::string( "\\" ) + name )
-		, h_semaphore2( m_name )
+		m_semaphore( std::string( "\\" ) + name )
 		, m_open_existing( open_existing )
 		, m_creator_tid( std::this_thread::get_id( ) )
-	{		
+	{
 		bool is_exists = false;
-		//int mode = 0644;
-		int mode = 0777;
+		int mode = 0644;
 		// allow single lock after creation
 		int value = 1;
 
-		sem_t *h_semaphore = sem_open( m_name.c_str( ), O_RDWR );
-		if ( SEM_FAILED == h_semaphore ) {
-			h_semaphore = sem_open( m_name.c_str( ), O_CREAT | O_EXCL, mode, value );
-		} else {
+		sem_t *semaphore = sem_open( m_semaphore.get_name( ), O_RDWR );
+		if ( SEM_FAILED == semaphore ) 
+			semaphore = sem_open( m_semaphore.get_name( ), O_CREAT | O_EXCL, mode, value );
+		else
 			is_exists = true;
-		}
+
 		if ( open_existing && !is_exists )
-			h_semaphore = SEM_FAILED;
-		h_semaphore2 = h_semaphore;
+			semaphore = SEM_FAILED;
+		m_semaphore.set( semaphore );
 		
 		if ( p_already_exists )
 			*p_already_exists = is_exists;
 	}
 
 	CSystemWideMutex(const CSystemWideMutex& other) :
-		// +-TODO(alex): via iface `CTools::CopyHandle(other);`
-		h_semaphore2( CTools::CopyHandle( other.h_semaphore2 ) )
-		, m_name( other.m_name )
+		m_semaphore( CTools::CopyHandle( other.m_semaphore ) )
 		, m_open_existing( other.m_open_existing )
 		, m_creator_tid( other.m_creator_tid )
 		, m_owner_tid( other.m_owner_tid )
@@ -66,13 +58,8 @@ public:
 
 	const CSystemWideMutex& operator= (const CSystemWideMutex& other) {
 		if ( this != &other ) {
-			// +-TODO(alex): via iface `CTools::CloseAndInvalidateHandle();`
-			CTools::CloseAndInvalidateHandle( h_semaphore2 );
-			//if ( !m_open_existing )
-			//	sem_unlink( m_name.c_str( ) );
-			// +-TODO(alex): via iface `CTools::CopyHandle(other);`
-			h_semaphore2 = CTools::CopyHandle( other.h_semaphore2 );
-			m_name = ( other.m_name );
+			CTools::CloseAndInvalidateHandle( m_semaphore );
+			m_semaphore = CTools::CopyHandle( other.m_semaphore );
 			m_open_existing = ( other.m_open_existing );
 			m_creator_tid = ( other.m_creator_tid );
 			m_owner_tid = ( other.m_owner_tid );
@@ -81,35 +68,30 @@ public:
 	}
 
 	~CSystemWideMutex() {
-		//if ( h _semaphore == SEM_FAILED )
-		//	return;
 		detail::g_threadExiter.set( nullptr );
-		// +-TODO(alex): via iface `CTools::CloseAndInvalidateHandle();`
-		CTools::CloseAndInvalidateHandle( h_semaphore2 );
+		CTools::CloseAndInvalidateHandle( m_semaphore );
 		if ( !m_open_existing )
-			sem_unlink( m_name.c_str( ) );
+			sem_unlink( m_semaphore.get_name( ) );
 	}
 
 	bool IsError() const {
-		return !h_semaphore2;
+		return !m_semaphore;
 	}
 							
 	// returns true if we've got ownership, so Unlock() must be called when ownership is no longer needed
 	// it is safe to call Unlock() without corresp. Lock() returned true
 	bool Lock(unsigned timeout_milli)  {
-		//if ( h _semaphore == SEM_FAILED )
-		if ( !h_semaphore2 )
+		if ( !m_semaphore )
 			return false;
 
 		// implement recursive mutex, prolog
 		int sval1;
-		if ( -1 == sem_getvalue( h_semaphore2, &sval1 ) )
+		if ( -1 == sem_getvalue( m_semaphore, &sval1 ) )
 			return false;
 		const std::thread::id current_tid = std::this_thread::get_id( );
-		if ( current_tid == m_creator_tid ) 
-			if ( !sval1 ) 
-				if ( m_creator_tid == m_owner_tid || m_empty_tid == m_owner_tid )
-					sem_post( h_semaphore2 );
+		if ( current_tid == m_creator_tid && 0 == sval1 ) 
+			if ( m_creator_tid == m_owner_tid || std::thread::id{ } == m_owner_tid )
+				sem_post( m_semaphore );
 
 		timespec abstime = CTools::MilliToAbsoluteTimespec( timeout_milli );
 		// Limitation of `sem_timedwait()` or get 'EINVAL' error. ?`set_normalized_timespec()`
@@ -118,23 +100,23 @@ public:
 			abstime.tv_nsec = limit - 1;
 
 		bool interupt, success = false; do {
-			success = ( !sem_timedwait( h_semaphore2, &abstime ) );
+			success = ( !sem_timedwait( m_semaphore, &abstime ) );
 			interupt = ( !success && errno == EINTR );
 		} while ( interupt ); // If user will use signal handler
 
 		// implement recursive mutex, epilog
 		int sval2;
-		if ( -1 == sem_getvalue( h_semaphore2, &sval2 ) )
+		if ( -1 == sem_getvalue( m_semaphore, &sval2 ) )
 			return false;
-		if ( success && !sval2 ) {
+		if ( success && 0 == sval2 ) {
 			m_owner_tid = current_tid;
 			// To reset owner on thread exit
 			// TODO(alex): bug, UB if owner destroyed before thread end
 			detail::g_threadExiter.set([this] {
-					m_owner_tid = m_empty_tid;
+					m_owner_tid = std::thread::id{ };
 				});
 		} else {
-			m_owner_tid = m_empty_tid;
+			m_owner_tid = std::thread::id{ };
 		}
 
 		return success;
@@ -146,14 +128,13 @@ public:
 							
 	// it is safe to call Unlock() without corresp. Lock() returned true
 	void Unlock() {
-		//if ( h _semaphore == SEM_FAILED )
-		if ( !h_semaphore2 )
+		if ( !m_semaphore )
 			return;
 		int sval;
-		if ( -1 == sem_getvalue( h_semaphore2, &sval ) )
+		if ( -1 == sem_getvalue( m_semaphore, &sval ) )
 			return;
-		if ( !sval )
-			sem_post( h_semaphore2 );
+		if ( 0 == sval )
+			sem_post( m_semaphore );
 	}
 
 };
