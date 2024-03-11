@@ -31,6 +31,9 @@
     <Filter Include="Header Files\_gmock">
       <UniqueIdentifier>{007b6ffb-bc92-4585-ada7-025c6056dd55}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\_NuGet">
+      <UniqueIdentifier>{a75b2d38-620b-4200-aefe-d8ae9452c42c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -39,17 +42,23 @@
     <ClCompile Include="..\PosixfyPrimitives.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\tests\testEvent.cpp">
+    <ClCompile Include="..\qa\UnitTest\testEvent.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
-    <ClCompile Include="..\tests\testSharedMem.cpp">
+    <ClCompile Include="..\qa\UnitTest\testProcess.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
-    <ClCompile Include="..\tests\testSystemWideMutex.cpp">
+    <ClCompile Include="..\qa\UnitTest\testSharedMem.cpp">
       <Filter>Source Files\tests</Filter>
     </ClCompile>
-    <ClCompile Include="..\tests\testProcess.cpp">
+    <ClCompile Include="..\qa\UnitTest\testSystemWideMutex.cpp">
       <Filter>Source Files\tests</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\lib\native\src\gmock\gmock-all.cc">
+      <Filter>Source Files\_NuGet</Filter>
+    </ClCompile>
+    <ClCompile Include="$(MSBuildThisFileDirectory)..\..\lib\native\src\gtest\gtest-all.cc">
+      <Filter>Source Files\_NuGet</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -94,6 +103,8 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <Filter>Source Files\_NuGet</Filter>
+    </None>
   </ItemGroup>
 </Project>

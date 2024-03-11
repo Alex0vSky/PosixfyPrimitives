@@ -12,11 +12,12 @@ file(GLOB A0S_SRC
      "../../src/*.cpp"
 )
 source_group("src Files" FILES "../../PosixfyPrimitives.cpp" ${A0S_SRC} )
+
 file(GLOB A0S_TESTS
-     "../../tests/*.h"
-     "../../tests/*.cpp"
+     "../../qa/UnitTest/*.h"
+     "../../qa/UnitTest/*.cpp"
 )
-source_group("tests Files" FILES "../../PosixfyPrimitives.cpp" ${A0S_TESTS})
+source_group("tests Files" FILES ${A0S_TESTS} )
 
 set(_pch
     "../stdafx.cpp"
