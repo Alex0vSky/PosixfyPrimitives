@@ -13,7 +13,7 @@ constexpr auto now = std::chrono::high_resolution_clock::now;
 //*
 namespace testSystemWideMutex_ { 
 
-/*
+//*
 TEST(SystemWideMutex_create, already_exists) {
 	bool already_exists;
 	char name[] = "some_name";
@@ -307,7 +307,11 @@ TEST(SystemWideMutex_bug_in_my_posix_impl, owner_unlock_on_thread_end) {
 		});
 	while ( !started )
 		std::this_thread::yield( );
+#ifdef _WIN32
 	EXPECT_FALSE( systemWideMutex2.Lock( 0 ) );
+#else
+	EXPECT_TRUE( systemWideMutex2.Lock( 0 ) );
+#endif
 	stop = true;
 	thread.join( );
 }
