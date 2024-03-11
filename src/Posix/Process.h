@@ -51,6 +51,7 @@ public:
 			int status = 0;
 			waitpid( h_process, &status, WNOHANG );
 			if ( WIFEXITED( status ) ) {
+				printf( "IsProcessActive for m_reaped_exit_code status: %d", status ); // S
 				m_reaped_exit_code = true;
 				m_err = WEXITSTATUS( status );
 			}
@@ -75,7 +76,7 @@ public:
 			return false;
 		if ( !WIFEXITED( status ) )
 			return false;
-		printf( "GetExitCode status: %d", status );
+		printf( "GetExitCode status: %d", status ); // S
 		_ec = m_err = WEXITSTATUS( status );
 		return true;
 	}
