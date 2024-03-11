@@ -219,7 +219,6 @@ TEST(SystemWideMutex_tricks, multi_lock_single_unlock) {
 	EXPECT_TRUE( systemWideMutex.Lock( 0 ) );
 }
 
-#ifdef _WIN32
 TEST(SystemWideMutex_tricks, lock_after_dtor) {
 	auto systemWideMutex1 = std::make_unique< CSystemWideMutex >( g_name );
 	//CSystemWideMutex systemWideMutex2( g_name2 );
@@ -251,17 +250,20 @@ TEST(SystemWideMutex_tricks, lock_after_dtor) {
 		});
 	while ( !started )
 		std::this_thread::yield( );
+#ifdef _WIN32
 	EXPECT_FALSE( systemWideMutex2.Lock( 0 ) );
+#endif // _WIN32
 	to_reset = true;
 	while ( !reseted )
 		std::this_thread::yield( );
+#ifdef _WIN32
 	EXPECT_FALSE( systemWideMutex2.Lock( 0 ) );
+#endif // _WIN32
 	stop = true;
 	thread.join( );
 	// unlocked after thread end
 	EXPECT_TRUE( systemWideMutex2.Lock( 0 ) );
 }
-#endif // _WIN32
 
 TEST(SystemWideMutex_copy_ctor, separate_environment) {
 	auto systemWideMutex1 = std::make_unique< CSystemWideMutex >( g_name );
