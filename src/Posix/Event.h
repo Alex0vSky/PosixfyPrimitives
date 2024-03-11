@@ -5,10 +5,11 @@ namespace Intraprocess {
 
 namespace detail {
 class MutexEvent {
-	pthread_mutex_t mutex_;
+	pthread_mutex_t m_mutex;
 
 	class Guard {
 		MutexEvent *m_parent;
+
 	public:
 		explicit Guard(MutexEvent *parent): m_parent( parent ) {
 		   m_parent ->lock( );
@@ -21,19 +22,16 @@ class MutexEvent {
 public:
     MutexEvent(MutexEvent const&) = delete; void operator=(MutexEvent const&) = delete;
 	MutexEvent() {
-		pthread_mutex_init( &mutex_, nullptr );
+		pthread_mutex_init( &m_mutex, nullptr );
 	}
 	~MutexEvent() {
-		pthread_mutex_destroy( &mutex_ );
+		pthread_mutex_destroy( &m_mutex );
 	}
 	void lock() {
-		pthread_mutex_lock( &mutex_ );
+		pthread_mutex_lock( &m_mutex );
 	}
 	void unlock() {
-		pthread_mutex_unlock( &mutex_ );
-	}
-	operator pthread_mutex_t *() {
-		return &mutex_;
+		pthread_mutex_unlock( &m_mutex );
 	}
 	Guard scoped_guard() {
 		return Guard( this );
@@ -43,14 +41,10 @@ public:
 class ControlBlock {
 	struct Private{};
 	detail::MutexEvent m_mutex;
-	// or std::atomic_bool without mutex, must faster
 	bool m_value;
 
 public:
 	typedef std::shared_ptr< ControlBlock > controlBlock_t;
-	//struct controlBlock_t : public std::shared_ptr< ControlBlock > {
-	//	operator bool() = delete;
-	//};
 	ControlBlock(Private, bool initial_state) : 
 		m_value( initial_state ) 
 	{}
@@ -68,11 +62,10 @@ public:
 	bool isSet() const {
 		return m_value;
 	}
+	Guard scoped_guard() {
+		return Guard( this );
+	}
 };
-
-//// Avoid pointer bool
-//ControlBlock::controlBlock_t::operator bool(detail::ControlBlock::controlBlock_t const&) = delete;
-
 } // namespace detail
 
 class CEvent {
@@ -141,9 +134,9 @@ public:
 					break;
 			}
 		}
-		if ( 0 == timedwait && !is_manual_reset_ ) {
+		if ( 0 == timedwait && !is_manual_reset_ ) 
 			m_controlBlock ->reset( );
-		}
+
 		return ( 0 == timedwait );
 	}
 	bool WaitInfinite() const {
