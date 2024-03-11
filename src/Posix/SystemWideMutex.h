@@ -25,7 +25,11 @@ class CSystemWideMutex {
 	std::thread::id m_creator_tid, m_owner_tid;
 
 public:
-	CSystemWideMutex(const char *name,bool *p_already_exists=NULL,bool open_existing=false) :
+	CSystemWideMutex(
+		const char *name
+		, bool *p_already_exists = nullptr
+		, bool open_existing = false
+	) :
 		m_semaphore( std::string( "\\" ) + name )
 		, m_open_existing( open_existing )
 		, m_creator_tid( std::this_thread::get_id( ) )
@@ -84,7 +88,7 @@ public:
 		if ( !m_semaphore )
 			return false;
 
-		// implement recursive mutex, prolog
+		// Implement recursive mutex, prolog
 		int sval1;
 		if ( -1 == sem_getvalue( m_semaphore, &sval1 ) )
 			return false;
@@ -104,7 +108,7 @@ public:
 			interupt = ( !success && errno == EINTR );
 		} while ( interupt ); // If user will use signal handler
 
-		// implement recursive mutex, epilog
+		// Implement recursive mutex, epilog
 		int sval2;
 		if ( -1 == sem_getvalue( m_semaphore, &sval2 ) )
 			return false;
@@ -123,7 +127,7 @@ public:
 	}
 
 	bool LockInfinite() {
-		return Lock(INFINITE);
+		return Lock( INFINITE );
 	}
 							
 	// it is safe to call Unlock() without corresp. Lock() returned true

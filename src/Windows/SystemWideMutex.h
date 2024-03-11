@@ -42,7 +42,6 @@ public:
 	}
 
 	~CSystemWideMutex() {
-		// ?TODO(alex): impl wrapper to call `ReleaseMutex(h_mutex);`
 		CTools::CloseAndInvalidateHandle(h_mutex);
 	}
 

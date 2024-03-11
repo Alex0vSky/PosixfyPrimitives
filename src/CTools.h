@@ -23,12 +23,13 @@ public:
 	static HANDLE CopyHandle(HANDLE input) {
 		HANDLE out = c_invalid;
 		HANDLE process = GetCurrentProcess( );
+		// The interface clearly indicates to intraprocess duplication
 		::DuplicateHandle( process, 
 				input, 
 				process,
 				&out, 
-				0,
-				FALSE,
+				0, 
+				FALSE, 
 				DUPLICATE_SAME_ACCESS
 			);
 		return out;
@@ -84,16 +85,14 @@ public:
 	WideMutexHandle(std::string const& name) : 
 		m_valid( false ) 
 		, m_name( name ) 
-	{
-		m_handle = SEM_FAILED;
-	}
+		, m_handle( SEM_FAILED )
+	{}
 	WideMutexHandle(WideMutexHandle const& rhs) : 
 		m_valid( rhs.m_valid ) 
 		, m_name( rhs.m_name ) 
 	{
 		set( sem_open( m_name.c_str( ), O_RDWR ) );
 	}
-	WideMutexHandle & operator=(WideMutexHandle const& rhs) = default;
 	void CloseAndInvalidateHandle() {
 		if ( !m_valid )
 			return;
@@ -146,6 +145,7 @@ public:
 	static void CloseAndInvalidateHandle(WideMutexHandle &handle) {
 		handle.CloseAndInvalidateHandle( );
 	}
+
 	static timespec MilliToAbsoluteTimespec(unsigned milli=0) {
 		timespec abstime = { };
 		if ( INFINITE == milli ) {
