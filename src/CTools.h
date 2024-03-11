@@ -12,18 +12,37 @@
 class CTools {
 #ifdef _WIN32
 	template <HANDLE invalid_value>
-	struct C{
+	struct static_constexpr {
 		operator HANDLE() const {
 			return INVALID_HANDLE_VALUE;
 		}
 	};
-	static constexpr C<INVALID_HANDLE_VALUE> c_invalid = { };
-	typedef HANDLE handle_t;
-#else
+	static constexpr static_constexpr<INVALID_HANDLE_VALUE> c_invalid = { };
+
+public:
+	static HANDLE CopyHandle(HANDLE input) {
+		HANDLE out = c_invalid;
+		HANDLE process = GetCurrentProcess( );
+		::DuplicateHandle( process, 
+				input, 
+				process,
+				&out, 
+				0,
+				FALSE,
+				DUPLICATE_SAME_ACCESS
+			);
+		return out;
+	}
+	static void CloseAndInvalidateHandle(HANDLE &handle) {
+		if ( c_invalid != handle && 0 != handle )
+			CloseHandle( handle );
+		handle = c_invalid;
+	}
+
+#else // _WIN32
+
 	static constexpr pthread_cond_t c_invalid = PTHREAD_COND_INITIALIZER;
 	typedef pthread_cond_t handle_t;
-#endif
-
 	// @insp https://stackoverflow.com/questions/15024623/convert-milliseconds-to-timespec-for-gnu-port
 	static void ms2ts(timespec *ts, unsigned long milli) {
 		ts ->tv_sec = milli / 1000;
@@ -46,36 +65,12 @@ class CTools {
 	}
 
 public:
-	static handle_t CopyHandle(handle_t input) {
-		handle_t out = c_invalid;
-#ifdef _WIN32
-		HANDLE process = GetCurrentProcess( );
-		::DuplicateHandle( process, 
-				input, 
-				process,
-				&out, 
-				0,
-				FALSE,
-				DUPLICATE_SAME_ACCESS
-			);
-#else
-		out = input;
-#endif
-		return out;
+	static pthread_cond_t CopyHandle(pthread_cond_t input) {
+		return input;
 	}
-	static void CloseAndInvalidateHandle(handle_t &handle) {
-#ifdef _WIN32
-		if ( c_invalid == handle || !handle )
-			return;
-		CloseHandle( handle );
-// /usr/bin/ld: CMakeFiles/PosixfyPrimitives.dir/home/runner/work/PosixfyPrimitives/PosixfyPrimitives/tests/testEvent.cpp.o: in function `CTools::CloseAndInvalidateHandle(pthread_cond_t&)':
-// testEvent.cpp:(.text._ZN6CTools24CloseAndInvalidateHandleER14pthread_cond_t[_ZN6CTools24CloseAndInvalidateHandleER14pthread_cond_t]+0x1c): undefined reference to `CTools::c_invalid'
-		handle = CTools::c_invalid;
-#else
+	static void CloseAndInvalidateHandle(pthread_cond_t &handle) {
 		pthread_cond_destroy( &handle );
-#endif
 	}
-
 	static timespec MilliToAbsoluteTimespec(unsigned milli=0) {
 		timespec abstime = { };
 		if ( INFINITE == milli ) {
@@ -89,4 +84,5 @@ public:
 		}
 		return abstime;
 	}
+#endif // _WIN32
 };

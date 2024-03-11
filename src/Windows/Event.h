@@ -1,7 +1,6 @@
-﻿// src/Windows/Event.h - independent process event facility 
+﻿// src/Windows/Event.h - independent process, intraprocess, event facility 
 #pragma once // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
-// TODO(alex): Intraprocess? @from https://docs.oracle.com/cd/E37838_01/html/E61057/sync-11157.html
-namespace IndependentProcess {
+namespace Intraprocess {
 class CEvent {
 	HANDLE h_event;
 
@@ -40,4 +39,4 @@ public:
 		return Wait(0);
 	}
 };
-} // namespace IndependentProcess
+} // namespace Intraprocess

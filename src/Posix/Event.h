@@ -1,7 +1,7 @@
 ﻿// src/Posix/Event.h - independent process event facility // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
 // @insp SO/linux-posix-equivalent-for-win32s-createevent-setevent-waitforsingleobject
 #pragma once // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
-namespace IndependentProcess {
+namespace Intraprocess {
 class CHandleEvent {
 	pthread_cond_t h_event;
 	pthread_condattr_t attr_;
@@ -150,4 +150,4 @@ public:
 		return Wait( 0 );
 	}
 };
-} // namespace IndependentProcess
+} // namespace Intraprocess

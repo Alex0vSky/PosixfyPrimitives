@@ -5,7 +5,7 @@
 #else
 #	include "Posix/Event.h"
 #endif
-using CEvent = IndependentProcess::CEvent;
+using CEvent = Intraprocess::CEvent;
 
 //*
 namespace testEvent_ { 
