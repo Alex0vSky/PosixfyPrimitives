@@ -2,22 +2,6 @@
 // @insp SO/linux-posix-equivalent-for-win32s-createevent-setevent-waitforsingleobject
 #pragma once // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
 namespace Intraprocess {
-class CHandleEvent {
-	pthread_cond_t h_event;
-	pthread_condattr_t attr_;
-	pthread_cond_t h_invalid_event;
-	pthread_condattr_t invalid_attr_;
-public:
-	CHandleEvent() {
-		::pthread_cond_init( &h_invalid_event, &invalid_attr_ );
-		// The attribute and control block parameters of the condition variable will not be valid after destruction, but can be reinitialized by calling pthread_cond_init() or statically.
-		::pthread_cond_destroy( &h_invalid_event );
-	}
-
-	operator bool() const {
-		return true;
-	}
-};
 
 class MutexEvent {
 	pthread_mutex_t mutex_;
