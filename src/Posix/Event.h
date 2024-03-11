@@ -3,6 +3,7 @@
 #pragma once // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
 namespace Intraprocess {
 
+namespace detail {
 class MutexEvent {
 	pthread_mutex_t mutex_;
 
@@ -37,6 +38,7 @@ public:
 		return Guard( this );
 	}
 };
+} // namespace detail
 
 class CEvent {
 	bool is_manual_reset_;
@@ -44,8 +46,36 @@ class CEvent {
 	// Is `mutable` to keep methods signatures
 	mutable bool signaled_;
 	mutable EventHandle h_event;
-	mutable MutexEvent mutex_;
+	mutable detail::MutexEvent mutex_;
 
+	class CEvent::ControlBlock;
+
+public:
+	typedef std::shared_ptr< CEvent::ControlBlock > controlBlock_t;
+
+private:
+	class ControlBlock {
+		struct Private{};
+		mutable detail::MutexEvent m_mutex;
+		// or std::atomic_bool without mutex, must faster
+		bool m_value;
+
+	public:
+		explicit ControlBlock(Private) : 
+			m_value( false ) 
+		{}
+		static controlBlock_t create() {
+			return std::make_shared< ControlBlock >( Private() );
+		}
+		void set() {
+			m_mutex.scoped_guard( );
+			m_value = ( true );
+		}
+		void reset() {
+			m_mutex.scoped_guard( );
+			m_value = ( false );
+		}
+	};
 	bool *x;
 
 public:
