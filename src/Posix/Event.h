@@ -11,7 +11,9 @@ class MutexEvent {
 		MutexEvent *m_parent;
 
 	public:
-		explicit Guard(MutexEvent *parent): m_parent( parent ) {
+		explicit Guard(MutexEvent *parent) : 
+			m_parent( parent ) 
+		{
 		   m_parent ->lock( );
 		}
 		~Guard() { 
@@ -36,11 +38,14 @@ public:
 	Guard scoped_guard() {
 		return Guard( this );
 	}
+	operator pthread_mutex_t *() {
+		return &m_mutex;
+	}
 };
 
 class ControlBlock {
 	struct Private{};
-	detail::MutexEvent m_mutex;
+	MutexEvent m_mutex;
 	bool m_value;
 
 public:
@@ -59,11 +64,15 @@ public:
 		m_mutex.scoped_guard( );
 		m_value = ( false );
 	}
-	bool isSet() const {
+	bool is_set() {
+		m_mutex.scoped_guard( );
 		return m_value;
 	}
-	Guard scoped_guard() {
-		return Guard( this );
+	auto scoped_guard() {
+		return m_mutex.scoped_guard( );
+	}
+	auto &get_mutex() {
+		return m_mutex;
 	}
 };
 } // namespace detail
@@ -73,9 +82,7 @@ class CEvent {
 	bool initial_state_;
 	// Is `mutable` to keep methods signatures
 	mutable EventHandle h_event;
-	mutable detail::MutexEvent mutex_;
-
-	detail::ControlBlock::controlBlock_t m_controlBlock;
+	mutable detail::ControlBlock::controlBlock_t m_controlBlock;
 
 public:
 	CEvent(bool is_manual_reset, bool initial_state) :
@@ -125,14 +132,12 @@ public:
 
 		// Success if not enter to waiting
 		int timedwait = 0;
-		{
-			auto scoped_guard = mutex_.scoped_guard( );
-			// Spurious wakeups
-			while ( ! m_controlBlock ->isSet( ) ) {
-				timedwait = pthread_cond_timedwait( h_event, mutex_, &abstime );
-				if ( ETIMEDOUT == timedwait )
-					break;
-			}
+		// Spurious wakeups
+		while ( !m_controlBlock ->is_set( ) ) {
+			auto guard = m_controlBlock ->scoped_guard( );
+			timedwait = pthread_cond_timedwait( h_event, m_controlBlock ->get_mutex( ), &abstime );
+			if ( ETIMEDOUT == timedwait )
+				break;
 		}
 		if ( 0 == timedwait && !is_manual_reset_ ) 
 			m_controlBlock ->reset( );
