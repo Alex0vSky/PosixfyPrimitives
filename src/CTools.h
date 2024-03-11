@@ -68,21 +68,30 @@ public:
 
 class WideMutexHandle {
 	bool m_valid;
+	const std::string m_name;
 	sem_t *m_handle;
 
 public:
-	WideMutexHandle() : m_valid( false ) {
+	WideMutexHandle(std::string const& name) : 
+		m_valid( false ) 
+		, m_name( name ) 
+	{
 		m_handle = SEM_FAILED;
 	}
-	void assign(sem_t *sem) {
-		m_handle = sem;
-		m_valid = ( m_handle != SEM_FAILED );
+	WideMutexHandle(WideMutexHandle const& rhs) : 
+		m_valid( rhs.m_valid ) 
+		, m_name( rhs.m_name ) 
+	{
+		m_handle = sem_open( rhs.get_name( ), O_RDWR );
 	}
 	void CloseAndInvalidateHandle() {
 		if ( !m_valid )
 			return;
 		sem_close( m_handle ), m_handle = SEM_FAILED;
 		m_valid = false;
+	}
+	const char *get_name() const {
+		return m_name.c_str( );
 	}
 	operator sem_t *() {
 		return m_handle;
@@ -119,7 +128,8 @@ public:
 		return input;
 	}
 	static WideMutexHandle CopyHandle(WideMutexHandle input) {
-		return input;
+		WideMutexHandle output( input );
+		return output;
 	}
 	//static void CloseAndInvalidateHandle(pthread_cond_t &handle) {
 	static void CloseAndInvalidateHandle(EventHandle &handle) {

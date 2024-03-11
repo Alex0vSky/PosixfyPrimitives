@@ -20,9 +20,9 @@ public:
 } // namespace detail
 
 class CSystemWideMutex {
-	WideMutexHandle h_semaphore2;
 	sem_t *h_semaphore;
 	std::string m_name;
+	WideMutexHandle h_semaphore2;
 	bool m_open_existing;
 	std::thread::id m_creator_tid;
 
@@ -30,31 +30,11 @@ class CSystemWideMutex {
 	// for tidy compare
 	const std::thread::id m_empty_tid;
 
-	// @insp https://stackoverflow.com/questions/15024623/convert-milliseconds-to-timespec-for-gnu-port
-	static void ms2ts(timespec *ts, unsigned long milli) {
-		ts ->tv_sec = milli / 1000;
-		ts ->tv_nsec = (milli % 1000) * 1000000;
-	}
-	// To avoid Integer overflow: abstime.tv_sec += adding.tv_sec; abstime.tv_nsec += adding.tv_nsec;
-	static void safe_add(timespec *accum, timespec *src) {
-		long sum_tv_sec; // decltype( timespec::tv_sec ) 
-		if ( __builtin_saddl_overflow( accum ->tv_sec, src ->tv_sec, &sum_tv_sec ) ) {
-			accum ->tv_sec = std::numeric_limits< long >::max( );
-		} else {
-			accum ->tv_sec = sum_tv_sec;
-		}
-		long sum_tv_nsec;
-		if ( __builtin_saddl_overflow( accum ->tv_nsec, src ->tv_nsec, &sum_tv_nsec ) ) {
-			accum ->tv_nsec = std::numeric_limits< long >::max( );
-		} else {
-			accum ->tv_nsec = sum_tv_nsec;
-		}
-	}
-
 public:
 	CSystemWideMutex(const char *name,bool *p_already_exists=NULL,bool open_existing=false) :
 		h_semaphore( SEM_FAILED )
 		, m_name( std::string( "\\" ) + name )
+		, h_semaphore2( m_name )
 		, m_open_existing( open_existing )
 		, m_creator_tid( std::this_thread::get_id( ) )
 	{		
@@ -78,8 +58,8 @@ public:
 	}
 
 	CSystemWideMutex(const CSystemWideMutex& other) :
-		// TODO(alex): via iface `CTools::CopyHandle(other);`
 		h_semaphore( sem_open( other.m_name.c_str( ), O_RDWR ) )
+		// TODO(alex): via iface `CTools::CopyHandle(other);`
 		, h_semaphore2( CTools::CopyHandle( other.h_semaphore2 ) )
 		, m_name( other.m_name )
 		, m_open_existing( other.m_open_existing )
@@ -133,23 +113,12 @@ public:
 				if ( m_creator_tid == m_owner_tid || m_empty_tid == m_owner_tid )
 					sem_post( h_semaphore );
 
-		// TODO(alex): to separate
-		timespec abstime = { };
-		{
-		if ( INFINITE == timeout_milli ) {
-			abstime.tv_sec = std::numeric_limits< decltype( abstime.tv_sec ) >::max( );
-			abstime.tv_nsec = std::numeric_limits< decltype( abstime.tv_nsec ) >::max( );
-		} else {
-			abstime.tv_sec = time( nullptr );
-			timespec adding = { }; 
-			ms2ts( &adding, timeout_milli );
-			safe_add( &abstime, &adding ); //abstime.tv_sec += adding.tv_sec; abstime.tv_nsec += adding.tv_nsec;
-		}
+		timespec abstime = CTools::MilliToAbsoluteTimespec( timeout_milli );
 		// Limitation of `sem_timedwait()` or get 'EINVAL' error. ?`set_normalized_timespec()`
 		const unsigned limit = 1'000'000'000;
 		if ( abstime.tv_nsec >= limit )
 			abstime.tv_nsec = limit - 1;
-		}
+
 		bool interupt, success = false; do {
 			success = ( !sem_timedwait( h_semaphore, &abstime ) );
 			interupt = ( !success && errno == EINTR );
