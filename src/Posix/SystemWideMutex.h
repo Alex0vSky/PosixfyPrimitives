@@ -59,9 +59,8 @@ public:
 	}
 
 	CSystemWideMutex(const CSystemWideMutex& other) :
-		h_semaphore( sem_open( other.m_name.c_str( ), O_RDWR ) )
 		// +-TODO(alex): via iface `CTools::CopyHandle(other);`
-		, h_semaphore2( CTools::CopyHandle( other.h_semaphore2 ) )
+		h_semaphore2( CTools::CopyHandle( other.h_semaphore2 ) )
 		, m_name( other.m_name )
 		, m_open_existing( other.m_open_existing )
 		, m_creator_tid( other.m_creator_tid )
@@ -70,14 +69,12 @@ public:
 
 	const CSystemWideMutex& operator= (const CSystemWideMutex& other) {
 		if ( this != &other ) {
-			// +-TODO(alex): via iface `CTools::CloseAndInvalidateHandle(h_semaphore);`
+			// +-TODO(alex): via iface `CTools::CloseAndInvalidateHandle();`
 			CTools::CloseAndInvalidateHandle( h_semaphore2 );
-			sem_close( h_semaphore );
-			if ( !m_open_existing )
-				sem_unlink( m_name.c_str( ) );
+			//if ( !m_open_existing )
+			//	sem_unlink( m_name.c_str( ) );
 			// +-TODO(alex): via iface `CTools::CopyHandle(other);`
 			h_semaphore2 = CTools::CopyHandle( other.h_semaphore2 );
-			h_semaphore = sem_open( other.m_name.c_str( ), O_RDWR );
 			m_name = ( other.m_name );
 			m_open_existing = ( other.m_open_existing );
 			m_creator_tid = ( other.m_creator_tid );
@@ -87,35 +84,35 @@ public:
 	}
 
 	~CSystemWideMutex() {
-		if ( h_semaphore == SEM_FAILED )
-			return;
+		//if ( h _semaphore == SEM_FAILED )
+		//	return;
 		detail::g_threadExiter.set( nullptr );
-		// +-TODO(alex): via iface `CTools::CloseAndInvalidateHandle(h_semaphore);`
-		sem_close( h_semaphore ), h_semaphore = SEM_FAILED;
+		// +-TODO(alex): via iface `CTools::CloseAndInvalidateHandle();`
 		CTools::CloseAndInvalidateHandle( h_semaphore2 );
 		if ( !m_open_existing )
 			sem_unlink( m_name.c_str( ) );
 	}
 
 	bool IsError() const {
-		return h_semaphore == SEM_FAILED;
+		return h_semaphore2.operator bool( );
 	}
 							
 	// returns true if we've got ownership, so Unlock() must be called when ownership is no longer needed
 	// it is safe to call Unlock() without corresp. Lock() returned true
 	bool Lock(unsigned timeout_milli)  {
-		if ( h_semaphore == SEM_FAILED )
+		//if ( h _semaphore == SEM_FAILED )
+		if ( !h_semaphore2 )
 			return false;
 
 		// implement recursive mutex, prolog
 		int sval1;
-		if ( -1 == sem_getvalue( h_semaphore, &sval1 ) )
+		if ( -1 == sem_getvalue( h_semaphore2, &sval1 ) )
 			return false;
 		const std::thread::id current_tid = std::this_thread::get_id( );
 		if ( current_tid == m_creator_tid ) 
 			if ( !sval1 ) 
 				if ( m_creator_tid == m_owner_tid || m_empty_tid == m_owner_tid )
-					sem_post( h_semaphore );
+					sem_post( h_semaphore2 );
 
 		timespec abstime = CTools::MilliToAbsoluteTimespec( timeout_milli );
 		// Limitation of `sem_timedwait()` or get 'EINVAL' error. ?`set_normalized_timespec()`
@@ -124,13 +121,13 @@ public:
 			abstime.tv_nsec = limit - 1;
 
 		bool interupt, success = false; do {
-			success = ( !sem_timedwait( h_semaphore, &abstime ) );
+			success = ( !sem_timedwait( h_semaphore2, &abstime ) );
 			interupt = ( !success && errno == EINTR );
 		} while ( interupt ); // If user will use signal handler
 
 		// implement recursive mutex, epilog
 		int sval2;
-		if ( -1 == sem_getvalue( h_semaphore, &sval2 ) )
+		if ( -1 == sem_getvalue( h_semaphore2, &sval2 ) )
 			return false;
 		if ( success && !sval2 ) {
 			m_owner_tid = current_tid;
@@ -152,13 +149,14 @@ public:
 							
 	// it is safe to call Unlock() without corresp. Lock() returned true
 	void Unlock() {
-		if ( h_semaphore == SEM_FAILED )
+		//if ( h _semaphore == SEM_FAILED )
+		if ( !h_semaphore2 )
 			return;
 		int sval;
-		if ( -1 == sem_getvalue( h_semaphore, &sval ) )
+		if ( -1 == sem_getvalue( h_semaphore2, &sval ) )
 			return;
 		if ( !sval )
-			sem_post( h_semaphore );
+			sem_post( h_semaphore2 );
 	}
 
 };
