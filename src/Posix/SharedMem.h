@@ -5,11 +5,13 @@ class CSharedMem {
     void *m_buff;
 	const std::string m_name;
 	unsigned m_size;
+	bool m_open_existing;
 
     CSharedMem(const char *_name, bool *_p_already_exists, bool open_existing, unsigned size) : 
 		m_buff( MAP_FAILED )
 		, m_name( std::string("/") + _name )
 		, m_size( size )
+		, m_open_existing( open_existing )
     {
 		const mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 		bool is_exists = false;
@@ -19,19 +21,19 @@ class CSharedMem {
 			if ( -1 == fd ) {
 				if ( ( is_exists = ( EEXIST == errno ) ) )
 					if ( -1 == ( fd = shm_open( m_name.c_str( ), O_RDWR, 0 ) ) )
-						return; // perror( )
+						return;
 			} else {
 				if ( -1 == ftruncate( fd, m_size ) ) 
-					return; // perror( )
+					return;
 			}
 		} else {
 			fd = shm_open( m_name.c_str( ), O_RDWR, 0 );
 			if ( -1 == fd ) 
-				return; // perror( )
+				return;
 			// To known size
 			struct stat buf = { };
 			if ( -1 == fstat( fd, &buf ) ) 
-				return; // perror( )
+				return;
 			m_size = buf.st_size;
 		}
 
@@ -42,8 +44,11 @@ class CSharedMem {
     }
 
     ~CSharedMem() {
-		if ( m_buff ) 
-			munmap( m_buff, m_size ), m_buff = nullptr, shm_unlink( m_name.c_str( ) );
+		if ( m_buff ) {
+			munmap( m_buff, m_size ), m_buff = nullptr;
+			if ( !m_open_existing )
+				shm_unlink( m_name.c_str( ) );
+		}
     }
 
 public:

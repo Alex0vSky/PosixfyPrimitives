@@ -74,7 +74,6 @@ TEST(SystemWideMutex_locks, invalid_object) {
 	EXPECT_FALSE( systemWideMutex2.Lock( 0 ) );
 }
 
-
 TEST(SystemWideMutex_locks, common_environment_immediately_recursive) {
 	CSystemWideMutex systemWideMutex1( g_name );
 	CSystemWideMutex systemWideMutex2( g_name );

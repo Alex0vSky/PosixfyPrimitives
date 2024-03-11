@@ -1,11 +1,11 @@
 ﻿// src/Posix/Process.h - process facility
 #pragma once // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
-namespace Ipc { class CProcess {
+namespace Ipc { 
+class CProcess {
 public:
 	typedef unsigned process_id_t;
 
 private:
-	// child_pid
 	pid_t h_process;
 	process_id_t m_id_process;
 	mutable int m_err;
@@ -20,7 +20,7 @@ public:
 	{
 		return new CProcess(cmdline,cwd);
 	}
-	static CProcess* Open(process_id_t pid,bool terminate_access_needed) {
+	static CProcess* Open(process_id_t pid,bool) {
 		return new CProcess( pid );
 	}
 
@@ -49,25 +49,15 @@ public:
 		auto next_clock = now( ) + std::chrono::milliseconds{ wait_milli };
 		do {
 			int status = 0;
-			// Wait for child process, this should clean up defunct processes
-			if ( -1 == waitpid( h_process, &status, WNOHANG ) ) {
-				// TODO(alex): just to known
-				perror( "waitpid IsProcessActive" );
-			}
-			// save exit code, can wait for a process only once
+			waitpid( h_process, &status, WNOHANG );
 			if ( WIFEXITED( status ) ) {
 				m_reaped_exit_code = true;
 				m_err = WEXITSTATUS( status );
 			}
-
-			// kill failed let's see why..
 			if ( kill( h_process, 0 ) == -1 ) {
-				// First of all kill may fail with EPERM if we run as a different user and we have no access, 
-				// so let's make sure the errno is ESRCH (Process not found!)
 				if ( errno == ESRCH )
 					return false;
 			}
-			// If kill didn't fail the process is still running
 			std::this_thread::yield( );
 		} while ( now( ) < next_clock );
 		return true;
@@ -80,12 +70,8 @@ public:
 
 		if ( c_invalid == h_process )
 			return false;
-		int status;
-		if ( -1 == waitpid( h_process, &status, WNOHANG | WUNTRACED | WCONTINUED ) ) {
-			// TODO(alex): just to known
-			perror( "waitpid GetExitCode" );
-		}
-		printf( "WIFEXITED( status ): %s\n", ( WIFEXITED( status ) ?"true" :"false" ) );
+		int status = 0;
+		waitpid( h_process, &status, WNOHANG );
 		if ( !WIFEXITED( status ) )
 			return false;
 		_ec = m_err = WEXITSTATUS( status );
@@ -145,8 +131,6 @@ private:
 		if ( posix_spawnp( &h_process, argv[ 0 ], &action, nullptr, argv, environ ) ) {
 			h_process = c_invalid;
 			m_err = errno;
-			// TODO(alex): just to known
-			perror( "posix_spawnp" );
 			return;
 		}
 		m_id_process = h_process;

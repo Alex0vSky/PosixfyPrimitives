@@ -1,7 +1,6 @@
 ﻿// src/Posix/SystemWideMutex.h - ipc mutex facility
 #pragma once // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
 namespace Ipc {
-
 namespace detail { 
 thread_local class ThreadExiter_tls {
 	std::function<void()> m_exit_func;
