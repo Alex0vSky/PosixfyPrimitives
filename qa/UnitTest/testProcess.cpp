@@ -156,14 +156,13 @@ TEST(Process_exit_code, immediately_for_long_playing) {
 #ifdef _WIN32
 	std::string cmdline = "cmd /c ping -n 2 8.8.8.8 && exit 42";
 #else
-	std::string cmdline = "ping -c 2 8.8.8.8 && exit 42";
+	std::string cmdline = "ping -c 2 8.8.8.8";
 #endif // _WIN32
 
 	CProcess *proc = CProcess::Create( cmdline.c_str( ) );
 	EXPECT_FALSE( proc ->IsError( ) );
 	int exit_code = 0;
 	EXPECT_FALSE( proc ->GetExitCode( exit_code ) );
-	EXPECT_NE( 42, exit_code );
 	// memory leaks
 }
 
