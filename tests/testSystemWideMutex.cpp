@@ -12,7 +12,7 @@ constexpr auto now = std::chrono::high_resolution_clock::now;
 
 //*
 namespace testSystemWideMutex_ { 
-/*
+
 TEST(SystemWideMutex_create, already_exists) {
 	bool already_exists;
 	char name[] = "some_name";
@@ -205,9 +205,9 @@ TEST(SystemWideMutex_unlocks, break_LockInfinite) {
 TEST(SystemWideMutex_tricks, dry_unlock) {
 	CSystemWideMutex systemWideMutex( g_name );
 	systemWideMutex.Unlock( );
-#ifdef WIN32
+#ifdef _WIN32
 	EXPECT_EQ( ERROR_NOT_OWNER, GetLastError( ) );
-#endif // WIN32
+#endif // _WIN32
 	EXPECT_TRUE( systemWideMutex.Lock( 0 ) );
 }
 
@@ -218,8 +218,8 @@ TEST(SystemWideMutex_tricks, multi_lock_single_unlock) {
 	systemWideMutex.Unlock( );
 	EXPECT_TRUE( systemWideMutex.Lock( 0 ) );
 }
-//*/
 
+#ifdef _WIN32
 TEST(SystemWideMutex_tricks, lock_after_dtor) {
 	auto systemWideMutex1 = std::make_unique< CSystemWideMutex >( g_name );
 	//CSystemWideMutex systemWideMutex2( g_name2 );
@@ -261,8 +261,8 @@ TEST(SystemWideMutex_tricks, lock_after_dtor) {
 	// unlocked after thread end
 	EXPECT_TRUE( systemWideMutex2.Lock( 0 ) );
 }
+#endif // _WIN32
 
-/*
 TEST(SystemWideMutex_copy_ctor, separate_environment) {
 	auto systemWideMutex1 = std::make_unique< CSystemWideMutex >( g_name );
 	CSystemWideMutex systemWideMutex2( *systemWideMutex1 );
@@ -357,6 +357,6 @@ TEST(SystemWideMutex_bug_in_my_posix_impl, owner_unlock_on_thread_end) {
 	stop = true;
 	thread.join( );
 }
-//*/
+
 } // namespace testSystemWideMutex_ 
 //*/

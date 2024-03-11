@@ -7,7 +7,7 @@
 #endif
 using CEvent = Intraprocess::CEvent;
 
-/*
+//*
 namespace testEvent_ { 
 
 class set_and_check : public ::testing::TestWithParam< std::tuple< bool, bool > > {};
