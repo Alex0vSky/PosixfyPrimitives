@@ -1,5 +1,8 @@
 ﻿// stdafx.h - pch
 
+#pragma warning( push )
+#pragma warning( disable: 4389 )
+
 #ifdef __clang__
 #	pragma clang diagnostic push
 #	pragma clang diagnostic ignored "-Wmicrosoft-include"
@@ -14,9 +17,6 @@
 #ifdef __clang__
 #	pragma clang diagnostic pop
 #endif // __clang__
-
-#pragma warning( push )
-//#pragma warning( disable: 5039 )
 
 // System
 #ifdef _WIN32
