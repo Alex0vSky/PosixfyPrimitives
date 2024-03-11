@@ -79,19 +79,15 @@ class CEvent {
 	bool is_manual_reset_;
 	bool initial_state_;
 	// Is `mutable` to keep methods signatures
-	mutable bool signaled_;
 	mutable EventHandle h_event;
 	mutable detail::MutexEvent mutex_;
 
 	detail::ControlBlock::controlBlock_t m_controlBlock;
-	bool *x;
 
 public:
 	CEvent(bool is_manual_reset, bool initial_state) :
 		is_manual_reset_( is_manual_reset )
 		, initial_state_( initial_state )
-		, signaled_( false )
-		, x( &signaled_ )
 		, m_controlBlock( detail::ControlBlock::create( initial_state ) )
 	{
 		if ( initial_state_ )
@@ -100,8 +96,6 @@ public:
 	CEvent(const CEvent& other) :
 		is_manual_reset_( other.is_manual_reset_ )
 		, initial_state_( other.initial_state_ )
-		, signaled_( other.signaled_ )
-		, x( other.x )
 		, m_controlBlock( other.m_controlBlock )
 		, h_event( CTools::CopyHandle( other.h_event ) )
 	{}
@@ -110,8 +104,6 @@ public:
 		if ( this != &other ) {
 			is_manual_reset_ = ( other.is_manual_reset_ );
 			initial_state_ = ( other.initial_state_ );
-			signaled_ = ( other.signaled_ );
-			x = ( other.x );
 			m_controlBlock = ( other.m_controlBlock );
 			CTools::CloseAndInvalidateHandle( h_event );
 			h_event = CTools::CopyHandle( other.h_event );
@@ -123,12 +115,7 @@ public:
 	}
 	void Set() {
 		if ( !h_event ) return;
-		{
-			auto scoped_guard = mutex_.scoped_guard( );
-			signaled_ = true;
-			if ( &signaled_ != x )
-				*x = true;
-		}
+		m_controlBlock ->set( );
 		if ( is_manual_reset_ )
 			::pthread_cond_broadcast( h_event );
 		else
@@ -136,12 +123,7 @@ public:
 	}
 	void Reset() {
 		if ( !h_event ) return;
-		{
-			auto scoped_guard = mutex_.scoped_guard( );
-			signaled_ = false;
-			if ( &signaled_ != x )
-				*x = false;
-		}
+		m_controlBlock ->reset( );
 	}
 	bool Wait(unsigned timeout_milli=0) const {
 		if ( !h_event ) return false;
@@ -153,17 +135,14 @@ public:
 		{
 			auto scoped_guard = mutex_.scoped_guard( );
 			// Spurious wakeups
-			while ( !*x ) {
+			while ( ! m_controlBlock ->isSet( ) ) {
 				timedwait = pthread_cond_timedwait( h_event, mutex_, &abstime );
 				if ( ETIMEDOUT == timedwait )
 					break;
 			}
 		}
 		if ( 0 == timedwait && !is_manual_reset_ ) {
-			auto scoped_guard = mutex_.scoped_guard( );
-			signaled_ = false;
-			if ( &signaled_ != x )
-				*x = false;
+			m_controlBlock ->reset( );
 		}
 		return ( 0 == timedwait );
 	}
