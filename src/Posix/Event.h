@@ -19,6 +19,7 @@ class MutexEvent {
 	};
 
 public:
+    MutexEvent(MutexEvent const&) = delete; void operator=(MutexEvent const&) = delete;
 	MutexEvent() {
 		pthread_mutex_init( &mutex_, nullptr );
 	}
@@ -47,7 +48,6 @@ class CEvent {
 	mutable bool signaled_;
 	mutable EventHandle h_event;
 	mutable detail::MutexEvent mutex_;
-
 	class ControlBlock;
 
 public:
@@ -56,16 +56,16 @@ public:
 private:
 	class ControlBlock {
 		struct Private{};
-		mutable detail::MutexEvent m_mutex;
+		detail::MutexEvent m_mutex;
 		// or std::atomic_bool without mutex, must faster
 		bool m_value;
 
 	public:
-		explicit ControlBlock(Private) : 
-			m_value( false ) 
+		ControlBlock(Private, bool initial_state) : 
+			m_value( initial_state ) 
 		{}
-		static controlBlock_t create() {
-			return std::make_shared< ControlBlock >( Private() );
+		static controlBlock_t create(bool initial_state = false) {
+			return std::make_shared< ControlBlock >( Private(), initial_state );
 		}
 		void set() {
 			m_mutex.scoped_guard( );
@@ -85,7 +85,7 @@ public:
 		, initial_state_( initial_state )
 		, signaled_( false )
 		, x( &signaled_ )
-		, m_controlBlock( ControlBlock::create( ) )
+		, m_controlBlock( ControlBlock::create( initial_state ) )
 	{
 		if ( initial_state_ )
 			Set( );
@@ -95,6 +95,7 @@ public:
 		, initial_state_( other.initial_state_ )
 		, signaled_( other.signaled_ )
 		, x( other.x )
+		, m_controlBlock( other.m_controlBlock )
 		, h_event( CTools::CopyHandle( other.h_event ) )
 	{}
 
@@ -104,6 +105,7 @@ public:
 			initial_state_ = ( other.initial_state_ );
 			signaled_ = ( other.signaled_ );
 			x = ( other.x );
+			m_controlBlock = ( other.m_controlBlock );
 			CTools::CloseAndInvalidateHandle( h_event );
 			h_event = CTools::CopyHandle( other.h_event );
 		}
