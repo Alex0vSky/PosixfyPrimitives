@@ -11,8 +11,14 @@
 // for `strnlen_s()`
 #define __STDC_WANT_LIB_EXT1__ 1
 
+#ifdef _WIN32
+// Got from NuGet
+#include "gtest/gtest.h"
+#include "gmock/gmock.h"
+#else // _WIN32
 #include "include/gtest/gtest.h"
 #include "include/gmock/gmock.h"
+#endif // _WIN32
 
 #ifdef __clang__
 #	pragma clang diagnostic pop

@@ -19,9 +19,6 @@
     <Filter Include="Header Files\_boostConfig">
       <UniqueIdentifier>{196e9a70-3d73-4962-bb61-d9497c45f67e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\_gtest_gmock">
-      <UniqueIdentifier>{f8cec1ec-cf30-4abd-a4d1-b6b17e7ed875}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\primitives">
       <UniqueIdentifier>{3614ce01-96d5-4523-a863-c2c19190d31f}</UniqueIdentifier>
     </Filter>
@@ -34,6 +31,9 @@
     <Filter Include="Source Files\primitives\Posix">
       <UniqueIdentifier>{bee6698c-4e9a-46b1-880d-78648ad72558}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\_gmock">
+      <UniqueIdentifier>{007b6ffb-bc92-4585-ada7-025c6056dd55}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -41,12 +41,6 @@
     </ClCompile>
     <ClCompile Include="..\PosixfyPrimitives.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\_L\googletest\googletest\src\gtest-all.cc">
-      <Filter>Source Files\_gtest_gmock</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\_L\googletest\googlemock\src\gmock-all.cc">
-      <Filter>Source Files\_gtest_gmock</Filter>
     </ClCompile>
     <ClCompile Include="..\tests\testEvent.cpp">
       <Filter>Source Files\tests</Filter>
@@ -64,9 +58,6 @@
   <ItemGroup>
     <ClInclude Include="stdafx.h">
       <Filter>_pch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Log.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\_L\boost\config\user.hpp">
       <Filter>Header Files\_boostConfig</Filter>
@@ -101,5 +92,14 @@
     <ClInclude Include="..\src\Private.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\_NuGetPackages\gmock.1.11.0\lib\native\include\gtest\gtest.h">
+      <Filter>Header Files\_gmock</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\_NuGetPackages\gmock.1.11.0\lib\native\include\gmock\gmock.h">
+      <Filter>Header Files\_gmock</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

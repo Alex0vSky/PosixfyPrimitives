@@ -95,7 +95,7 @@
     <ClCompile>
       <PreprocessorDefinitions>A0S_INDEVELOP;WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalIncludeDirectories>..\_msvcStuff;..\src;C:\Prj\_L\googletest\googlemock;C:\Prj\_L\googletest\googlemock\include;C:\Prj\_L\googletest\googletest;C:\Prj\_L\googletest\googletest\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\_msvcStuff;..\src;</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <SupportJustMyCode>false</SupportJustMyCode>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -162,25 +162,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\_L\googletest\googlemock\src\gmock-all.cc" />
-    <ClCompile Include="..\..\..\_L\googletest\googletest\src\gtest-all.cc" />
     <ClCompile Include="..\PosixfyPrimitives.cpp" />
+    <ClInclude Include="..\..\..\_NuGetPackages\gmock.1.11.0\lib\native\include\gmock\gmock.h" />
+    <ClInclude Include="..\..\..\_NuGetPackages\gmock.1.11.0\lib\native\include\gtest\gtest.h" />
     <ClInclude Include="..\src\Posix\Event.h" />
     <ClInclude Include="..\src\Posix\Process.h" />
     <ClInclude Include="..\src\Posix\SharedMem.h" />
     <ClInclude Include="..\src\Posix\SystemWideMutex.h" />
     <ClInclude Include="..\src\Private.h" />
     <ClInclude Include="..\src\Windows\Event.h" />
-    <ClCompile Include="..\tests\testEvent.cpp" />
+    <ClCompile Include="..\tests\testEvent.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\tests\testProcess.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\tests\testSharedMem.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="..\tests\testSystemWideMutex.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="..\tests\testSystemWideMutex.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="true">Create</PrecompiledHeader>
     </ClCompile>
@@ -188,13 +188,22 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\_L\boost\config\user.hpp" />
     <ClInclude Include="..\src\CTools.h" />
-    <ClInclude Include="..\src\Log.h" />
     <ClInclude Include="..\src\Windows\Process.h" />
     <ClInclude Include="..\src\Windows\SharedMem.h" />
     <ClInclude Include="..\src\Windows\SystemWideMutex.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\..\..\_NuGetPackages\gmock.1.11.0\build\native\gmock.targets" Condition="Exists('..\..\..\_NuGetPackages\gmock.1.11.0\build\native\gmock.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\..\_NuGetPackages\gmock.1.11.0\build\native\gmock.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\_NuGetPackages\gmock.1.11.0\build\native\gmock.targets'))" />
+  </Target>
 </Project>
