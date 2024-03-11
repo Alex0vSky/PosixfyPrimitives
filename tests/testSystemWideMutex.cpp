@@ -23,7 +23,7 @@ TEST(SystemWideMutex_create, already_exists) {
 	EXPECT_FALSE( systemWideMutex2.IsError( ) );
 }
 
-/*
+//*
 TEST(SystemWideMutex_create, ordinary) {
 	CSystemWideMutex systemWideMutex( g_name );
 	EXPECT_FALSE( systemWideMutex.IsError( ) );
