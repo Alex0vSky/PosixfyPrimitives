@@ -182,10 +182,8 @@ TEST(SystemWideMutex_unlocks, break_LockInfinite) {
 	std::atomic_bool started, stoped;
 	started = stoped = false;
 	std::thread thread([&started, &stoped, &systemWideMutex] {
-			printf( "started = true\n" );
 			started = true;
 			EXPECT_TRUE( systemWideMutex.LockInfinite( ) );
-			printf( "stoped = true\n" );
 			stoped = true;
 		});
 	while ( !started )
@@ -211,6 +209,14 @@ TEST(SystemWideMutex_tricks, dry_unlock) {
 #ifdef WIN32
 	EXPECT_EQ( ERROR_NOT_OWNER, GetLastError( ) );
 #endif // WIN32
+	EXPECT_TRUE( systemWideMutex.Lock( 0 ) );
+}
+
+TEST(SystemWideMutex_tricks, single_unlock) {
+	CSystemWideMutex systemWideMutex( g_name );
+	EXPECT_TRUE( systemWideMutex.Lock( 0 ) );
+	EXPECT_TRUE( systemWideMutex.Lock( 0 ) );
+	systemWideMutex.Unlock( );
 	EXPECT_TRUE( systemWideMutex.Lock( 0 ) );
 }
 
