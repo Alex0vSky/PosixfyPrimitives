@@ -1,10 +1,10 @@
 ﻿// PosixfyPrimitives.cpp - entry point // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
 
 int main(int argc, char **argv) {
-#if ( defined( _DEBUG ) ) & ( defined( _WIN32 ) )
+#if ( defined( _DEBUG ) ) && ( defined( _WIN32 ) )
     HeapSetInformation( NULL, HeapEnableTerminationOnCorruption, NULL, NULL );
 	_CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
-	//_CrtSetBreakAlloc( 161 );
+	//_CrtSetBreakAlloc( Xxx );
 #	ifdef new
 #		error `new` has been redefined
 #	endif
