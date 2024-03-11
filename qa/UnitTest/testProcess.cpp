@@ -161,8 +161,9 @@ TEST(Process_exit_code, immediately_for_long_playing) {
 
 	CProcess *proc = CProcess::Create( cmdline.c_str( ) );
 	EXPECT_FALSE( proc ->IsError( ) );
-	int exit_code;
+	int exit_code = 0;
 	EXPECT_FALSE( proc ->GetExitCode( exit_code ) );
+	EXPECT_NE( 42, exit_code );
 	// memory leaks
 }
 
