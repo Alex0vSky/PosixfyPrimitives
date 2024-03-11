@@ -2,7 +2,6 @@
 // @insp SO/linux-posix-equivalent-for-win32s-createevent-setevent-waitforsingleobject
 #pragma once // Copyright 2024 Alex0vSky (https://github.com/Alex0vSky)
 namespace Intraprocess {
-
 namespace detail {
 class MutexEvent {
 	pthread_mutex_t m_mutex;
@@ -76,34 +75,26 @@ public:
 	}
 };
 } // namespace detail
-
 class CEvent {
-	bool is_manual_reset_;
-	bool initial_state_;
+	bool m_manual_reset;
 	// Is `mutable` to keep methods signatures
 	mutable EventHandle h_event;
 	mutable detail::ControlBlock::controlBlock_t m_controlBlock;
 
 public:
 	CEvent(bool is_manual_reset, bool initial_state) :
-		is_manual_reset_( is_manual_reset )
-		, initial_state_( initial_state )
+		m_manual_reset( is_manual_reset )
 		, m_controlBlock( detail::ControlBlock::create( initial_state ) )
-	{
-		if ( initial_state_ )
-			Set( );
-	}
+	{}
 	CEvent(const CEvent& other) :
-		is_manual_reset_( other.is_manual_reset_ )
-		, initial_state_( other.initial_state_ )
+		m_manual_reset( other.m_manual_reset )
 		, m_controlBlock( other.m_controlBlock )
 		, h_event( CTools::CopyHandle( other.h_event ) )
 	{}
 
 	const CEvent& operator = (const CEvent& other) {
 		if ( this != &other ) {
-			is_manual_reset_ = ( other.is_manual_reset_ );
-			initial_state_ = ( other.initial_state_ );
+			m_manual_reset = ( other.m_manual_reset );
 			m_controlBlock = ( other.m_controlBlock );
 			CTools::CloseAndInvalidateHandle( h_event );
 			h_event = CTools::CopyHandle( other.h_event );
@@ -116,7 +107,7 @@ public:
 	void Set() {
 		if ( !h_event ) return;
 		m_controlBlock ->set( );
-		if ( is_manual_reset_ )
+		if ( m_manual_reset )
 			::pthread_cond_broadcast( h_event );
 		else
 			::pthread_cond_signal( h_event );
@@ -130,7 +121,6 @@ public:
 
 		timespec abstime = CTools::MilliToAbsoluteTimespec( timeout_milli );
 
-		// Success if not enter to waiting
 		int timedwait = 0;
 		// Spurious wakeups
 		while ( !m_controlBlock ->is_set( ) ) {
@@ -139,7 +129,7 @@ public:
 			if ( ETIMEDOUT == timedwait )
 				break;
 		}
-		if ( 0 == timedwait && !is_manual_reset_ ) 
+		if ( 0 == timedwait && !m_manual_reset ) 
 			m_controlBlock ->reset( );
 
 		return ( 0 == timedwait );
@@ -151,5 +141,4 @@ public:
 		return Wait( 0 );
 	}
 };
-
 } // namespace Intraprocess
