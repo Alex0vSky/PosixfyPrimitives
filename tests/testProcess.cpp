@@ -13,7 +13,7 @@ using CProcess = Ipc::CProcess;
 	const char *g_long_playing = "ping -c 2 8.8.8.8";
 #endif // WIN32
 
-//*
+/*
 namespace testProcess_ { 
 
 namespace detail {

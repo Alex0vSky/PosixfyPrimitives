@@ -20,20 +20,17 @@ public:
 } // namespace detail
 
 class CSystemWideMutex {
-	sem_t *h_semaphore;
 	std::string m_name;
 	WideMutexHandle h_semaphore2;
 	bool m_open_existing;
 	std::thread::id m_creator_tid;
-
 	std::thread::id m_owner_tid;
 	// for tidy compare
 	const std::thread::id m_empty_tid;
 
 public:
 	CSystemWideMutex(const char *name,bool *p_already_exists=NULL,bool open_existing=false) :
-		h_semaphore( SEM_FAILED )
-		, m_name( std::string( "\\" ) + name )
+		m_name( std::string( "\\" ) + name )
 		, h_semaphore2( m_name )
 		, m_open_existing( open_existing )
 		, m_creator_tid( std::this_thread::get_id( ) )
@@ -44,7 +41,7 @@ public:
 		// allow single lock after creation
 		int value = 1;
 
-		h_semaphore = sem_open( m_name.c_str( ), O_RDWR );
+		sem_t *h_semaphore = sem_open( m_name.c_str( ), O_RDWR );
 		if ( SEM_FAILED == h_semaphore ) {
 			h_semaphore = sem_open( m_name.c_str( ), O_CREAT | O_EXCL, mode, value );
 		} else {
@@ -94,7 +91,7 @@ public:
 	}
 
 	bool IsError() const {
-		return h_semaphore2.operator bool( );
+		return !h_semaphore2;
 	}
 							
 	// returns true if we've got ownership, so Unlock() must be called when ownership is no longer needed

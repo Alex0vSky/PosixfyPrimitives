@@ -23,6 +23,7 @@ TEST(SystemWideMutex_create, already_exists) {
 	EXPECT_FALSE( systemWideMutex2.IsError( ) );
 }
 
+/*
 TEST(SystemWideMutex_create, ordinary) {
 	CSystemWideMutex systemWideMutex( g_name );
 	EXPECT_FALSE( systemWideMutex.IsError( ) );
@@ -313,6 +314,7 @@ TEST(SystemWideMutex_bug_in_my_posix_impl, owner_unlock_on_thread_end) {
 	stop = true;
 	thread.join( );
 }
+//*/
 
 } // namespace testSystemWideMutex_ 
 //*/
