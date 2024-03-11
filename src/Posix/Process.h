@@ -75,6 +75,7 @@ public:
 			return false;
 		if ( !WIFEXITED( status ) )
 			return false;
+		printf( "GetExitCode status: %d", status );
 		_ec = m_err = WEXITSTATUS( status );
 		return true;
 	}
