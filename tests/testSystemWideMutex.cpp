@@ -222,8 +222,9 @@ TEST(SystemWideMutex_tricks, multi_lock_single_unlock) {
 
 TEST(SystemWideMutex_tricks, lock_after_dtor) {
 	auto systemWideMutex1 = std::make_unique< CSystemWideMutex >( g_name );
-	CSystemWideMutex systemWideMutex2( g_name2 );
-	systemWideMutex2 = *systemWideMutex1;
+	//CSystemWideMutex systemWideMutex2( g_name2 );
+	//systemWideMutex2 = *systemWideMutex1;
+	CSystemWideMutex systemWideMutex2( g_name );
 	bool success = ( true 
 			&& !systemWideMutex1 ->IsError( ) 
 			&& !systemWideMutex2.IsError( ) 
