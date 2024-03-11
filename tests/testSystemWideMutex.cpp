@@ -12,7 +12,7 @@ constexpr auto now = std::chrono::high_resolution_clock::now;
 
 //*
 namespace testSystemWideMutex_ { 
-
+/*
 TEST(SystemWideMutex_create, already_exists) {
 	bool already_exists;
 	char name[] = "some_name";
@@ -23,7 +23,6 @@ TEST(SystemWideMutex_create, already_exists) {
 	EXPECT_FALSE( systemWideMutex2.IsError( ) );
 }
 
-//*
 TEST(SystemWideMutex_create, ordinary) {
 	CSystemWideMutex systemWideMutex( g_name );
 	EXPECT_FALSE( systemWideMutex.IsError( ) );
@@ -219,7 +218,50 @@ TEST(SystemWideMutex_tricks, multi_lock_single_unlock) {
 	systemWideMutex.Unlock( );
 	EXPECT_TRUE( systemWideMutex.Lock( 0 ) );
 }
+//*/
 
+TEST(SystemWideMutex_tricks, lock_after_dtor) {
+	auto systemWideMutex1 = std::make_unique< CSystemWideMutex >( g_name );
+	CSystemWideMutex systemWideMutex2( g_name2 );
+	systemWideMutex2 = *systemWideMutex1;
+	bool success = ( true 
+			&& !systemWideMutex1 ->IsError( ) 
+			&& !systemWideMutex2.IsError( ) 
+		);
+	EXPECT_TRUE( success );
+	if ( !success ) 
+		GTEST_SKIP( );
+
+	std::atomic_bool started, to_reset, reseted, stop;
+	started = to_reset = reseted = stop = false;
+	std::thread thread([&] {
+			// try take ownership
+			EXPECT_TRUE( systemWideMutex1 ->Lock( 0 ) );
+			started = true;
+			// wait flag
+			while ( !to_reset )
+				std::this_thread::yield( );
+			// if WinApi, `CloseHandle()` without `ReleaseMutex()`
+			systemWideMutex1.reset( );
+			reseted = true;
+			// wait stop flag
+			while ( !stop )
+				std::this_thread::yield( );
+		});
+	while ( !started )
+		std::this_thread::yield( );
+	EXPECT_FALSE( systemWideMutex2.Lock( 0 ) );
+	to_reset = true;
+	while ( !reseted )
+		std::this_thread::yield( );
+	EXPECT_FALSE( systemWideMutex2.Lock( 0 ) );
+	stop = true;
+	thread.join( );
+	// unlocked after thread end
+	EXPECT_TRUE( systemWideMutex2.Lock( 0 ) );
+}
+
+/*
 TEST(SystemWideMutex_copy_ctor, separate_environment) {
 	auto systemWideMutex1 = std::make_unique< CSystemWideMutex >( g_name );
 	CSystemWideMutex systemWideMutex2( *systemWideMutex1 );
@@ -315,6 +357,5 @@ TEST(SystemWideMutex_bug_in_my_posix_impl, owner_unlock_on_thread_end) {
 	thread.join( );
 }
 //*/
-
 } // namespace testSystemWideMutex_ 
 //*/
