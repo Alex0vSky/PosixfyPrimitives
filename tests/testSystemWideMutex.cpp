@@ -10,7 +10,7 @@ static char g_name[] = "my_lucky_unique_name_for_SystemWideMutex";
 static char g_name2[] = "my_lucky_unique_name_for_SystemWideMutex2";
 constexpr auto now = std::chrono::high_resolution_clock::now;
 
-/*
+//*
 namespace testSystemWideMutex_ { 
 
 TEST(SystemWideMutex_create, already_exists) {

@@ -9,6 +9,7 @@ using CEvent = Intraprocess::CEvent;
 
 //*
 namespace testEvent_ { 
+
 class set_and_check : public ::testing::TestWithParam< std::tuple< bool, bool > > {};
 TEST_P(set_and_check,) {
 	CEvent event( std::get<0>( GetParam( ) ), std::get<1>( GetParam( ) ) );
