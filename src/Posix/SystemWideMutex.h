@@ -104,6 +104,7 @@ public:
 	~CSystemWideMutex() {
 		if ( h_semaphore == SEM_FAILED )
 			return;
+		detail::g_threadExiter.set( nullptr );
 		// TODO(alex): via iface `CTools::CloseAndInvalidateHandle(h_semaphore);`
 		sem_close( h_semaphore ), h_semaphore = SEM_FAILED;
 		if ( !m_open_existing )

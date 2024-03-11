@@ -282,7 +282,7 @@ TEST(SystemWideMutex_assignment, separate_environment) {
 }
 //*/
 
-TEST(SystemWideMutex_bug, x) {
+TEST(SystemWideMutex_bug_in_my_posix_impl, owner_unlock_on_thread_end) {
 	auto systemWideMutex1 = std::make_unique< CSystemWideMutex >( g_name );
 	CSystemWideMutex systemWideMutex2( g_name2 );
 	systemWideMutex2 = *systemWideMutex1;
