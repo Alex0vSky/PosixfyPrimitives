@@ -68,7 +68,8 @@ public:
 
 class WideMutexHandle {
 	bool m_valid;
-	const std::string m_name;
+	//const std::string m_name;
+	std::string m_name;
 	sem_t *m_handle;
 
 public:
@@ -82,7 +83,18 @@ public:
 		m_valid( rhs.m_valid ) 
 		, m_name( rhs.m_name ) 
 	{
-		m_handle = sem_open( rhs.get_name( ), O_RDWR );
+		m_handle = sem_open( m_name.c_str( ), O_RDWR );
+	}
+	WideMutexHandle & operator=(WideMutexHandle const& rhs) = default;
+	//WideMutexHandle & operator=(WideMutexHandle const& rhs) {
+	//	m_valid = ( rhs.m_valid )
+	//	, m_name = ( rhs.m_name ) 
+	//	;
+	//}
+	// TODO(alex): ugly
+	void operator=(sem_t *semaphore) {
+		m_valid = ( semaphore != SEM_FAILED );
+		m_handle = ( semaphore );
 	}
 	void CloseAndInvalidateHandle() {
 		if ( !m_valid )
@@ -128,11 +140,12 @@ public:
 		return input;
 	}
 	static WideMutexHandle CopyHandle(WideMutexHandle input) {
-		WideMutexHandle output( input );
-		return output;
+		return WideMutexHandle( input );
 	}
-	//static void CloseAndInvalidateHandle(pthread_cond_t &handle) {
 	static void CloseAndInvalidateHandle(EventHandle &handle) {
+		handle.CloseAndInvalidateHandle( );
+	}
+	static void CloseAndInvalidateHandle(WideMutexHandle &handle) {
 		handle.CloseAndInvalidateHandle( );
 	}
 	static timespec MilliToAbsoluteTimespec(unsigned milli=0) {

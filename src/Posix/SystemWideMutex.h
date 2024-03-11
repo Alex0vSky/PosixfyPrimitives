@@ -52,14 +52,15 @@ public:
 		}
 		if ( open_existing && !is_exists )
 			h_semaphore = SEM_FAILED;
-
+		h_semaphore2 = h_semaphore;
+		
 		if ( p_already_exists )
 			*p_already_exists = is_exists;
 	}
 
 	CSystemWideMutex(const CSystemWideMutex& other) :
 		h_semaphore( sem_open( other.m_name.c_str( ), O_RDWR ) )
-		// TODO(alex): via iface `CTools::CopyHandle(other);`
+		// +-TODO(alex): via iface `CTools::CopyHandle(other);`
 		, h_semaphore2( CTools::CopyHandle( other.h_semaphore2 ) )
 		, m_name( other.m_name )
 		, m_open_existing( other.m_open_existing )
@@ -69,11 +70,13 @@ public:
 
 	const CSystemWideMutex& operator= (const CSystemWideMutex& other) {
 		if ( this != &other ) {
-			// TODO(alex): via iface `CTools::CloseAndInvalidateHandle(h_semaphore);`
+			// +-TODO(alex): via iface `CTools::CloseAndInvalidateHandle(h_semaphore);`
+			CTools::CloseAndInvalidateHandle( h_semaphore2 );
 			sem_close( h_semaphore );
 			if ( !m_open_existing )
 				sem_unlink( m_name.c_str( ) );
-			// TODO(alex): via iface `CTools::CopyHandle(other);`
+			// +-TODO(alex): via iface `CTools::CopyHandle(other);`
+			h_semaphore2 = CTools::CopyHandle( other.h_semaphore2 );
 			h_semaphore = sem_open( other.m_name.c_str( ), O_RDWR );
 			m_name = ( other.m_name );
 			m_open_existing = ( other.m_open_existing );
@@ -87,8 +90,9 @@ public:
 		if ( h_semaphore == SEM_FAILED )
 			return;
 		detail::g_threadExiter.set( nullptr );
-		// TODO(alex): via iface `CTools::CloseAndInvalidateHandle(h_semaphore);`
+		// +-TODO(alex): via iface `CTools::CloseAndInvalidateHandle(h_semaphore);`
 		sem_close( h_semaphore ), h_semaphore = SEM_FAILED;
+		CTools::CloseAndInvalidateHandle( h_semaphore2 );
 		if ( !m_open_existing )
 			sem_unlink( m_name.c_str( ) );
 	}
