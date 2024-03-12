@@ -48,7 +48,7 @@ public:
 	bool IsProcessActive(unsigned wait_milli=0) const {
 		auto next_clock = now( ) + std::chrono::milliseconds{ wait_milli };
 		do {
-			int status = 0;
+			int status = -1;
 			waitpid( h_process, &status, WNOHANG );
 			if ( WIFEXITED( status ) ) {
 				m_reaped_exit_code = true;
