@@ -99,7 +99,7 @@ public:
 	}
 
 private:
-	CProcess(process_id_t pid)
+	CProcess(process_id_t pid) : 
 		h_process( pid )
 		, m_id_process( pid )
 		, m_err( -1 )
