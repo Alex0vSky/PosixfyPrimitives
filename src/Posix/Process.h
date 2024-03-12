@@ -70,6 +70,7 @@ public:
 
 	// @insp SO/get-exit-code-from-non-child-process-in-linux
 	bool GetExitCode(int& _ec) const {
+		printf( "GetExitCode m_reaped_exit_code: %d", m_reaped_exit_code ); // S
 		if ( m_reaped_exit_code )
 			return _ec = m_err, true;
 
