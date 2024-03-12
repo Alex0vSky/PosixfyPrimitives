@@ -51,11 +51,6 @@ public:
 			int status = 0;
 			waitpid( h_process, &status, WNOHANG );
 			if ( WIFEXITED( status ) ) {
-				static bool once = false;
-				if ( !once ) {
-					once = true;
-					printf( "IsProcessActive for m_reaped_exit_code status: %d\n", status ); // S
-				}
 				m_reaped_exit_code = true;
 				m_err = WEXITSTATUS( status );
 			}
@@ -70,18 +65,17 @@ public:
 
 	// @insp SO/get-exit-code-from-non-child-process-in-linux
 	bool GetExitCode(int& _ec) const {
-		printf( "GetExitCode m_reaped_exit_code: %d\n", m_reaped_exit_code ); // S
 		if ( m_reaped_exit_code )
 			return _ec = m_err, true;
 
 		if ( c_invalid == h_process )
 			return false;
+		// Can be unchanged
 		int status = -1;
 		if ( -1 == waitpid( h_process, &status, WNOHANG | WUNTRACED | WCONTINUED ) ) 
 			return false;
 		if ( !WIFEXITED( status ) )
 			return false;
-		printf( "GetExitCode status: %d\n", status ); // S
 		_ec = m_err = WEXITSTATUS( status );
 		return true;
 	}
