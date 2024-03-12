@@ -54,7 +54,7 @@ public:
 				static bool once = false;
 				if ( !once ) {
 					once = true;
-					printf( "IsProcessActive for m_reaped_exit_code status: %d", status ); // S
+					printf( "IsProcessActive for m_reaped_exit_code status: %d\n", status ); // S
 				}
 				m_reaped_exit_code = true;
 				m_err = WEXITSTATUS( status );
@@ -70,7 +70,7 @@ public:
 
 	// @insp SO/get-exit-code-from-non-child-process-in-linux
 	bool GetExitCode(int& _ec) const {
-		printf( "GetExitCode m_reaped_exit_code: %d", m_reaped_exit_code ); // S
+		printf( "GetExitCode m_reaped_exit_code: %d\n", m_reaped_exit_code ); // S
 		if ( m_reaped_exit_code )
 			return _ec = m_err, true;
 
@@ -81,7 +81,7 @@ public:
 			return false;
 		if ( !WIFEXITED( status ) )
 			return false;
-		printf( "GetExitCode status: %d", status ); // S
+		printf( "GetExitCode status: %d\n", status ); // S
 		_ec = m_err = WEXITSTATUS( status );
 		return true;
 	}
@@ -99,11 +99,12 @@ public:
 	}
 
 private:
-	CProcess(process_id_t pid) {
-		m_id_process = pid;
-		h_process = pid;
-		m_err = -1;
-	}
+	CProcess(process_id_t pid)
+		h_process( pid )
+		, m_id_process( pid )
+		, m_err( -1 )
+		, m_reaped_exit_code( false )
+	{}
 
 	CProcess(const char *_cmdline,const char *cwd) : 
 		h_process( c_invalid )
